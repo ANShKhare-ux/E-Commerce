@@ -16,14 +16,7 @@ export function CartDrawer() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
 
-<<<<<<< HEAD
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
-
-=======
   const discountAmount = appliedCoupon?.discountAmount || 0;
->>>>>>> 09b385dcbe95235945df1abcbf5fe6dc03956fe9
   const FREE_SHIPPING_THRESHOLD = 2999;
   const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const progressPercent = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
@@ -97,7 +90,7 @@ export function CartDrawer() {
     return () => clearInterval(interval);
   }, [reservationExpiresAt]);
 
-  if (!isOpen) return null;
+  if (pathname?.startsWith("/admin") || !isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">

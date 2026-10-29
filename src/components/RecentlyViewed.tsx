@@ -7,8 +7,10 @@ import { Clock } from "lucide-react";
 
 export function RecentlyViewed() {
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     try {
       const stored = localStorage.getItem("lumiere_recently_viewed");
       if (stored) {
@@ -22,7 +24,7 @@ export function RecentlyViewed() {
     }
   }, []);
 
-  if (recentProducts.length === 0) return null;
+  if (!mounted || recentProducts.length === 0) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -44,3 +46,5 @@ export function RecentlyViewed() {
     </section>
   );
 }
+
+export default RecentlyViewed;

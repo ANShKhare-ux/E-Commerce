@@ -2,11 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-<<<<<<< HEAD
 import { useRouter, usePathname } from "next/navigation";
-=======
 import Image from "next/image";
->>>>>>> 09b385dcbe95235945df1abcbf5fe6dc03956fe9
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
@@ -36,17 +33,10 @@ export function Header() {
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
 
-<<<<<<< HEAD
   if (pathname?.startsWith("/admin")) {
     return null;
   }
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchOpen(false);
-=======
   const megaMenuData: Record<
     string,
     {
@@ -54,7 +44,6 @@ export function Header() {
       categories: { label: string; href: string }[];
       trending: { label: string; href: string }[];
       featuredCampaign: { title: string; subtitle: string; image: string; href: string };
->>>>>>> 09b385dcbe95235945df1abcbf5fe6dc03956fe9
     }
   > = {
     men: {
