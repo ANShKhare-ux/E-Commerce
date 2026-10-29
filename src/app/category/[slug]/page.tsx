@@ -86,11 +86,30 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {products.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-canvas-border rounded-sm space-y-3">
+            <h3 className="font-serif text-lg font-medium text-noir-900">
+              No Designs Published Yet
+            </h3>
+            <p className="text-xs text-noir-500 max-w-md mx-auto leading-relaxed">
+              We never display fake inventory cards. Genuine items for {meta.title} are added via the Private Admin Control Room or synced from authorized partners.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/products"
+                className="inline-block bg-noir-900 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-sm hover:bg-gold-600 transition-colors"
+              >
+                Browse All Categories
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

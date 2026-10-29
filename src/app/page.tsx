@@ -193,84 +193,105 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {featuredProducts.slice(0, 8).map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {featuredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {featuredProducts.slice(0, 8).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-14 px-6 border border-dashed border-canvas-border rounded-sm bg-canvas-subtle/50 space-y-3">
+            <Sparkles className="w-6 h-6 text-gold-600 mx-auto" />
+            <h3 className="font-serif text-lg text-noir-900 font-medium">Atelier Inventory in Preparation</h3>
+            <p className="text-xs text-noir-500 max-w-md mx-auto leading-relaxed">
+              LUMIÈRE never generates fake product cards or artificial stock. Live garments are published through the Private Admin Control Room or synced via verified partner feeds.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/admin/products"
+                className="inline-flex items-center gap-1.5 bg-noir-900 hover:bg-gold-600 text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-sm transition-colors"
+              >
+                <span>Add Product in Admin</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* 5. CURATED OUTFIT EDITS (Complete Look Combinations) */}
-      <section className="bg-noir-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold-400 block">
-              Style Discovery
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-light text-canvas-light">
-              Curated Outfit Combinations
-            </h2>
-            <p className="text-xs sm:text-sm text-noir-400 font-light">
-              Complete looks styled by our creative directors for royal ceremonies, South Mumbai leisure, and urban street culture.
-            </p>
-          </div>
+      {CURATED_OUTFITS.length > 0 && (
+        <section className="bg-noir-900 text-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold-400 block">
+                Style Discovery
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl font-light text-canvas-light">
+                Curated Outfit Combinations
+              </h2>
+              <p className="text-xs sm:text-sm text-noir-400 font-light">
+                Complete looks styled by our creative directors for royal ceremonies, South Mumbai leisure, and urban street culture.
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {CURATED_OUTFITS.map((outfit) => (
-              <div
-                key={outfit.id}
-                className="bg-noir-800 border border-noir-700 rounded-sm overflow-hidden flex flex-col group hover:border-gold-500/50 transition-colors"
-              >
-                <div className="relative h-72 w-full overflow-hidden">
-                  <Image
-                    src={outfit.hero_image}
-                    alt={outfit.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute top-3 left-3 bg-noir-900/80 backdrop-blur-sm text-[10px] font-bold uppercase tracking-wider text-gold-300 px-2.5 py-1 rounded-sm">
-                    {outfit.occasion}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {CURATED_OUTFITS.map((outfit) => (
+                <div
+                  key={outfit.id}
+                  className="bg-noir-800 border border-noir-700 rounded-sm overflow-hidden flex flex-col group hover:border-gold-500/50 transition-colors"
+                >
+                  <div className="relative h-72 w-full overflow-hidden">
+                    <Image
+                      src={outfit.hero_image}
+                      alt={outfit.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute top-3 left-3 bg-noir-900/80 backdrop-blur-sm text-[10px] font-bold uppercase tracking-wider text-gold-300 px-2.5 py-1 rounded-sm">
+                      {outfit.occasion}
+                    </div>
+                  </div>
+
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <div>
+                      <h3 className="font-serif text-lg font-medium text-white mb-2">
+                        {outfit.title}
+                      </h3>
+                      <p className="text-xs text-noir-400 font-light leading-relaxed line-clamp-3">
+                        {outfit.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t border-noir-700">
+                      <p className="text-[10px] uppercase font-bold tracking-wider text-gold-400">
+                        Styling Notes:
+                      </p>
+                      <ul className="text-[11px] text-noir-300 space-y-1 font-light">
+                        {outfit.styling_tips.slice(0, 2).map((tip, idx) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <span className="text-gold-500">•</span>
+                            <span>{tip}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <Link
+                      href={`/outfits`}
+                      className="mt-2 text-xs font-bold uppercase tracking-widest text-gold-400 hover:text-gold-300 flex items-center gap-1.5"
+                    >
+                      <span>Explore Complete Ensemble</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
                 </div>
-
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <div>
-                    <h3 className="font-serif text-lg font-medium text-white mb-2">
-                      {outfit.title}
-                    </h3>
-                    <p className="text-xs text-noir-400 font-light leading-relaxed line-clamp-3">
-                      {outfit.description}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2 pt-2 border-t border-noir-700">
-                    <p className="text-[10px] uppercase font-bold tracking-wider text-gold-400">
-                      Styling Notes:
-                    </p>
-                    <ul className="text-[11px] text-noir-300 space-y-1 font-light">
-                      {outfit.styling_tips.slice(0, 2).map((tip, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5">
-                          <span className="text-gold-500">•</span>
-                          <span>{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <Link
-                    href={`/outfits`}
-                    className="mt-2 text-xs font-bold uppercase tracking-widest text-gold-400 hover:text-gold-300 flex items-center gap-1.5"
-                  >
-                    <span>Explore Complete Ensemble</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 6. EXCLUSIVE DEALS CAROUSEL */}
       {dealProducts.length > 0 && (

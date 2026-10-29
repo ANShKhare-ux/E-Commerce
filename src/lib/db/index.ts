@@ -24,8 +24,13 @@ import {
 import {
   INITIAL_PRODUCTS,
   INITIAL_INVENTORY,
-  INITIAL_AFFILIATE_QUEUE
+  INITIAL_AFFILIATE_QUEUE,
+  TEST_FIXTURE_PRODUCTS,
+  TEST_FIXTURE_INVENTORY,
+  TEST_FIXTURE_AFFILIATE_QUEUE,
 } from "@/data/products";
+
+const isTestRunner = typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true');
 
 // Stateful In-Memory Datastore (Singleton pattern across Node request lifecycles)
 class LumiereDataStore {
@@ -56,23 +61,28 @@ class LumiereDataStore {
   }
 
   public reset() {
-    // Deep clone initial products
-    this.products = JSON.parse(JSON.stringify(INITIAL_PRODUCTS));
+    // Only load development fixtures during automated test suite execution (Vitest)
+    // The live storefront starts strictly empty without fake inventory cards.
+    const sourceProducts = isTestRunner ? TEST_FIXTURE_PRODUCTS : INITIAL_PRODUCTS;
+    const sourceInventory = isTestRunner ? TEST_FIXTURE_INVENTORY : INITIAL_INVENTORY;
+    const sourceAffiliates = isTestRunner ? TEST_FIXTURE_AFFILIATE_QUEUE : INITIAL_AFFILIATE_QUEUE;
+
+    this.products = JSON.parse(JSON.stringify(sourceProducts));
     this.inventoryMap.clear();
     this.movements = [];
     this.reservations.clear();
     this.orders.clear();
     this.shipments.clear();
     this.returns.clear();
-    this.affiliateQueue = JSON.parse(JSON.stringify(INITIAL_AFFILIATE_QUEUE));
+    this.affiliateQueue = JSON.parse(JSON.stringify(sourceAffiliates));
     this.auditLogs = [];
     this.scheduledJobs = [];
     this.emailOutbox = [];
 
-    // Initialize inventory for every variant
+    // Initialize inventory for variants if any exist
     for (const prod of this.products) {
       for (const variant of prod.variants) {
-        const initInv = INITIAL_INVENTORY[variant.sku] || {
+        const initInv = sourceInventory[variant.sku] || {
           physical_stock: 10,
           reserved_stock: 0,
           low_stock_threshold: 3,

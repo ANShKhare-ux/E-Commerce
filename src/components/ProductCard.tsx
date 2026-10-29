@@ -108,7 +108,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="font-semibold uppercase tracking-wider text-[10px] text-gold-600">
               {product.brand}
             </span>
-            {product.rating > 0 && (
+            {product.rating > 0 && product.review_count > 0 && (
               <span className="flex items-center gap-1 text-[11px] text-noir-700 font-medium">
                 <Star className="w-3 h-3 fill-gold-400 text-gold-400" />
                 <span>{product.rating}</span>

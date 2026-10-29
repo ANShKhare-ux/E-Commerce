@@ -21,11 +21,22 @@ export default async function DealsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {dealProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {dealProducts.length === 0 ? (
+        <div className="text-center py-20 bg-white border border-canvas-border rounded-sm space-y-3">
+          <h3 className="font-serif text-lg font-medium text-noir-900">
+            No Active Promotional Reductions
+          </h3>
+          <p className="text-xs text-noir-500 max-w-md mx-auto leading-relaxed">
+            LUMIÈRE maintains honest pricing without artificial discounts or fake product listings. Verified markdowns appear here during official archive sales.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {dealProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
