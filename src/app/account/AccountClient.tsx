@@ -393,7 +393,7 @@ export function AccountClient({ initialEmail = "" }: AccountClientProps) {
                               <div className="space-y-0.5">
                                 <p className="font-bold text-noir-900">{item.product_name}</p>
                                 <p className="text-[11px] text-noir-500">
-                                  Size: {item.size} • Color: {item.color} • Qty: {item.quantity} • SKU: {item.sku}
+                                  {item.variant_title} • Qty: {item.quantity} • SKU: {item.sku}
                                 </p>
                               </div>
                               <div className="text-right">
