@@ -1,6 +1,6 @@
 -- =============================================================================
 -- LUMIÈRE E-Commerce Platform - PostgreSQL / Supabase Initial Schema
--- Market: India (INR, Delhivery, Razorpay/UPI, COD, Affiliate sync, Inventory)
+-- Market: India (INR, Delhivery, PhonePe / Google Pay UPI, COD, Affiliate sync, Inventory)
 -- =============================================================================
 
 -- Enable required extensions
@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS public.order_items (
 CREATE TABLE IF NOT EXISTS public.payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
-    gateway TEXT NOT NULL CHECK (gateway IN ('razorpay', 'cod', 'test_sandbox')),
+    gateway TEXT NOT NULL CHECK (gateway IN ('phonepe', 'gpay', 'upi', 'cod', 'test_sandbox')),
     gateway_order_id TEXT,
     gateway_payment_id TEXT,
     gateway_signature TEXT,

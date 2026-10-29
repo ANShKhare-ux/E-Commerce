@@ -23,7 +23,7 @@ export default function RefundPolicyPage() {
             <span>1. Prepaid UPI, Cards & Netbanking Refunds</span>
           </h2>
           <p>
-            Upon successful physical inspection and approval of your returned garment, refunds are initiated immediately through Razorpay to the original source account. Funds typically reflect within <strong>3 to 5 banking days</strong> depending on your issuing bank.
+            Upon successful physical inspection and approval of your returned garment, refunds are initiated immediately through PhonePe / Google Pay UPI to the original source account. Funds typically reflect within <strong>24 to 48 hours</strong> depending on your issuing bank.
           </p>
         </div>
 

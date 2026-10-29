@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { PaymentService } from "@/lib/services/razorpay";
+import { PaymentService } from "@/lib/services/payments";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +19,10 @@ export async function POST(req: NextRequest) {
     // Validation
     if (!customerName || !customerEmail || !customerPhone || !shippingAddress || !paymentMethod || !items?.length) {
       return NextResponse.json({ error: "Missing required checkout fields." }, { status: 400 });
+    }
+
+    if (!["phonepe", "gpay", "upi", "cod"].includes(paymentMethod)) {
+      return NextResponse.json({ error: "Invalid payment method. Choose PhonePe, Google Pay (GPay), or Cash on Delivery." }, { status: 400 });
     }
 
     // Validate Indian phone number (10 digits)
@@ -50,12 +54,13 @@ export async function POST(req: NextRequest) {
 
     const order = orderResult.order;
 
-    // 2. If prepaid (UPI or Card), initialize gateway order
+    // 2. If prepaid (PhonePe or GPay), initialize gateway order
     let gatewayOrder = null;
     if (paymentMethod !== "cod") {
       gatewayOrder = await PaymentService.createGatewayOrder({
         orderNumber: order.order_number,
         amountInINR: order.total_amount,
+        paymentMethod,
         customerEmail: order.customer_email,
         customerPhone: order.customer_phone,
       });

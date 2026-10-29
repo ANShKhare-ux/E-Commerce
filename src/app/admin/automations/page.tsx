@@ -68,14 +68,14 @@ const INITIAL_JOBS: JobStatus[] = [
     description: "Processes queued order invoices, tracking alerts, and delivery confirmations with auto-retry.",
   },
   {
-    name: "Delhivery & Razorpay Integration Health",
+    name: "Delhivery, PhonePe & GPay Integration Health",
     category: "API Diagnostics",
     schedule: "Every 15 Minutes (Cron)",
     status: "healthy",
     lastRun: "4 mins ago",
     durationMs: 290,
     recordsAffected: 1,
-    description: "Pings official Delhivery logistics gateway and Razorpay UPI endpoints to verify serviceability.",
+    description: "Pings official Delhivery logistics gateway and PhonePe & Google Pay (GPay) UPI endpoints to verify serviceability.",
   },
 ];
 

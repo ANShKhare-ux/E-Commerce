@@ -1,24 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { PaymentService } from "@/lib/services/razorpay";
+import { PaymentService } from "@/lib/services/payments";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { orderId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = body;
+    const {
+      orderId,
+      paymentMethod = "phonepe",
+      gatewayTransactionId,
+      gatewayOrderId,
+      signature,
+      checksum,
+    } = body;
 
-    if (!orderId || !razorpayOrderId || !razorpayPaymentId) {
-      return NextResponse.json({ error: "Missing verification parameters." }, { status: 400 });
+    if (!orderId || !gatewayTransactionId) {
+      return NextResponse.json({ error: "Missing payment verification parameters." }, { status: 400 });
     }
 
-    const verification = PaymentService.verifyPaymentSignature({
-      razorpayOrderId,
-      razorpayPaymentId,
-      razorpaySignature: razorpaySignature || "dev_sandbox_signature",
+    const verification = PaymentService.verifyPayment({
+      orderId,
+      paymentMethod: paymentMethod as "phonepe" | "gpay" | "upi",
+      gatewayTransactionId,
+      gatewayOrderId,
+      signature,
+      checksum,
     });
 
     if (!verification.isValid) {
-      return NextResponse.json({ error: verification.error || "Payment signature invalid." }, { status: 400 });
+      return NextResponse.json({ error: verification.error || "Payment verification failed." }, { status: 400 });
     }
 
     const order = await db.orders.getById(orderId);
@@ -33,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Payment cryptographically verified and recorded.",
+      message: `Payment cryptographically verified and recorded via ${paymentMethod === "gpay" ? "Google Pay (GPay)" : "PhonePe"}.`,
       order,
     });
   } catch (error: any) {

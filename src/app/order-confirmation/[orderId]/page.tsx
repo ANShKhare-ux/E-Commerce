@@ -76,7 +76,11 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
             <div className="flex justify-between">
               <span>Payment Mode:</span>
               <span className="font-bold uppercase text-noir-900">
-                {order.payment_method === "cod" ? "Cash on Delivery (COD)" : "UPI / Netbanking (Razorpay)"}
+                {order.payment_method === "cod"
+                  ? "Cash on Delivery (COD)"
+                  : order.payment_method === "gpay"
+                  ? "Google Pay (GPay UPI)"
+                  : "PhonePe UPI"}
               </span>
             </div>
             <div className="flex justify-between">
