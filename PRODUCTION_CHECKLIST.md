@@ -8,20 +8,24 @@ Before launching LUMIÈRE to live customers in the Indian market, review and sig
 
 - [ ] **Row-Level Security (RLS)**: Verified active on all tables in Supabase. Non-admin users cannot read other patrons' orders, carts, or profile addresses.
 - [ ] **Administrator Identity**: `ADMIN_EMAIL` environment variable configured with the official owner/superadmin email. Non-admin accounts cannot grant themselves permissions.
-- [ ] **Privileged Keys Isolated**: Ensure `SUPABASE_SERVICE_ROLE_KEY`, `RAZORPAY_KEY_SECRET`, and `CRON_SECRET` are never referenced in client-side components (`use client` or `NEXT_PUBLIC_*`).
+- [ ] **Privileged Keys Isolated**: Ensure `SUPABASE_SERVICE_ROLE_KEY`, `PHONEPE_SALT_KEY`, `GPAY_SECRET_KEY`, and `CRON_SECRET` are never referenced in client-side components (`use client` or `NEXT_PUBLIC_*`).
 - [ ] **Cron Protection**: `CRON_SECRET` set to a strong random token (> 32 characters) on production hosting platform (Vercel / Cloudflare).
 - [ ] **Input Sanitization**: Client address inputs, phone numbers (10 digits), and PIN codes (6 digits) validated on both client and server before database write.
 
 ---
 
-## 2. Payments (Razorpay & Cash on Delivery)
+## 2. Payments (PhonePe, Google Pay / GPay & Cash on Delivery)
 
-- [ ] **KYC & Account Activation**: Razorpay live merchant account activated with verified Indian bank account and GSTIN (`27AABCL9841K1Z3`).
+- [ ] **KYC & Account Activation**: PhonePe Merchant and Google Pay Business accounts activated with verified Indian bank account and GSTIN (`27AABCL9841K1Z3`).
 - [ ] **Live Keys Deployed**: Replace test keys with production credentials:
-  - `NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_...`
-  - `RAZORPAY_KEY_SECRET=...`
-- [ ] **Webhook Verification**: Webhook secret configured and verified in production to ensure idempotency against duplicate delivery attempts.
-- [ ] **Live End-to-End Test**: Execute a real ₹100 UPI payment in production, confirm order transitions to `processing`, and verify payment status transitions to `captured`.
+  - `PHONEPE_MERCHANT_ID=M...`
+  - `PHONEPE_SALT_KEY=...`
+  - `PHONEPE_SALT_INDEX=1`
+  - `PHONEPE_ENV=PROD`
+  - `GPAY_MERCHANT_ID=...`
+  - `GPAY_MERCHANT_UPI_VPA=lumiere@okhdfcbank`
+- [ ] **Webhook / Callback Verification**: PhonePe `X-VERIFY` checksum verified in production to ensure idempotency against duplicate delivery attempts.
+- [ ] **Live End-to-End Test**: Execute a real ₹100 UPI payment via PhonePe & GPay in production, confirm order transitions to `processing`, and verify payment status transitions to `captured`.
 - [ ] **COD Thresholds**: Confirm COD parameters in `/admin/policies`. Verify COD orders stay in `pending` payment status until collected.
 
 ---

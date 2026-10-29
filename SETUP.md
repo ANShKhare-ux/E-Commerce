@@ -68,22 +68,25 @@ The platform establishes the initial Super Administrator through a secure server
 
 ---
 
-## 5. Indian Payment Gateway (Razorpay UPI / Cards)
+## 5. Indian Payment Gateways (PhonePe & Google Pay / GPay UPI)
 
 LUMIÈRE includes a complete sandbox mode for payments that requires zero credentials to test.
 
 To connect live or test keys:
-1. Sign up on [Razorpay Dashboard](https://dashboard.razorpay.com).
-2. Generate API Keys in **Settings → API Keys**.
+1. Register on [PhonePe Merchant Portal](https://business.phonepe.com) and [Google Pay for Business](https://pay.google.com/business/console).
+2. Retrieve your Merchant ID, Salt Key, Salt Index, and UPI VPA.
 3. Add to `.env.local`:
    ```env
-   NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_...
-   RAZORPAY_KEY_SECRET=your_secret_key
-   RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+   PHONEPE_MERCHANT_ID=MERCHANTUAT
+   PHONEPE_SALT_KEY=your_salt_key
+   PHONEPE_SALT_INDEX=1
+   PHONEPE_ENV=UAT # Set to PROD for live transactions
+   GPAY_MERCHANT_ID=your_gpay_merchant_id
+   GPAY_MERCHANT_UPI_VPA=lumiere@okhdfcbank
+   GPAY_SECRET_KEY=your_gpay_secret_key
    ```
-4. Configure your Webhook URL in Razorpay Dashboard:
+4. Configure your Webhook / Callback URL:
    - Endpoint: `https://your-domain.com/api/checkout/verify-payment`
-   - Events: `payment.captured`, `order.paid`.
 
 ---
 

@@ -145,8 +145,8 @@ export default async function HomePage() {
           </div>
           <div className="flex flex-col items-center text-center space-y-2 p-2">
             <CheckCircle className="w-6 h-6 text-gold-600" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-noir-900">UPI & Cash on Delivery</h4>
-            <p className="text-[11px] text-noir-500">Instant Razorpay UPI, Netbanking, Credit Cards, and COD options.</p>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-noir-900">Cash on Delivery & UPI</h4>
+            <p className="text-[11px] text-noir-500">Flexible payments with instant UPI (PhonePe, GPay, Razorpay), Cards, and COD options.</p>
           </div>
         </div>
       </section>

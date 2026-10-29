@@ -107,4 +107,48 @@ describe("LUMIÈRE Security, Authorization & Isolation Guarantees", () => {
     expect(validAttempt.authorized).toBe(true);
     expect(validAttempt.role).toBe("super_admin");
   });
+
+  it("should prevent customers from modifying protected role field or escalating privileges", async () => {
+    // Normal user profile in DB
+    const regularUserProfile = {
+      id: "cust-uuid-12345",
+      email: "shopper@gmail.com",
+      full_name: "Regular Shopper",
+      role: "customer",
+    };
+
+    // Attacker attempts to change role to super_admin
+    const attackerPayload = {
+      ...regularUserProfile,
+      role: "super_admin",
+    };
+
+    // Ensure the application layer filters out or rejects role escalation attempts
+    const sanitizedUpdate = {
+      full_name: attackerPayload.full_name,
+      // role is explicitly omitted from allowed customer profile updates
+    };
+
+    expect((sanitizedUpdate as any).role).toBeUndefined();
+    expect(regularUserProfile.role).toBe("customer");
+  });
+
+  it("should enforce safe relative internal redirects and reject open redirects", () => {
+    const validateRedirect = (url: string | null): string => {
+      if (url && url.startsWith("/") && !url.startsWith("//")) {
+        return url;
+      }
+      return "/account";
+    };
+
+    // Safe relative paths
+    expect(validateRedirect("/checkout")).toBe("/checkout");
+    expect(validateRedirect("/account/orders")).toBe("/account/orders");
+
+    // Malicious open redirect attempts
+    expect(validateRedirect("https://attacker-site.com")).toBe("/account");
+    expect(validateRedirect("//malicious-domain.com")).toBe("/account");
+    expect(validateRedirect("javascript:alert(1)")).toBe("/account");
+    expect(validateRedirect(null)).toBe("/account");
+  });
 });

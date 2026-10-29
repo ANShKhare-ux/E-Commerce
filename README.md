@@ -13,7 +13,7 @@
 - **Next.js 15 App Router & React 19**: Complete server-side rendering, dynamic routes, incremental static regeneration (ISR), responsive layouts, and zero-flicker transitions.
 - **Supabase & PostgreSQL**: Strict schema architecture with Row-Level Security (RLS), atomic concurrency handling, audit logging, and automated status machines.
 - **Automatic Inventory Engine**: Variant-level SKUs (size, color, weight), 15-minute checkout reservation holds, atomic concurrency-safe deductions, cancellation auto-restores, and physical inspection return workflows.
-- **Indian Payment Workflows**: Seamless integration with Razorpay (instant UPI Intent/QR, Netbanking, Credit/Debit cards) alongside Cash on Delivery (COD) with separate accounting states.
+- **Indian Payment Workflows**: Seamless integration with PhonePe & Google Pay / GPay (instant UPI Intent/QR, direct pay) alongside Cash on Delivery (COD) with separate accounting states.
 - **Official Delhivery Express Logistics**: Indian logistics automation for live pincode serviceability validation, AWB waybill allocation, shipping manifests, tracking timelines, and reverse pickup logistics.
 - **Transactional Customer Email Outbox**: Resilient notifications for order placements, COD verification, Delhivery dispatch waybills, returns, and refunds via Resend API with automated failure retries.
 - **Automated Cron Sweepers**: Expired reservation cleanup, low-stock threshold sweeps, affiliate product link validation, and system telemetry health monitors.
@@ -28,7 +28,7 @@
 | **Styling & Design** | Tailwind CSS 3.4, Lucide Icons, Custom Noir & Gold Atelier Palette |
 | **Animations** | Framer Motion 12 (reduced-motion accessible) |
 | **Database & Auth** | Supabase PostgreSQL, Row-Level Security (RLS), Supabase SSR Auth |
-| **Payments** | Indian Gateway API (Razorpay UPI, Cards, Netbanking) + Cash on Delivery |
+| **Payments** | Indian Gateway APIs (PhonePe & Google Pay / GPay UPI) + Cash on Delivery |
 | **Logistics** | Delhivery Express B2C API integration |
 | **Testing** | Vitest 3.0 test suite with unit, integration, and end-to-end scenarios |
 

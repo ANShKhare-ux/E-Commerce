@@ -39,7 +39,7 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("Maharashtra");
   const [pincode, setPincode] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"upi" | "cod">("upi");
+  const [paymentMethod, setPaymentMethod] = useState<"phonepe" | "gpay" | "cod">("phonepe");
 
   // Coupon State
   const [couponInput, setCouponInput] = useState("");
@@ -216,16 +216,17 @@ export default function CheckoutPage() {
         return;
       }
 
-      // 3. If UPI / Card, verify payment with server
-      // In live environment, Razorpay checkout modal opens; in testing/sandbox, cryptographic verification executes
+      // 3. If PhonePe or Google Pay (GPay), verify payment cryptographically with server
       const verifyRes = await fetch("/api/checkout/verify-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId: createdOrder.id,
-          razorpayOrderId: data.gatewayOrder?.gatewayOrderId || `order_test_${Date.now()}`,
-          razorpayPaymentId: `pay_test_${Date.now()}`,
-          razorpaySignature: "dev_sandbox_signature",
+          paymentMethod,
+          gatewayTransactionId: data.gatewayOrder?.gatewayOrderId || `${paymentMethod.toUpperCase()}_TXN_${Date.now()}`,
+          gatewayOrderId: data.gatewayOrder?.gatewayOrderId,
+          signature: "dev_sandbox_signature",
+          checksum: "dev_sandbox_checksum###1",
         }),
       });
 
@@ -417,10 +418,10 @@ export default function CheckoutPage() {
               </h2>
 
               <div className="space-y-3">
-                {/* UPI / Online Option */}
+                {/* PhonePe Option */}
                 <label
                   className={`flex items-start gap-3 p-4 border rounded-sm cursor-pointer transition-colors ${
-                    paymentMethod === "upi"
+                    paymentMethod === "phonepe"
                       ? "border-noir-900 bg-canvas-subtle"
                       : "border-canvas-border hover:border-noir-400"
                   }`}
@@ -428,22 +429,57 @@ export default function CheckoutPage() {
                   <input
                     type="radio"
                     name="payment_method"
-                    checked={paymentMethod === "upi"}
-                    onChange={() => setPaymentMethod("upi")}
+                    checked={paymentMethod === "phonepe"}
+                    onChange={() => setPaymentMethod("phonepe")}
                     className="mt-1"
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-noir-900 flex items-center gap-1.5">
-                        <CreditCard className="w-4 h-4 text-gold-600" />
-                        <span>UPI & Online Gateway (Instant & Secure)</span>
+                      <span className="font-bold text-xs text-noir-900 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#5f259f] text-white flex items-center justify-center text-[10px] font-black">
+                          पे
+                        </span>
+                        <span>PhonePe (UPI, QR & Direct Pay)</span>
                       </span>
-                      <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                        Fastest Dispatch
+                      <span className="text-[10px] uppercase font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                        Instant
                       </span>
                     </div>
                     <p className="text-[11px] text-noir-500 mt-1">
-                      Google Pay, PhonePe, Paytm, BHIM UPI, Netbanking, Credit & Debit Cards.
+                      Pay instantly via PhonePe App, PhonePe QR code, or linked bank account.
+                    </p>
+                  </div>
+                </label>
+
+                {/* Google Pay (GPay) Option */}
+                <label
+                  className={`flex items-start gap-3 p-4 border rounded-sm cursor-pointer transition-colors ${
+                    paymentMethod === "gpay"
+                      ? "border-noir-900 bg-canvas-subtle"
+                      : "border-canvas-border hover:border-noir-400"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    checked={paymentMethod === "gpay"}
+                    onChange={() => setPaymentMethod("gpay")}
+                    className="mt-1"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-noir-900 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-noir-900 text-white flex items-center justify-center text-[10px] font-bold">
+                          G
+                        </span>
+                        <span>Google Pay (GPay UPI)</span>
+                      </span>
+                      <span className="text-[10px] uppercase font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                        Instant
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-noir-500 mt-1">
+                      Pay instantly via Google Pay UPI Intent, GPay QR code, or your UPI ID.
                     </p>
                   </div>
                 </label>

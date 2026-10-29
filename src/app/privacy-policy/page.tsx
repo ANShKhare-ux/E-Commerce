@@ -23,7 +23,7 @@ export default function PrivacyPolicyPage() {
 
         <h2 className="font-serif text-base font-bold text-noir-900">2. Payment Security</h2>
         <p>
-          We do not store your credit card credentials, netbanking passwords, or UPI MPIN on LUMIÈRE servers. All payments are encrypted and processed by PCI-DSS compliant payment gateways (Razorpay).
+          We do not store your credit card credentials, netbanking passwords, or UPI MPIN on LUMIÈRE servers. All online transactions are processed through encrypted, compliant payment gateways (PhonePe & Google Pay / UPI).
         </p>
 
         <h2 className="font-serif text-base font-bold text-noir-900">3. Third-Party Sharing</h2>

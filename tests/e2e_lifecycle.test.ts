@@ -48,7 +48,7 @@ describe("LUMIÈRE End-to-End Customer Purchase & Fulfillment Lifecycle", () => 
     expect(pincodeCheck.serviceable).toBe(true);
     expect(pincodeCheck.city).toBe("Mumbai");
 
-    // 5. CHECKOUT & PAYMENT: Customer places order via Razorpay UPI
+    // 5. CHECKOUT & PAYMENT: Customer places order via PhonePe UPI
     const orderRes = await db.orders.create({
       customerName: "Radhika Merchant",
       customerEmail: "radhika@merchant.in",
@@ -62,7 +62,7 @@ describe("LUMIÈRE End-to-End Customer Purchase & Fulfillment Lifecycle", () => 
         state: "Maharashtra",
         pincode: deliveryPincode,
       },
-      paymentMethod: "upi",
+      paymentMethod: "phonepe",
       items: [{ variantId: selectedVariant!.id, quantity: 1 }],
       reservationIds: [reservationRes.reservationId!],
     });

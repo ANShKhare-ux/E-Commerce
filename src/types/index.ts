@@ -177,7 +177,7 @@ export interface CartItem {
   quantity: number;
 }
 
-export type PaymentMethod = 'upi' | 'card' | 'netbanking' | 'cod';
+export type PaymentMethod = 'phonepe' | 'gpay' | 'upi' | 'cod';
 export type PaymentStatus = 'pending' | 'authorized' | 'captured' | 'failed' | 'refunded';
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
 

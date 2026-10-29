@@ -3,10 +3,14 @@ import { cookies } from "next/headers";
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
+  const supabaseKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    "placeholder-anon-key";
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  return createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -25,10 +29,12 @@ export async function createServerSupabaseClient() {
   });
 }
 
-// Privileged Service Role client for server-side admin tasks and cron jobs
+// Privileged Service Role client for trusted server-side tasks and admin operations
 export function createAdminSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder-service-role-key";
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-project.supabase.co";
+  const serviceRoleKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder-service-role-key";
 
   return createServerClient(supabaseUrl, serviceRoleKey, {
     cookies: {

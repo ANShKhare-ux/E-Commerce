@@ -65,7 +65,7 @@ export default async function AdminDashboardPage() {
           <div className="text-2xl font-bold font-sans text-noir-900">
             ₹{totalRevenue.toLocaleString("en-IN")}
           </div>
-          <p className="text-[11px] text-noir-400">Captured via Razorpay UPI & Cards</p>
+          <p className="text-[11px] text-noir-400">Captured via PhonePe & Google Pay (GPay) UPI</p>
         </div>
 
         <div className="bg-white border border-canvas-border p-5 rounded-sm shadow-xs space-y-2">

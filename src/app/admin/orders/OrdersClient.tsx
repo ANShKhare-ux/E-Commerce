@@ -32,6 +32,8 @@ export function OrdersClient({ initialOrders }: OrdersClientProps) {
 
   const filteredOrders = orders.filter((o) => {
     if (statusFilter === "all") return true;
+    if (statusFilter === "phonepe") return o.payment_method === "phonepe";
+    if (statusFilter === "gpay") return o.payment_method === "gpay";
     if (statusFilter === "cod") return o.payment_method === "cod";
     return o.order_status === statusFilter;
   });
@@ -164,6 +166,8 @@ export function OrdersClient({ initialOrders }: OrdersClientProps) {
             { label: "Confirmed", value: "confirmed" },
             { label: "Shipped", value: "shipped" },
             { label: "Delivered", value: "delivered" },
+            { label: "PhonePe", value: "phonepe" },
+            { label: "GPay", value: "gpay" },
             { label: "COD Only", value: "cod" },
           ].map((pill) => (
             <button

@@ -17,7 +17,10 @@ import {
   Zap,
   Sliders,
   Users,
+  LogOut,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 interface AdminSidebarProps {
   lowStockCount?: number;
@@ -26,6 +29,18 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/admin/login");
+      router.refresh();
+    } catch {
+      router.push("/admin/login");
+    }
+  };
 
   const navItems = [
     { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -110,6 +125,13 @@ export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: A
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Exit to Storefront</span>
         </Link>
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-2 text-xs text-rose-400 hover:text-rose-300 px-3 py-2 rounded-sm transition-colors text-left"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Sign Out Admin</span>
+        </button>
         <div className="px-3 text-[10px] text-noir-500 font-mono">
           Authorized: {process.env.ADMIN_EMAIL || "owner@lumiere.in"}
         </div>
