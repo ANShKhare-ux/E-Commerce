@@ -33,6 +33,18 @@ const CATEGORY_META: Record<string, { title: string; subtitle: string; descripti
     description: "Cyber-noir silhouettes crafted from custom-milled combed cotton in Ludhiana. Engineered for Mumbai and Delhi nights.",
     banner: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&w=1600&q=80",
   },
+  unisex: {
+    title: "Genderless & Oversized Fits",
+    subtitle: "Architectural Cuts & Drop-Shoulder Relaxed Silhouettes",
+    description: "Fluid garments designed without gender boundaries. Heavyweight luxury cottons tailored for modern, effortless layering.",
+    banner: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=1600&q=80",
+  },
+  accessories: {
+    title: "Atelier Accessories & Horlogerie",
+    subtitle: "Full-Grain Leathers, Hand-Cast Brass & GI Kashmir Shawls",
+    description: "Heirloom finishing touches curated to complete your ensemble with enduring subcontinental craft.",
+    banner: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1600&q=80",
+  },
   "premium-luxury": {
     title: "Haute Horlogerie & Luxury Edits",
     subtitle: "GI-Certified Changthangi Pashmina & Partner Discoveries",
@@ -43,13 +55,20 @@ const CATEGORY_META: Record<string, { title: string; subtitle: string; descripti
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const meta = CATEGORY_META[slug];
+  const meta = CATEGORY_META[slug] || {
+    title: slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+    subtitle: "LUMIÈRE Curated Edit",
+    description: `Discover our exclusive ${slug.replace("-", " ")} collection engineered for contemporary Indian living.`,
+    banner: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80",
+  };
 
-  if (!meta) {
-    notFound();
+  const isGenderSlug = slug === "mens-clothing" || slug === "womens-clothing" || slug === "unisex";
+  const genderFilter = slug === "mens-clothing" ? "men" : slug === "womens-clothing" ? "women" : slug === "unisex" ? "unisex" : undefined;
+
+  let products = await db.products.getAll({ category: slug });
+  if (products.length === 0 && isGenderSlug && genderFilter) {
+    products = await db.products.getAll({ gender: genderFilter });
   }
-
-  const products = await db.products.getAll({ category: slug });
 
   return (
     <div className="space-y-12 pb-16">

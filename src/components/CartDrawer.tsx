@@ -9,10 +9,66 @@ import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Clock, Truck } from "l
 export function CartDrawer() {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal, reservationExpiresAt } = useCart();
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
+  const discountAmount = appliedCoupon?.discountAmount || 0;
   const FREE_SHIPPING_THRESHOLD = 2999;
   const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const progressPercent = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
+  const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 150;
+  const totalAmount = Math.max(0, subtotal - discountAmount) + shippingFee;
+
+  // Sync applied coupon from localStorage
+  useEffect(() => {
+    try {
+      const savedCode = localStorage.getItem("lumiere_applied_coupon");
+      if (savedCode && subtotal > 0) {
+        validateCoupon(savedCode);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [subtotal]);
+
+  const validateCoupon = async (code: string) => {
+    if (!code.trim()) return;
+    setCouponLoading(true);
+    setCouponError(null);
+
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim().toUpperCase(), subtotal }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAppliedCoupon({
+          code: data.coupon.code,
+          discountAmount: data.discountAmount,
+        });
+        localStorage.setItem("lumiere_applied_coupon", data.coupon.code);
+      } else {
+        setAppliedCoupon(null);
+        setCouponError(data.error || "Invalid coupon.");
+        localStorage.removeItem("lumiere_applied_coupon");
+      }
+    } catch {
+      setCouponError("Failed to validate coupon.");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+    localStorage.removeItem("lumiere_applied_coupon");
+  };
 
   // Reservation countdown timer
   useEffect(() => {
@@ -187,6 +243,44 @@ export function CartDrawer() {
           {/* Footer & Checkout */}
           {items.length > 0 && (
             <div className="p-6 border-t border-canvas-border bg-canvas-light space-y-4">
+              {/* Coupon Form */}
+              <div className="space-y-1.5">
+                {appliedCoupon ? (
+                  <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-sm flex items-center justify-between text-xs text-emerald-900">
+                    <div>
+                      <span className="font-mono font-bold">{appliedCoupon.code}</span>
+                      <span className="text-[10px] text-emerald-700 block">Saved ₹{appliedCoupon.discountAmount.toLocaleString("en-IN")}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="text-[11px] text-red-700 hover:underline font-semibold"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      placeholder="Coupon Code"
+                      className="flex-1 text-xs font-mono font-bold uppercase p-2 border border-canvas-border rounded-sm focus:border-noir-900 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => validateCoupon(couponInput)}
+                      disabled={couponLoading || !couponInput.trim()}
+                      className="px-3 py-2 bg-noir-900 hover:bg-gold-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm transition-colors disabled:opacity-50"
+                    >
+                      {couponLoading ? "..." : "Apply"}
+                    </button>
+                  </div>
+                )}
+                {couponError && <p className="text-[10px] text-rose-600">{couponError}</p>}
+              </div>
+
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-noir-600">
                   <span>Subtotal</span>
@@ -194,6 +288,12 @@ export function CartDrawer() {
                     ₹{subtotal.toLocaleString("en-IN")}
                   </span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-emerald-700 font-semibold">
+                    <span>Coupon Discount</span>
+                    <span>-₹{appliedCoupon.discountAmount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-noir-600">
                   <span>Estimated India Shipping (Delhivery)</span>
                   <span className="font-semibold text-noir-900">
@@ -205,13 +305,13 @@ export function CartDrawer() {
                   </span>
                 </div>
                 <div className="flex justify-between text-noir-600">
-                  <span>Taxes (GST Inclusive)</span>
+                  <span>Taxes (12% GST Inclusive)</span>
                   <span className="font-semibold text-noir-900">₹0</span>
                 </div>
                 <div className="border-t border-canvas-border pt-2 flex justify-between text-sm font-bold text-noir-900">
                   <span>Total Amount</span>
                   <span>
-                    ₹{(subtotal + (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 150)).toLocaleString("en-IN")}
+                    ₹{totalAmount.toLocaleString("en-IN")}
                   </span>
                 </div>
               </div>

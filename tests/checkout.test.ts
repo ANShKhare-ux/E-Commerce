@@ -173,4 +173,93 @@ describe("LUMIÈRE Order Processing & Cancellation Lifecycle", () => {
     const duplicateInspect = await db.returns.inspectAndRestock(returnReq.id, "Second inspect", "inspector@lumiere.in");
     expect(duplicateInspect.success).toBe(false);
   });
+
+  it("should validate and apply genuine coupon discount authoritatively", async () => {
+    const variant = await db.products.getVariantBySku("LUM-ETH-GUL-S-ROSE");
+    expect(variant).toBeDefined();
+
+    // Base price is 6990
+    // Coupon FESTIVE500 gives ₹500 off for orders >= 2999
+    const orderRes = await db.orders.create({
+      customerName: "Rhea Kapoor",
+      customerEmail: "rhea@example.com",
+      customerPhone: "9820055443",
+      shippingAddress: {
+        full_name: "Rhea Kapoor",
+        email: "rhea@example.com",
+        phone: "9820055443",
+        address_line1: "Juhu Scheme",
+        city: "Mumbai",
+        state: "Maharashtra",
+        pincode: "400049",
+      },
+      paymentMethod: "upi",
+      items: [{ variantId: variant!.id, quantity: 1 }],
+      couponCode: "FESTIVE500",
+    });
+
+    expect(orderRes.success).toBe(true);
+    const order = orderRes.order!;
+    expect(order.subtotal).toBe(6990);
+    expect(order.discount_amount).toBe(500);
+    expect(order.coupon_code).toBe("FESTIVE500");
+    // Free shipping applies as subtotal >= 2999
+    expect(order.shipping_fee).toBe(0);
+    expect(order.total_amount).toBe(6490); // 6990 - 500
+  });
+
+  it("should authoritatively reject order creation if coupon code does not meet minimum order value", async () => {
+    // LUM-MEN-POL-S-SND price is 3690
+    // Coupon VIP20 requires min_order_value: 4999
+    const variant = await db.products.getVariantBySku("LUM-MEN-POL-S-SND");
+    expect(variant).toBeDefined();
+
+    const orderRes = await db.orders.create({
+      customerName: "Siddharth Roy",
+      customerEmail: "sid@example.com",
+      customerPhone: "9820011223",
+      shippingAddress: {
+        full_name: "Siddharth Roy",
+        email: "sid@example.com",
+        phone: "9820011223",
+        address_line1: "Powai",
+        city: "Mumbai",
+        state: "Maharashtra",
+        pincode: "400076",
+      },
+      paymentMethod: "upi",
+      items: [{ variantId: variant!.id, quantity: 1 }],
+      couponCode: "VIP20", // requires 4999, subtotal is 3690
+    });
+
+    expect(orderRes.success).toBe(false);
+    expect(orderRes.error).toContain("Minimum bag value");
+  });
+
+  it("should authoritatively reject order creation if coupon code is completely invalid", async () => {
+    const variant = await db.products.getVariantBySku("LUM-ETH-GUL-S-ROSE");
+    expect(variant).toBeDefined();
+
+    const orderRes = await db.orders.create({
+      customerName: "Tara Sharma",
+      customerEmail: "tara@example.com",
+      customerPhone: "9820077889",
+      shippingAddress: {
+        full_name: "Tara Sharma",
+        email: "tara@example.com",
+        phone: "9820077889",
+        address_line1: "Khar West",
+        city: "Mumbai",
+        state: "Maharashtra",
+        pincode: "400052",
+      },
+      paymentMethod: "upi",
+      items: [{ variantId: variant!.id, quantity: 1 }],
+      couponCode: "FAKECOUPON999",
+    });
+
+    expect(orderRes.success).toBe(false);
+    expect(orderRes.error).toContain("Invalid coupon");
+  });
 });
+

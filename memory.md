@@ -21,15 +21,18 @@
 
 | Feature Area | Status | Evidence / Notes |
 |---|---|---|
-| **Storefront App Router** | Implemented & Verified | 21 public storefront routes (catalog, categories, collections, product boutique, bag, checkout, tracking, legal). Build compiles 40 routes cleanly. |
+| **Storefront App Router** | Implemented & Verified | 26 public storefront routes including `/search`, `/size-guide`, `/faq`, `/cart`, enhanced `/products/[slug]`, and fixed desktop catalog grid layout. Next.js compiles 47 routes cleanly. |
 | **Catalog & Inventory Policy** | Implemented & Verified | Production catalog starts clean and empty (`INITIAL_PRODUCTS = []`); zero fake cards displayed to shoppers. Test fixtures (`TEST_FIXTURE_PRODUCTS`) load only in test runners (`isTestRunner`). |
-| **Admin Control Room** | Implemented & Verified | 11 administrative panels under `/admin` (`/products`, `/inventory`, `/orders`, `/shipments`, `/returns`, `/affiliate`, `/policies`, `/administrators`, `/automations`, `/audit-logs`). |
+| **Admin Control Room** | Implemented & Verified | 13 administrative panels under `/admin` (`/products`, `/inventory`, `/orders`, `/shipments`, `/returns`, `/affiliate`, `/policies`, `/administrators`, `/automations`, `/audit-logs`, `/promotions`, `/homepage` with social channels configuration). |
+| **Promotional Coupon Engine** | Implemented & Verified | Server-authoritative coupon discounts (fixed and percentage with minimum order threshold and maximum cap); invalid coupons and sub-threshold applications are authoritatively rejected in `db.orders.create`; admin management at `/admin/promotions`; validated in `tests/checkout.test.ts`. |
+| **Homepage Studio & Announcements**| Implemented & Verified | Configurable announcement banner with rotating promotional alerts, configurable campaign hero, editorial drops, style discovery matrix, artisanal brand story section, and social media channels; editable at `/admin/homepage`. |
+| **Interactive Shopping Elements**| Implemented & Verified | Quick View modal, Quick Add inline size selector strip, color swatch variant image synchronizer (ProductCard, QuickViewModal, PDP), debounced search suggestions dialog, and recently viewed tracker. |
 | **Atomic Inventory Engine** | Implemented & Verified | 3-pool accounting (`Physical`, `Reserved`, `Available = Physical - Reserved`). Verified via `tests/inventory.test.ts`. |
-| **Checkout & Order Creation** | Implemented & Verified | Server-authoritative price calculation, GST 12%, shipping fee logic (free >= ₹2,999; else ₹150). Verified via `tests/checkout.test.ts`. |
+| **Checkout & Order Creation** | Implemented & Verified | Server-authoritative price calculation, coupon validation and discounts, GST 12%, shipping fee logic (free >= ₹2,999; else ₹150). Verified via `tests/checkout.test.ts` (30 passing tests). |
 | **Payment Verification** | Implemented & Verified | Razorpay gateway order generation in paise ($₹1 = 100 \text{ paise}$) + cryptographic HMAC-SHA256 signature verification in `src/lib/services/razorpay.ts`. Verified via `tests/payments.test.ts`. |
 | **Delhivery Logistics** | Implemented & Verified | 6-digit PIN validation, transit estimation, AWB waybill assignment (`DEL-AWB-...`), reverse pickup tracking. Verified via `tests/delhivery.test.ts`. |
 | **Transactional Email Outbox** | Implemented & Verified | Responsive HTML templates, Resend API integration with resilient in-memory outbox fallback. Verified via `tests/email.test.ts`. |
-| **Security & RBAC** | Implemented & Verified | Server-side identity validation against `ADMIN_EMAIL` and Supabase profile roles; client price manipulation blocked. Verified via `tests/security_auth.test.ts`. |
+| **Security & RBAC** | Implemented & Verified | Server-side identity validation against `ADMIN_EMAIL` and Supabase profile roles; client price manipulation blocked; admin route authorization checks enforced on `/api/admin/homepage` and `/api/admin/promotions`. Verified via `tests/security_auth.test.ts`. |
 | **Database Migrations** | Implemented (SQL files present) | `supabase/migrations/001_initial_schema.sql` (20+ tables, RLS) and `002_seed_data.sql` present. Database fallback store (`src/lib/db/index.ts`) handles offline/sandbox execution. |
 | **Production Integrations** | Sandbox / Fallback Verified | Razorpay, Delhivery, and Resend fall back gracefully to sandbox simulation when credentials are unset. Live external API calls require production keys. |
 

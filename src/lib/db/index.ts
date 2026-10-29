@@ -19,7 +19,9 @@ import {
   ScheduledJobRecord,
   PaymentMethod,
   OrderStatus,
-  ShippingAddressInput
+  ShippingAddressInput,
+  Coupon,
+  HomepageConfig
 } from "@/types";
 import {
   INITIAL_PRODUCTS,
@@ -45,6 +47,37 @@ class LumiereDataStore {
   public auditLogs: AuditLog[] = [];
   public scheduledJobs: ScheduledJobRecord[] = [];
   public newsletterEmails: Set<string> = new Set(["vip@lumiere.in"]);
+  public coupons: Map<string, Coupon> = new Map();
+  public homepageConfig: HomepageConfig = {
+    announcements: [
+      { id: "ann-1", badge: "Festive Edit", message: "Autumn / Winter 2025 Handloom & Streetwear Drops Live", link: "/products", is_active: true },
+      { id: "ann-2", badge: "Complimentary Delivery", message: "Complimentary Delhivery Express Shipping Across India on Orders Above ₹2,999", link: "/shipping-policy", is_active: true },
+      { id: "ann-3", badge: "Welcome Offer", message: "Use code FIRSTBUY for ₹300 off on your first LUMIÈRE order", link: "/products", is_active: true }
+    ],
+    hero: {
+      headline_line1: "Where Royal Heritage",
+      headline_line2: "Meets Modern Poise",
+      badge_text: "Autumn / Winter Festive Edit 2025",
+      subheading: "Hand-spun Chanderi silks, 450 GSM boxy streetwear drops, and verified external luxury curations. Dispatched from Mumbai across India.",
+      image_url: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=2000&q=85",
+      primary_button_text: "Explore Ethnic Wear",
+      primary_button_link: "/category/ethnic-wear",
+      secondary_button_text: "Curated Looks",
+      secondary_button_link: "/outfits",
+      is_active: true
+    },
+    campaigns: [
+      { id: "cmp-1", title: "Streetwear Essentials", subtitle: "District Zero", description: "450 GSM Heavyweight Terry hoodies and oversized drop-shoulder fits designed for Mumbai and Delhi nights.", image_url: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&w=1200&q=80", link: "/category/streetwear", cta_text: "Shop Streetwear", is_active: true, display_order: 1 },
+      { id: "cmp-2", title: "Royal Rajasthan Edit", subtitle: "Artisanal Silks", description: "Centuries of royal Indian handloom heritage woven into contemporary heirloom silhouettes.", image_url: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1200&q=80", link: "/collection/royal-rajasthan", cta_text: "Explore Royal Edit", is_active: true, display_order: 2 },
+      { id: "cmp-3", title: "Everyday Fits & Linens", subtitle: "Monsoon Drape", description: "Fluid organic flax linens and breathable Supima knits for warm subcontinental seasons.", image_url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1200&q=80", link: "/collection/monsoon-minimalism", cta_text: "Discover Everyday", is_active: true, display_order: 3 }
+    ],
+    social_links: {
+      instagram: "https://instagram.com/lumiere.atelier",
+      twitter: "https://x.com/lumiere_india",
+      youtube: "https://youtube.com/@lumiere_atelier",
+      pinterest: "https://pinterest.com/lumiere_luxury"
+    }
+  };
   public emailOutbox: Array<{
     id: string;
     recipient: string;
@@ -78,6 +111,64 @@ class LumiereDataStore {
     this.auditLogs = [];
     this.scheduledJobs = [];
     this.emailOutbox = [];
+
+    // Initialize Default Coupons
+    this.coupons.clear();
+    const defaultCoupons: Coupon[] = [
+      {
+        id: "coup-1",
+        code: "FIRSTBUY",
+        description: "Flat ₹300 off on your first LUMIÈRE order above ₹1,499",
+        discount_type: "fixed",
+        discount_value: 300,
+        min_order_value: 1499,
+        usage_limit: 1000,
+        usage_count: 0,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: "coup-2",
+        code: "LUMIERE10",
+        description: "10% off on festive atelier orders above ₹1,999 (Max ₹1,500)",
+        discount_type: "percentage",
+        discount_value: 10,
+        min_order_value: 1999,
+        max_discount: 1500,
+        usage_limit: 500,
+        usage_count: 0,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: "coup-3",
+        code: "FESTIVE500",
+        description: "Festive curation discount: ₹500 off on orders ₹2,999+",
+        discount_type: "fixed",
+        discount_value: 500,
+        min_order_value: 2999,
+        usage_limit: 250,
+        usage_count: 0,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      },
+      {
+        id: "coup-4",
+        code: "VIP20",
+        description: "VIP Collector Privilege: 20% off on orders ₹4,999+ (Max ₹2,500)",
+        discount_type: "percentage",
+        discount_value: 20,
+        min_order_value: 4999,
+        max_discount: 2500,
+        usage_limit: 100,
+        usage_count: 0,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      },
+    ];
+    for (const c of defaultCoupons) {
+      this.coupons.set(c.code.toUpperCase(), c);
+    }
 
     // Initialize inventory for variants if any exist
     for (const prod of this.products) {
@@ -126,9 +217,14 @@ export const db = {
       search?: string;
       isDeal?: boolean;
       isAffiliate?: boolean;
+      gender?: 'men' | 'women' | 'unisex';
+      style?: string;
+      size?: string;
+      inStock?: boolean;
+      badge?: 'new' | 'bestseller' | 'sale';
       minPrice?: number;
       maxPrice?: number;
-      sort?: 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'newest';
+      sort?: 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'newest' | 'discount';
     }): Promise<Product[]> => {
       let list = [...dbStore.products].filter(p => p.status === 'active');
 
@@ -137,6 +233,18 @@ export const db = {
       }
       if (filter?.collection) {
         list = list.filter(p => p.collection_slug?.toLowerCase() === filter.collection!.toLowerCase());
+      }
+      if (filter?.gender) {
+        list = list.filter(p => p.gender === filter.gender || p.category_slug.includes(filter.gender!));
+      }
+      if (filter?.style) {
+        list = list.filter(p => p.style?.toLowerCase() === filter.style!.toLowerCase() || p.description.toLowerCase().includes(filter.style!.toLowerCase()));
+      }
+      if (filter?.size) {
+        list = list.filter(p => p.variants.some(v => v.size.toLowerCase() === filter.size!.toLowerCase()));
+      }
+      if (filter?.badge) {
+        list = list.filter(p => p.badge === filter.badge || (filter.badge === 'bestseller' && p.is_bestseller) || (filter.badge === 'new' && p.is_new));
       }
       if (filter?.isDeal !== undefined) {
         list = list.filter(p => p.is_deal === filter.isDeal);
@@ -149,7 +257,9 @@ export const db = {
         list = list.filter(p =>
           p.name.toLowerCase().includes(q) ||
           p.brand.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q)
+          p.description.toLowerCase().includes(q) ||
+          p.category_slug.toLowerCase().includes(q) ||
+          p.variants.some(v => v.sku.toLowerCase().includes(q) || v.color.toLowerCase().includes(q))
         );
       }
       if (filter?.minPrice !== undefined) {
@@ -176,6 +286,10 @@ export const db = {
         return { ...p, variants };
       });
 
+      if (filter?.inStock) {
+        list = list.filter(p => p.variants.some(v => (v.inventory?.available_stock ?? 0) > 0));
+      }
+
       // Sorting
       if (filter?.sort === 'price-asc') {
         list.sort((a, b) => (a.discount_price ?? a.base_price) - (b.discount_price ?? b.base_price));
@@ -185,6 +299,12 @@ export const db = {
         list.sort((a, b) => b.rating - a.rating);
       } else if (filter?.sort === 'newest') {
         list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      } else if (filter?.sort === 'discount') {
+        list.sort((a, b) => {
+          const discA = a.discount_price ? ((a.base_price - a.discount_price) / a.base_price) : 0;
+          const discB = b.discount_price ? ((b.base_price - b.discount_price) / b.base_price) : 0;
+          return discB - discA;
+        });
       }
 
       return list;
@@ -602,6 +722,7 @@ export const db = {
       items: Array<{ variantId: string; quantity: number }>;
       reservationIds?: string[];
       idempotencyKey?: string;
+      couponCode?: string;
       notes?: string;
     }): Promise<{ success: boolean; order?: Order; error?: string }> => {
       // 1. Idempotency Check
@@ -665,10 +786,29 @@ export const db = {
         });
       }
 
+      // Server-side Coupon validation & discount
+      let discountAmount = 0;
+      let appliedCouponCode: string | undefined = undefined;
+
+      if (params.couponCode) {
+        const couponRes = await db.coupons.validate(params.couponCode, subtotal);
+        if (!couponRes.valid) {
+          return {
+            success: false,
+            error: couponRes.error || "The provided coupon code is invalid or does not meet order requirements."
+          };
+        }
+        discountAmount = couponRes.discountAmount || 0;
+        appliedCouponCode = params.couponCode.toUpperCase().trim();
+        const coup = dbStore.coupons.get(appliedCouponCode);
+        if (coup) coup.usage_count += 1;
+      }
+
       // Free shipping threshold for India: ₹2,999
       const shippingFee = subtotal >= 2999 ? 0 : 150;
-      const taxAmount = Math.round(subtotal * 0.12); // 12% GST on luxury textiles
-      const totalAmount = subtotal + shippingFee; // GST inclusive in base pricing
+      const taxableSubtotal = Math.max(0, subtotal - discountAmount);
+      const taxAmount = Math.round(taxableSubtotal * 0.12); // 12% GST on luxury textiles
+      const totalAmount = taxableSubtotal + shippingFee; // GST inclusive in base pricing
 
       // 3. Concurrency-Safe Stock Finalization
       for (const item of verifiedItems) {
@@ -712,7 +852,8 @@ export const db = {
         customer_phone: params.customerPhone,
         shipping_address: params.shippingAddress,
         subtotal,
-        discount_amount: 0,
+        discount_amount: discountAmount,
+        coupon_code: appliedCouponCode,
         shipping_fee: shippingFee,
         tax_amount: taxAmount,
         total_amount: totalAmount,
@@ -1022,5 +1163,105 @@ export const db = {
       dbStore.newsletterEmails.add(email.toLowerCase().trim());
       return { success: true, message: "Welcome to LUMIÈRE. Your invitation to private previews has been dispatched." };
     }
+  },
+
+  // PROMOTIONS & COUPONS
+  coupons: {
+    getAll: async (): Promise<Coupon[]> => {
+      return Array.from(dbStore.coupons.values()).sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    },
+
+    getByCode: async (code: string): Promise<Coupon | null> => {
+      return dbStore.coupons.get(code.toUpperCase().trim()) || null;
+    },
+
+    validate: async (
+      code: string,
+      subtotal: number
+    ): Promise<{ valid: boolean; coupon?: Coupon; discountAmount?: number; error?: string }> => {
+      const cleanCode = code.toUpperCase().trim();
+      const coupon = dbStore.coupons.get(cleanCode);
+
+      if (!coupon) {
+        return { valid: false, error: "Invalid coupon code." };
+      }
+
+      if (!coupon.is_active) {
+        return { valid: false, error: "This coupon is no longer active." };
+      }
+
+      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+        return { valid: false, error: "This coupon code has expired." };
+      }
+
+      if (coupon.usage_limit && coupon.usage_count >= coupon.usage_limit) {
+        return { valid: false, error: "Coupon usage limit has been reached." };
+      }
+
+      if (subtotal < coupon.min_order_value) {
+        return {
+          valid: false,
+          error: `Minimum bag value of ₹${coupon.min_order_value.toLocaleString("en-IN")} required to use this coupon.`,
+        };
+      }
+
+      let discountAmount = 0;
+      if (coupon.discount_type === "fixed") {
+        discountAmount = Math.min(coupon.discount_value, subtotal);
+      } else {
+        const raw = (subtotal * coupon.discount_value) / 100;
+        discountAmount = coupon.max_discount ? Math.min(raw, coupon.max_discount) : raw;
+      }
+      discountAmount = Math.round(discountAmount);
+
+      return {
+        valid: true,
+        coupon,
+        discountAmount,
+      };
+    },
+
+    create: async (
+      params: Omit<Coupon, "id" | "usage_count" | "created_at">
+    ): Promise<Coupon> => {
+      const cleanCode = params.code.toUpperCase().trim();
+      const id = `coup-${Date.now()}`;
+      const coupon: Coupon = {
+        ...params,
+        id,
+        code: cleanCode,
+        usage_count: 0,
+        created_at: new Date().toISOString(),
+      };
+      dbStore.coupons.set(cleanCode, coupon);
+      return coupon;
+    },
+
+    delete: async (codeOrId: string): Promise<{ success: boolean; error?: string }> => {
+      for (const [code, c] of dbStore.coupons.entries()) {
+        if (c.id === codeOrId || code === codeOrId.toUpperCase()) {
+          dbStore.coupons.delete(code);
+          return { success: true };
+        }
+      }
+      return { success: false, error: "Coupon not found." };
+    },
+  },
+
+  // HOMEPAGE CONFIGURATION
+  homepage: {
+    get: async (): Promise<HomepageConfig> => {
+      return JSON.parse(JSON.stringify(dbStore.homepageConfig));
+    },
+
+    update: async (partial: Partial<HomepageConfig>): Promise<HomepageConfig> => {
+      if (partial.announcements) dbStore.homepageConfig.announcements = partial.announcements;
+      if (partial.hero) dbStore.homepageConfig.hero = { ...dbStore.homepageConfig.hero, ...partial.hero };
+      if (partial.campaigns) dbStore.homepageConfig.campaigns = partial.campaigns;
+      if (partial.social_links) dbStore.homepageConfig.social_links = { ...dbStore.homepageConfig.social_links, ...partial.social_links };
+      return JSON.parse(JSON.stringify(dbStore.homepageConfig));
+    },
   }
 };
