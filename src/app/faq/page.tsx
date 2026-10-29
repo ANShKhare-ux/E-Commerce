@@ -44,7 +44,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: "payments",
     q: "What payment methods are supported on LUMIÈRE?",
-    a: "We support instant online payments via Razorpay (Google Pay, PhonePe, Paytm, BHIM UPI, Netbanking, Credit & Debit Cards) as well as Cash on Delivery (COD) for eligible pincodes across India.",
+    a: "We support instant online payments via PhonePe Standard Checkout, Google Pay (GPay UPI), and Cash on Delivery (COD) for eligible pincodes across India.",
   },
   {
     category: "payments",

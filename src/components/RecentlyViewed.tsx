@@ -1,11 +1,43 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Component, type ReactNode } from "react";
 import { Product } from "@/types";
 import { ProductCard } from "@/components/ProductCard";
 import { Clock } from "lucide-react";
 
-export function RecentlyViewed() {
+class RecentlyViewedErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.error("RecentlyViewed render error caught:", error);
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("lumiere_recently_viewed");
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null;
+    }
+    return this.props.children;
+  }
+}
+
+function RecentlyViewedContent() {
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
   const [mounted, setMounted] = useState(false);
 
@@ -16,7 +48,11 @@ export function RecentlyViewed() {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setRecentProducts(parsed.slice(0, 4));
+          const valid = parsed.filter(
+            (p): p is Product =>
+              Boolean(p && typeof p === "object" && p.id && typeof p.base_price === "number")
+          );
+          setRecentProducts(valid.slice(0, 4));
         }
       }
     } catch (e) {
@@ -47,4 +83,10 @@ export function RecentlyViewed() {
   );
 }
 
-export default RecentlyViewed;
+export function RecentlyViewed() {
+  return (
+    <RecentlyViewedErrorBoundary>
+      <RecentlyViewedContent />
+    </RecentlyViewedErrorBoundary>
+  );
+}
