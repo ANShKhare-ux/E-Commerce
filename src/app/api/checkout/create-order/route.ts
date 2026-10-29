@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
       items,
       reservationIds,
       idempotencyKey,
+      couponCode,
     } = body;
 
     // Validation
@@ -69,6 +70,7 @@ export async function POST(req: NextRequest) {
       items,
       reservationIds,
       idempotencyKey: idempotencyKey || req.headers.get("idempotency-key") || undefined,
+      couponCode: couponCode ? String(couponCode).trim() : undefined,
     });
 
     if (!orderResult.success || !orderResult.order) {

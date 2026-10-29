@@ -39,6 +39,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const primaryImage = product.images.find((img) => img.is_primary)?.url || product.images[0]?.url;
   const inStock = product.variants.some((v) => (v.inventory?.available_stock ?? 0) > 0);
 
+  const related = (await db.products.getAll({ category: product.category_slug }))
+    .filter((p) => p.id !== product.id)
+    .slice(0, 4);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -70,7 +74,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ProductDetailClient product={product} />
+      <ProductDetailClient product={product} relatedProducts={related} />
     </>
   );
 }

@@ -1,16 +1,70 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
-import { Trash2, Plus, Minus, ArrowRight, Truck, ShieldCheck, ShoppingBag } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, Truck, ShieldCheck, ShoppingBag, Tag } from "lucide-react";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal, totalCount } = useCart();
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const discountAmount = appliedCoupon?.discountAmount || 0;
   const FREE_SHIPPING_THRESHOLD = 2999;
   const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 150;
-  const totalAmount = subtotal + shippingFee;
+  const totalAmount = Math.max(0, subtotal - discountAmount) + shippingFee;
+
+  useEffect(() => {
+    try {
+      const savedCode = localStorage.getItem("lumiere_applied_coupon");
+      if (savedCode && subtotal > 0) {
+        validateCoupon(savedCode);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [subtotal]);
+
+  const validateCoupon = async (code: string) => {
+    if (!code.trim()) return;
+    setCouponLoading(true);
+    setCouponError(null);
+
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim().toUpperCase(), subtotal }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAppliedCoupon({
+          code: data.coupon.code,
+          discountAmount: data.discountAmount,
+        });
+        localStorage.setItem("lumiere_applied_coupon", data.coupon.code);
+      } else {
+        setAppliedCoupon(null);
+        setCouponError(data.error || "Invalid coupon code.");
+        localStorage.removeItem("lumiere_applied_coupon");
+      }
+    } catch {
+      setCouponError("Failed to validate coupon.");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+    localStorage.removeItem("lumiere_applied_coupon");
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -129,6 +183,48 @@ export default function CartPage() {
                 Order Summary
               </h2>
 
+              {/* Coupon Form */}
+              <div className="pt-1 pb-3 border-b border-canvas-border space-y-2">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-noir-700 flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-gold-600" />
+                  <span>Promotional Coupon</span>
+                </label>
+                {appliedCoupon ? (
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-sm flex items-center justify-between text-xs text-emerald-900">
+                    <div>
+                      <span className="font-mono font-bold">{appliedCoupon.code}</span>
+                      <span className="text-[10px] text-emerald-700 block">Saved ₹{appliedCoupon.discountAmount.toLocaleString("en-IN")}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="text-[11px] text-rose-700 hover:underline font-semibold"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      placeholder="e.g. FIRSTBUY, LUMIERE10"
+                      className="flex-1 text-xs font-mono font-bold uppercase p-2.5 border border-canvas-border rounded-sm focus:border-noir-900 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => validateCoupon(couponInput)}
+                      disabled={couponLoading || !couponInput.trim()}
+                      className="px-4 py-2.5 bg-noir-900 hover:bg-gold-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm transition-colors disabled:opacity-50"
+                    >
+                      {couponLoading ? "..." : "Apply"}
+                    </button>
+                  </div>
+                )}
+                {couponError && <p className="text-[11px] text-rose-600">{couponError}</p>}
+              </div>
+
               <div className="space-y-2.5 text-xs">
                 <div className="flex justify-between text-noir-600">
                   <span>Bag Subtotal</span>
@@ -136,6 +232,12 @@ export default function CartPage() {
                     ₹{subtotal.toLocaleString("en-IN")}
                   </span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-emerald-700 font-semibold">
+                    <span>Coupon Discount ({appliedCoupon.code})</span>
+                    <span>-₹{appliedCoupon.discountAmount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-noir-600">
                   <span>Delhivery Express Courier</span>
                   <span className="font-semibold text-noir-900">

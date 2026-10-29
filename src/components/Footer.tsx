@@ -118,6 +118,44 @@ export function Footer() {
             <p>Concierge: <a href="mailto:concierge@lumiere.in" className="text-gold-400 hover:underline">concierge@lumiere.in</a></p>
             <p>Hours: Mon–Sat, 10:00 AM – 7:00 PM IST</p>
           </div>
+          {/* Social Links Configured by Owner */}
+          <div className="pt-2 flex items-center gap-4 text-xs">
+            <a
+              href="https://instagram.com/lumiere.atelier"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-noir-400 hover:text-gold-400 font-medium transition-colors"
+            >
+              Instagram
+            </a>
+            <span className="text-noir-700">•</span>
+            <a
+              href="https://x.com/lumiere_india"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-noir-400 hover:text-gold-400 font-medium transition-colors"
+            >
+              X (Twitter)
+            </a>
+            <span className="text-noir-700">•</span>
+            <a
+              href="https://pinterest.com/lumiere_luxury"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-noir-400 hover:text-gold-400 font-medium transition-colors"
+            >
+              Pinterest
+            </a>
+            <span className="text-noir-700">•</span>
+            <a
+              href="https://youtube.com/@lumiere_atelier"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-noir-400 hover:text-gold-400 font-medium transition-colors"
+            >
+              YouTube
+            </a>
+          </div>
         </div>
 
         {/* Collections */}
@@ -148,6 +186,8 @@ export function Footer() {
             <li><Link href="/cancellation-returns" className="hover:text-white transition-colors">Cancellation & 7-Day Returns</Link></li>
             <li><Link href="/refund-policy" className="hover:text-white transition-colors">Refund Processing</Link></li>
             <li><Link href="/contact" className="hover:text-white transition-colors">Contact Concierge</Link></li>
+            <li><Link href="/faq" className="hover:text-white transition-colors text-gold-300 font-medium">Frequently Asked Questions (FAQ)</Link></li>
+            <li><Link href="/size-guide" className="hover:text-white transition-colors">Size & Fit Guide</Link></li>
             <li><Link href="/about" className="hover:text-white transition-colors">Our Artisans & Craft Heritage</Link></li>
           </ul>
         </div>

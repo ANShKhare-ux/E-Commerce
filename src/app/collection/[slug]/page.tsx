@@ -49,15 +49,77 @@ const COLLECTION_META: Record<
     banner:
       "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=1600&q=80",
   },
+  "streetwear-essentials": {
+    title: "Streetwear Essentials",
+    tagline: "Heavyweight Terry, Dropped Shoulders & Relaxed Cuts",
+    description:
+      "Modern oversized silhouettes, ribbed hems, and tactile fleece crafted from organic long-staple Indian cotton.",
+    curatedNotes:
+      "Engineered to hold form wash after wash without sagging or color degradation.",
+    banner:
+      "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&w=1600&q=80",
+  },
+  "everyday-fits": {
+    title: "Everyday Fits",
+    tagline: "Effortless Versatile Wardrobe Foundations",
+    description:
+      "Crisp Giza poplin shirts, pleated Gurkha trousers, and breathable linen shorts designed for effortless daily rotation.",
+    curatedNotes:
+      "Tailored for movement and ease across Indian urban climates.",
+    banner:
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80",
+  },
+  "premium-edit": {
+    title: "The Premium Edit",
+    tagline: "Silk Blends, Tailored Linen & GI Pashmina",
+    description:
+      "An elevated capsule showcasing master-woven textiles, horn buttons, and handcrafted heritage pieces.",
+    curatedNotes:
+      "Certified artisanal origin and individual provenance documentation included with every parcel.",
+    banner:
+      "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1600&q=80",
+  },
+  "ethnic-edit": {
+    title: "The Ethnic Edit",
+    tagline: "Handloom Heritage Silhouettes for Festive Evenings",
+    description:
+      "Regal Bandhgalas, woven Zari Chanderi sarees, and delicate hand-block prints honoring subcontinental traditions.",
+    curatedNotes:
+      "Woven on generational wooden pit-looms across Varanasi and Bagru.",
+    banner:
+      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=80",
+  },
+  "weekend-looks": {
+    title: "Weekend Looks",
+    tagline: "Casual Ease, Clean Lines & Contemporary Polish",
+    description:
+      "Relaxed resort shirts, fluid linen joggers, and understated statement pieces for leisurely hours.",
+    curatedNotes:
+      "Pre-shrunk and enzyme-washed for a soft touch right from the first wear.",
+    banner:
+      "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1600&q=80",
+  },
+  "trending-now": {
+    title: "Trending Now",
+    tagline: "Most Desired Silhouettes Across India",
+    description:
+      "The fast-moving cuts, seasonal palettes, and contemporary statement pieces making waves across the atelier.",
+    curatedNotes:
+      "Live popularity insights reflecting confirmed client orders and seasonal demand.",
+    banner:
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80",
+  },
 };
 
 export default async function CollectionPage({ params }: CollectionPageProps) {
   const { slug } = await params;
-  const meta = COLLECTION_META[slug];
-
-  if (!meta) {
-    notFound();
-  }
+  const meta = COLLECTION_META[slug] || {
+    title: slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+    tagline: "LUMIÈRE Editorial Capsule",
+    description: `Curated ${slug.replace("-", " ")} collection crafted with premium materials and contemporary tailoring.`,
+    curatedNotes: "Crafted in strictly limited batches adhering to LUMIÈRE atelier standards.",
+    banner: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80",
+  };
 
   const products = await db.products.getAll({ collection: slug });
 

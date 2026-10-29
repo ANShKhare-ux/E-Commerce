@@ -62,6 +62,8 @@ export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: A
       badge: pendingAffiliateCount > 0 ? `${pendingAffiliateCount} New` : undefined,
       badgeColor: "bg-gold-500",
     },
+    { label: "Promotions & Coupons", href: "/admin/promotions", icon: Zap },
+    { label: "Homepage Studio", href: "/admin/homepage", icon: Sliders },
     { label: "Automations & Health", href: "/admin/automations", icon: Zap },
     { label: "Shipping Policies", href: "/admin/policies", icon: Sliders },
     { label: "Administrators", href: "/admin/administrators", icon: Users },

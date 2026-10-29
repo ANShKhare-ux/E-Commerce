@@ -62,6 +62,7 @@ export interface ProductVariant {
   compare_at_price?: number; // MRP in INR ₹
   weight_grams: number;
   is_active: boolean;
+  image_url?: string;
   // Computed or joined inventory:
   inventory?: InventoryRecord;
 }
@@ -116,6 +117,7 @@ export interface ProductImage {
   alt_text: string;
   display_order: number;
   is_primary: boolean;
+  color?: string;
 }
 
 export type ProductStatus = 'draft' | 'active' | 'archived';
@@ -134,6 +136,11 @@ export interface Product {
   affiliate_source_name?: string;
   affiliate_url?: string;
   affiliate_disclosure?: string;
+  gender?: 'men' | 'women' | 'unisex';
+  style?: string;
+  badge?: 'new' | 'bestseller' | 'sale';
+  is_bestseller?: boolean;
+  is_new?: boolean;
   base_price: number; // Lowest price among variants
   discount_price?: number;
   is_deal?: boolean;
@@ -207,6 +214,7 @@ export interface Order {
   shipping_address: ShippingAddressInput;
   subtotal: number;
   discount_amount: number;
+  coupon_code?: string;
   shipping_fee: number;
   tax_amount: number;
   total_amount: number;
@@ -285,4 +293,66 @@ export interface ScheduledJobRecord {
   details: string;
   run_duration_ms: number;
   created_at: string;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  description: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  min_order_value: number;
+  max_discount?: number;
+  usage_limit?: number;
+  usage_count: number;
+  is_active: boolean;
+  expires_at?: string;
+  created_at: string;
+}
+
+export interface AnnouncementBarMessage {
+  id: string;
+  badge: string;
+  message: string;
+  link?: string;
+  is_active: boolean;
+}
+
+export interface HeroBannerConfig {
+  headline_line1: string;
+  headline_line2: string;
+  badge_text: string;
+  subheading: string;
+  image_url: string;
+  primary_button_text: string;
+  primary_button_link: string;
+  secondary_button_text: string;
+  secondary_button_link: string;
+  is_active: boolean;
+}
+
+export interface CampaignSectionConfig {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  image_url: string;
+  link: string;
+  cta_text: string;
+  is_active: boolean;
+  display_order: number;
+}
+
+export interface SocialLinksConfig {
+  instagram?: string;
+  twitter?: string;
+  pinterest?: string;
+  youtube?: string;
+}
+
+export interface HomepageConfig {
+  announcements: AnnouncementBarMessage[];
+  hero: HeroBannerConfig;
+  campaigns: CampaignSectionConfig[];
+  social_links?: SocialLinksConfig;
 }
