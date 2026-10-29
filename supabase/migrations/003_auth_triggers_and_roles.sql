@@ -142,3 +142,4 @@ CREATE POLICY "Users can view own order items" ON public.order_items
 DROP POLICY IF EXISTS "Admin full access orders" ON public.orders;
 CREATE POLICY "Admin full access orders" ON public.orders
     FOR ALL USING (public.is_admin());
+

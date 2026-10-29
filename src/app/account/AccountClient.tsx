@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { Order } from "@/types";
 import {
   User,
@@ -17,25 +19,73 @@ import {
   ExternalLink,
   ChevronRight,
   ShieldCheck,
+  Plus,
+  Trash2,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 
-interface AccountClientProps {
-  initialEmail?: string;
+interface CustomerAddress {
+  id: string;
+  full_name: string;
+  phone: string;
+  address_line1: string;
+  address_line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default: boolean;
 }
 
-export function AccountClient({ initialEmail = "" }: AccountClientProps) {
-  const [email, setEmail] = useState(initialEmail);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [activeTab, setActiveTab] = useState<"orders" | "profile" | "notifications">("orders");
+interface AccountClientProps {
+  initialUser: {
+    id: string;
+    email: string;
+    fullName: string;
+    phone: string;
+    role: string;
+  };
+  initialAddresses?: CustomerAddress[];
+  initialOrders?: Order[];
+}
+
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Delhi", "Jammu and Kashmir", "Ladakh", "Chandigarh", "Puducherry"
+];
+
+export function AccountClient({
+  initialUser,
+  initialAddresses = [],
+  initialOrders = [],
+}: AccountClientProps) {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<"orders" | "profile" | "addresses" | "notifications">("orders");
 
   // Profile Form state
-  const [fullName, setFullName] = useState("Aanya Sharma");
-  const [phone, setPhone] = useState("+91 98200 12345");
-  const [addressLine, setAddressLine] = useState("Flat 402, Sea Green Apartments, Worli Sea Face");
-  const [city, setCity] = useState("Mumbai");
-  const [state, setState] = useState("Maharashtra");
-  const [pincode, setPincode] = useState("400030");
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [fullName, setFullName] = useState(initialUser.fullName || "");
+  const [phone, setPhone] = useState(initialUser.phone || "");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSuccess, setProfileSuccess] = useState(false);
+  const [profileError, setProfileError] = useState("");
+
+  // Addresses state
+  const [addresses, setAddresses] = useState<CustomerAddress[]>(initialAddresses);
+  const [showAddAddress, setShowAddAddress] = useState(false);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [addressError, setAddressError] = useState("");
+  const [newAddrName, setNewAddrName] = useState(initialUser.fullName || "");
+  const [newAddrPhone, setNewAddrPhone] = useState(initialUser.phone || "");
+  const [newAddrLine1, setNewAddrLine1] = useState("");
+  const [newAddrLine2, setNewAddrLine2] = useState("");
+  const [newAddrCity, setNewAddrCity] = useState("Mumbai");
+  const [newAddrState, setNewAddrState] = useState("Maharashtra");
+  const [newAddrPincode, setNewAddrPincode] = useState("");
+  const [newAddrDefault, setNewAddrDefault] = useState(false);
 
   // Notification prefs
   const [emailUpdates, setEmailUpdates] = useState(true);
@@ -43,37 +93,17 @@ export function AccountClient({ initialEmail = "" }: AccountClientProps) {
   const [newsletter, setNewsletter] = useState(false);
 
   // Orders state
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [returnOrderId, setReturnOrderId] = useState<string | null>(null);
   const [returnReason, setReturnReason] = useState("");
   const [returnSubmitting, setReturnSubmitting] = useState(false);
   const [returnMessage, setReturnMessage] = useState<string | null>(null);
 
-  // Login form state
-  const [loginEmailInput, setLoginEmailInput] = useState("");
-  const [loginPasswordInput, setLoginPasswordInput] = useState("");
-  const [loginError, setLoginError] = useState("");
-
-  // Load orders when email is available
-  useEffect(() => {
-    // Check localStorage for saved session
-    const savedEmail = localStorage.getItem("lumiere_customer_email");
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setIsLoggedIn(true);
-      fetchOrders(savedEmail);
-    } else if (initialEmail) {
-      setEmail(initialEmail);
-      setIsLoggedIn(true);
-      fetchOrders(initialEmail);
-    }
-  }, [initialEmail]);
-
-  const fetchOrders = async (customerEmail: string) => {
+  const fetchOrders = async () => {
     setLoadingOrders(true);
     try {
-      const res = await fetch(`/api/account/orders?email=${encodeURIComponent(customerEmail)}`);
+      const res = await fetch("/api/account/orders");
       const data = await res.json();
       if (data.success && Array.isArray(data.orders)) {
         setOrders(data.orders);
@@ -85,593 +115,752 @@ export function AccountClient({ initialEmail = "" }: AccountClientProps) {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmailInput || !loginEmailInput.includes("@")) {
-      setLoginError("Please provide a valid Indian email address.");
-      return;
-    }
-    setLoginError("");
-    setEmail(loginEmailInput);
-    setIsLoggedIn(true);
-    localStorage.setItem("lumiere_customer_email", loginEmailInput);
-    fetchOrders(loginEmailInput);
-  };
+    setProfileSaving(true);
+    setProfileError("");
+    setProfileSuccess(false);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setEmail("");
-    setOrders([]);
-    localStorage.removeItem("lumiere_customer_email");
-  };
-
-  const handleProfileSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
-  };
-
-  const handleInitiateReturn = async (orderId: string, itemId: string) => {
-    if (!returnReason.trim()) return;
-    setReturnSubmitting(true);
-    setReturnMessage(null);
     try {
-      // In Lumiere backend, returns require inspection
-      const res = await fetch("/api/admin/returns/inspect", {
+      const res = await fetch("/api/account/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ full_name: fullName, phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setProfileSuccess(true);
+      setTimeout(() => setProfileSuccess(false), 3000);
+    } catch (err: any) {
+      setProfileError(err.message || "Failed to update profile.");
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const handleAddAddress = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddressLoading(true);
+    setAddressError("");
+
+    try {
+      const res = await fetch("/api/account/addresses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "request",
+          full_name: newAddrName,
+          phone: newAddrPhone,
+          address_line1: newAddrLine1,
+          address_line2: newAddrLine2,
+          city: newAddrCity,
+          state: newAddrState,
+          pincode: newAddrPincode,
+          is_default: newAddrDefault,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      if (data.address) {
+        setAddresses((prev) => [data.address, ...prev]);
+      }
+      setShowAddAddress(false);
+      // Reset form
+      setNewAddrLine1("");
+      setNewAddrLine2("");
+      setNewAddrPincode("");
+      setNewAddrDefault(false);
+    } catch (err: any) {
+      setAddressError(err.message || "Failed to save address.");
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this delivery address?")) return;
+    try {
+      const res = await fetch(`/api/account/addresses?id=${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setAddresses((prev) => prev.filter((a) => a.id !== id));
+      }
+    } catch {
+      // Handled silently
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/login");
+      router.refresh();
+    } catch {
+      router.push("/login");
+    }
+  };
+
+  const handleRequestReturn = async (orderId: string, orderItemId: string) => {
+    if (!returnReason.trim()) {
+      alert("Please provide a reason for the return request.");
+      return;
+    }
+    setReturnSubmitting(true);
+    setReturnMessage(null);
+    try {
+      const res = await fetch("/api/account/returns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           orderId,
-          itemId,
+          orderItemId,
           reason: returnReason,
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        setReturnMessage("Return pickup scheduled. A Delhivery agent will verify tags and condition.");
-        setReturnOrderId(null);
-        setReturnReason("");
-        if (email) fetchOrders(email);
-      } else {
-        setReturnMessage(data.error || "Unable to request return. Please verify order state.");
-      }
-    } catch {
-      setReturnMessage("Network error. Please try again or contact atelier concierge.");
+      if (!res.ok) throw new Error(data.error);
+
+      setReturnMessage(
+        "Return request received! A Delhivery reverse-pickup waybill will be generated once verified."
+      );
+      setReturnOrderId(null);
+      setReturnReason("");
+      fetchOrders();
+    } catch (err: any) {
+      alert(`Return initiation failed: ${err.message}`);
     } finally {
       setReturnSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-      {/* Header breadcrumb */}
-      <div className="flex items-center gap-2 text-xs text-noir-500 uppercase tracking-widest mb-6">
-        <Link href="/" className="hover:text-gold-600 transition-colors">
-          Home
-        </Link>
-        <span>/</span>
-        <span className="text-noir-900 font-bold">Customer Atelier Account</span>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      {/* Page Title */}
+      <div className="border-b border-canvas-border pb-4">
+        <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold-600 block mb-1">
+          Client Concierge & Wardrobe
+        </span>
+        <h1 className="font-serif text-3xl font-medium text-noir-900">
+          Patron Account Dashboard
+        </h1>
       </div>
 
-      {!isLoggedIn ? (
-        /* Sign In / Verification Section */
-        <div className="max-w-md mx-auto bg-white border border-canvas-border p-8 rounded-sm shadow-subtle space-y-6">
-          <div className="text-center space-y-2">
-            <span className="text-[10px] font-bold tracking-[0.25em] text-gold-600 uppercase block">
-              Atelier Client Access
-            </span>
-            <h1 className="font-serif text-2xl font-light text-noir-900">
-              Sign In to Your LUMIÈRE Account
-            </h1>
-            <p className="text-xs text-noir-500 font-light">
-              Track Delhivery parcels, view order receipts, and manage your private fitting addresses.
-            </p>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Sidebar Navigation */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-white border border-canvas-border p-6 rounded-sm space-y-3">
+            <div className="w-12 h-12 bg-gold-600/10 rounded-full flex items-center justify-center text-gold-600">
+              <User className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="font-serif text-lg font-bold text-noir-900">{fullName || "Atelier Patron"}</h2>
+              <p className="text-xs text-noir-500 truncate">{initialUser.email}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="inline-block px-2 py-0.5 bg-canvas-subtle border border-canvas-border text-[10px] font-semibold uppercase text-gold-700 rounded">
+                  {initialUser.role === "super_admin" || initialUser.role === "admin"
+                    ? "Store Administrator"
+                    : "Verified Patron"}
+                </span>
+                {initialUser.role !== "customer" && (
+                  <Link
+                    href="/admin"
+                    className="text-[10px] text-noir-900 hover:text-gold-600 underline font-bold"
+                  >
+                    Control Room →
+                  </Link>
+                )}
+              </div>
+            </div>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            {loginError && (
-              <div className="p-3 text-xs bg-red-50 border border-red-200 text-red-700 rounded-sm">
-                {loginError}
-              </div>
-            )}
+          <div className="bg-white border border-canvas-border rounded-sm overflow-hidden">
+            <nav className="divide-y divide-canvas-subtle text-xs font-semibold">
+              <button
+                onClick={() => setActiveTab("orders")}
+                className={`w-full flex items-center justify-between px-4 py-3.5 transition-colors ${
+                  activeTab === "orders" ? "bg-noir-900 text-white" : "text-noir-800 hover:bg-canvas-subtle"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Order History ({orders.length})</span>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-70" />
+              </button>
 
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                required
-                value={loginEmailInput}
-                onChange={(e) => setLoginEmailInput(e.target.value)}
-                placeholder="client@lumiere.in"
-                className="w-full px-3.5 py-2.5 text-xs bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
-              />
-            </div>
+              <button
+                onClick={() => setActiveTab("profile")}
+                className={`w-full flex items-center justify-between px-4 py-3.5 transition-colors ${
+                  activeTab === "profile" ? "bg-noir-900 text-white" : "text-noir-800 hover:bg-canvas-subtle"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <User className="w-4 h-4" />
+                  <span>Profile Information</span>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-70" />
+              </button>
 
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                Password or Client OTP
-              </label>
-              <input
-                type="password"
-                required
-                value={loginPasswordInput}
-                onChange={(e) => setLoginPasswordInput(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 text-xs bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
-              />
-            </div>
+              <button
+                onClick={() => setActiveTab("addresses")}
+                className={`w-full flex items-center justify-between px-4 py-3.5 transition-colors ${
+                  activeTab === "addresses" ? "bg-noir-900 text-white" : "text-noir-800 hover:bg-canvas-subtle"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-4 h-4" />
+                  <span>Shipping Coordinates ({addresses.length})</span>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-70" />
+              </button>
 
-            <button
-              type="submit"
-              className="w-full bg-noir-900 hover:bg-gold-600 text-white font-bold py-3 text-xs uppercase tracking-widest transition-colors rounded-luxury"
-            >
-              Sign In to Account
-            </button>
-          </form>
-
-          <div className="pt-4 border-t border-canvas-border text-center space-y-2">
-            <p className="text-[11px] text-noir-500">
-              Placed a guest order? Enter the email address used during checkout to view its progress.
-            </p>
-            <div className="text-[11px] text-gold-700 font-semibold">
-              <Link href="/track-order" className="hover:underline">
-                Quick Track by Delhivery Waybill / Order # →
+              <Link
+                href="/wishlist"
+                className="w-full flex items-center justify-between px-4 py-3.5 text-noir-800 hover:bg-canvas-subtle transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <PackageCheck className="w-4 h-4" />
+                  <span>Saved Wishlist</span>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-70" />
               </Link>
-            </div>
+
+              <button
+                onClick={() => setActiveTab("notifications")}
+                className={`w-full flex items-center justify-between px-4 py-3.5 transition-colors ${
+                  activeTab === "notifications" ? "bg-noir-900 text-white" : "text-noir-800 hover:bg-canvas-subtle"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Bell className="w-4 h-4" />
+                  <span>Notification Settings</span>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-70" />
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3.5 text-rose-600 hover:bg-rose-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
+            </nav>
           </div>
         </div>
-      ) : (
-        /* Authenticated Customer Control Room */
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white border border-canvas-border p-6 rounded-sm space-y-3">
-              <div className="w-12 h-12 bg-gold-600/10 rounded-full flex items-center justify-center text-gold-600">
-                <User className="w-6 h-6" />
+
+        {/* Main Content Area */}
+        <div className="lg:col-span-3">
+          {/* TAB 1: ORDER HISTORY */}
+          {activeTab === "orders" && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-canvas-border">
+                <div>
+                  <h2 className="font-serif text-2xl font-medium text-noir-900">Your Orders & Deliveries</h2>
+                  <p className="text-xs text-noir-500 font-light mt-0.5">
+                    View status, Delhivery waybills, and initiate 7-day verified returns.
+                  </p>
+                </div>
+                <button
+                  onClick={fetchOrders}
+                  disabled={loadingOrders}
+                  className="mt-2 sm:mt-0 text-xs font-bold text-gold-700 hover:underline flex items-center gap-1"
+                >
+                  {loadingOrders ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                  <span>Refresh Orders ⟳</span>
+                </button>
               </div>
-              <div>
-                <h2 className="font-serif text-lg font-bold text-noir-900">{fullName}</h2>
-                <p className="text-xs text-noir-500 truncate">{email}</p>
-                <span className="inline-block mt-2 px-2 py-0.5 bg-canvas-subtle border border-canvas-border text-[10px] font-semibold uppercase text-gold-700 rounded">
-                  Verified Patron
-                </span>
-              </div>
-            </div>
 
-            <div className="bg-white border border-canvas-border rounded-sm overflow-hidden">
-              <nav className="divide-y divide-canvas-subtle text-xs font-semibold">
-                <button
-                  onClick={() => setActiveTab("orders")}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 transition-colors ${
-                    activeTab === "orders" ? "bg-noir-900 text-white" : "text-noir-800 hover:bg-canvas-subtle"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Order History ({orders.length})</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 opacity-70" />
-                </button>
+              {returnMessage && (
+                <div className="p-4 bg-gold-50 border border-gold-300 text-gold-900 text-xs rounded-sm">
+                  {returnMessage}
+                </div>
+              )}
 
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 transition-colors ${
-                    activeTab === "profile" ? "bg-noir-900 text-white" : "text-noir-800 hover:bg-canvas-subtle"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <MapPin className="w-4 h-4" />
-                    <span>Delivery Address & Profile</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 opacity-70" />
-                </button>
-
-                <button
-                  onClick={() => setActiveTab("notifications")}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 transition-colors ${
-                    activeTab === "notifications" ? "bg-noir-900 text-white" : "text-noir-800 hover:bg-canvas-subtle"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Bell className="w-4 h-4" />
-                    <span>Notification Settings</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 opacity-70" />
-                </button>
-
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
-                </button>
-              </nav>
-            </div>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            {/* TAB 1: ORDER HISTORY */}
-            {activeTab === "orders" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-canvas-border">
-                  <div>
-                    <h2 className="font-serif text-2xl font-medium text-noir-900">Your Orders & Deliveries</h2>
-                    <p className="text-xs text-noir-500 font-light mt-0.5">
-                      View status, Delhivery waybills, and initiate 7-day verified returns.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => fetchOrders(email)}
-                    className="mt-2 sm:mt-0 text-xs font-bold text-gold-700 hover:underline"
+              {orders.length === 0 ? (
+                <div className="bg-white border border-canvas-border p-12 text-center rounded-sm space-y-4">
+                  <ShoppingBag className="w-12 h-12 text-noir-300 mx-auto" />
+                  <h3 className="font-serif text-lg font-bold text-noir-800">No Orders Placed Yet</h3>
+                  <p className="text-xs text-noir-500 max-w-sm mx-auto">
+                    Your luxury wardrobe is awaiting its first selection. Explore our handcrafted GI-certified collections.
+                  </p>
+                  <Link
+                    href="/products"
+                    className="inline-block bg-noir-900 text-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider rounded-luxury hover:bg-gold-600 transition-colors"
                   >
-                    Refresh Orders ⟳
-                  </button>
+                    Explore Atelier Catalog
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {orders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="bg-white border border-canvas-border rounded-sm overflow-hidden shadow-xs"
+                    >
+                      {/* Order Header */}
+                      <div className="bg-canvas-subtle border-b border-canvas-border p-4 flex flex-wrap items-center justify-between gap-4 text-xs">
+                        <div className="space-y-1">
+                          <span className="font-mono text-noir-500 text-[11px] block">
+                            ORDER NUMBER
+                          </span>
+                          <span className="font-serif font-bold text-noir-900 text-sm">
+                            {order.order_number}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="font-mono text-noir-500 text-[11px] block">
+                            DATE PLACED
+                          </span>
+                          <span className="text-noir-800">
+                            {new Date(order.created_at).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="font-mono text-noir-500 text-[11px] block">
+                            TOTAL AMOUNT
+                          </span>
+                          <span className="font-sans font-bold text-noir-900">
+                            ₹{order.total_amount.toLocaleString("en-IN")}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="font-mono text-noir-500 text-[11px] block">
+                            PAYMENT
+                          </span>
+                          <span className="font-semibold uppercase text-noir-800 text-[11px]">
+                            {order.payment_method === "cod"
+                              ? "COD"
+                              : order.payment_method === "gpay"
+                              ? "GPay UPI"
+                              : "PhonePe UPI"}
+                          </span>
+                          <span className={`block text-[10px] font-bold ${order.payment_status === "captured" ? "text-emerald-700" : "text-amber-700"}`}>
+                            {order.payment_status === "captured" ? "Captured" : "Pending COD"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            order.order_status === "delivered"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : order.order_status === "cancelled"
+                              ? "bg-rose-100 text-rose-800"
+                              : order.order_status === "shipped"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-amber-100 text-amber-800"
+                          }`}>
+                            {order.order_status}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Items */}
+                      <div className="p-4 divide-y divide-canvas-subtle">
+                        {order.items.map((item) => (
+                          <div key={item.id} className="py-3 flex items-center justify-between text-xs">
+                            <div>
+                              <h4 className="font-serif font-medium text-noir-900 text-sm">
+                                {item.product_name}
+                              </h4>
+                              <p className="text-[11px] text-noir-500">
+                                Variant: {item.variant_title || "Standard"} • Qty: {item.quantity} • SKU: {item.sku}
+                              </p>
+                            </div>
+                            <span className="font-sans font-bold text-noir-900">
+                              ₹{item.total_price.toLocaleString("en-IN")}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Shipping and Actions */}
+                      <div className="bg-canvas-subtle border-t border-canvas-border p-4 flex flex-wrap items-center justify-between gap-4 text-xs">
+                        <div className="text-noir-600">
+                          <span className="font-medium text-noir-900">Delivery Address: </span>
+                          {order.shipping_address.address_line1}, {order.shipping_address.city}, {order.shipping_address.state} - {order.shipping_address.pincode}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {order.shipment?.waybill && (
+                            <Link
+                              href={`/track-order?waybill=${order.shipment.waybill}`}
+                              className="text-gold-700 hover:text-gold-800 font-bold flex items-center gap-1"
+                            >
+                              <Truck className="w-3.5 h-3.5" />
+                              <span>Track Delhivery parcel</span>
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: PROFILE INFORMATION */}
+          {activeTab === "profile" && (
+            <div className="bg-white border border-canvas-border p-6 rounded-sm space-y-6 shadow-xs">
+              <div className="border-b border-canvas-border pb-3">
+                <h2 className="font-serif text-xl font-medium text-noir-900">Personal Information</h2>
+                <p className="text-xs text-noir-500 font-light">
+                  Manage your patron identity and communication preferences.
+                </p>
+              </div>
+
+              {profileSuccess && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-sm flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Profile updated successfully in PostgreSQL database.</span>
+                </div>
+              )}
+
+              {profileError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-sm flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{profileError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleUpdateProfile} className="space-y-4 max-w-lg">
+                <div>
+                  <label className="block text-xs font-semibold text-noir-700 mb-1">
+                    Email Address (Account Identity)
+                  </label>
+                  <input
+                    type="email"
+                    disabled
+                    value={initialUser.email}
+                    className="w-full bg-canvas-subtle border border-canvas-border px-3 py-2 text-xs text-noir-500 rounded-sm cursor-not-allowed"
+                  />
+                  <p className="text-[10px] text-noir-400 mt-1">
+                    Managed by Supabase Auth security.
+                  </p>
                 </div>
 
-                {returnMessage && (
-                  <div className="p-4 bg-gold-50 border border-gold-300 text-gold-900 text-xs rounded-sm">
-                    {returnMessage}
-                  </div>
-                )}
+                <div>
+                  <label className="block text-xs font-semibold text-noir-700 mb-1">
+                    Full Legal Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Radhika Sharma"
+                    className="w-full bg-white border border-canvas-border px-3 py-2 text-xs text-noir-900 rounded-sm focus:outline-none focus:border-noir-900"
+                  />
+                </div>
 
-                {loadingOrders ? (
-                  <div className="py-16 text-center text-xs text-noir-500">
-                    Loading your atelier purchases...
-                  </div>
-                ) : orders.length === 0 ? (
-                  <div className="bg-white border border-canvas-border p-12 text-center rounded-sm space-y-4">
-                    <PackageCheck className="w-12 h-12 text-noir-400 mx-auto stroke-1" />
-                    <div className="space-y-1">
-                      <h3 className="font-serif text-lg font-medium text-noir-900">No Orders Recorded Yet</h3>
-                      <p className="text-xs text-noir-500 max-w-sm mx-auto">
-                        Your bespoke handloom and streetwear acquisitions will appear here once placed.
-                      </p>
+                <div>
+                  <label className="block text-xs font-semibold text-noir-700 mb-1">
+                    Indian Mobile Number *
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+91 98200 12345"
+                    className="w-full bg-white border border-canvas-border px-3 py-2 text-xs text-noir-900 rounded-sm focus:outline-none focus:border-noir-900"
+                  />
+                  <p className="text-[10px] text-noir-400 mt-1">
+                    Used for Delhivery delivery OTP and dispatch notifications.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={profileSaving}
+                  className="bg-noir-900 hover:bg-gold-600 text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+                >
+                  {profileSaving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>Save Profile Changes</span>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* TAB 3: SHIPPING ADDRESSES */}
+          {activeTab === "addresses" && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-canvas-border">
+                <div>
+                  <h2 className="font-serif text-xl font-medium text-noir-900">
+                    Saved Delivery Addresses
+                  </h2>
+                  <p className="text-xs text-noir-500 font-light mt-0.5">
+                    Saved destinations for rapid checkout and Delhivery dispatch.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAddAddress(!showAddAddress)}
+                  className="mt-2 sm:mt-0 bg-noir-900 text-white hover:bg-gold-600 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-sm transition-colors flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add New Address</span>
+                </button>
+              </div>
+
+              {/* Add Address Form Modal / Expansion */}
+              {showAddAddress && (
+                <div className="bg-white border border-noir-900 p-6 rounded-sm shadow-md space-y-4">
+                  <h3 className="font-serif text-base font-bold text-noir-900">
+                    Add New Delivery Address
+                  </h3>
+
+                  {addressError && (
+                    <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-sm">
+                      {addressError}
                     </div>
-                    <Link
-                      href="/products"
-                      className="inline-block bg-noir-900 hover:bg-gold-600 text-white text-xs font-bold uppercase tracking-widest px-6 py-3 transition-colors rounded-luxury"
-                    >
-                      Discover the Collection
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {orders.map((order) => (
-                      <div
-                        key={order.id}
-                        className="bg-white border border-canvas-border rounded-sm overflow-hidden shadow-xs space-y-4 p-5"
-                      >
-                        {/* Order Header */}
-                        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-canvas-border pb-3">
-                          <div>
-                            <span className="text-[10px] uppercase font-bold tracking-wider text-gold-600 block">
-                              Order #{order.order_number}
-                            </span>
-                            <span className="text-xs text-noir-500">
-                              Placed on {new Date(order.created_at).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
-                            </span>
-                          </div>
+                  )}
 
-                          <div className="flex items-center gap-3">
-                            {/* Payment Status badge */}
-                            <span
-                              className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${
-                                order.payment_status === "captured"
-                                  ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                                  : order.payment_status === "pending"
-                                  ? "bg-amber-50 text-amber-800 border border-amber-200"
-                                  : "bg-red-50 text-red-800 border border-red-200"
-                              }`}
-                            >
-                              Payment: {order.payment_status} ({order.payment_method.toUpperCase()})
-                            </span>
+                  <form onSubmit={handleAddAddress} className="space-y-3 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-semibold text-noir-700 mb-1">
+                          Recipient Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newAddrName}
+                          onChange={(e) => setNewAddrName(e.target.value)}
+                          className="w-full border border-canvas-border px-3 py-2 rounded-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-semibold text-noir-700 mb-1">
+                          Contact Phone *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={newAddrPhone}
+                          onChange={(e) => setNewAddrPhone(e.target.value)}
+                          className="w-full border border-canvas-border px-3 py-2 rounded-sm"
+                        />
+                      </div>
+                    </div>
 
-                            {/* Order Status badge */}
-                            <span
-                              className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${
-                                order.order_status === "delivered"
-                                  ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                                  : order.order_status === "cancelled"
-                                  ? "bg-rose-50 text-rose-800 border border-rose-200"
-                                  : "bg-blue-50 text-blue-800 border border-blue-200"
-                              }`}
-                            >
-                              Status: {order.order_status}
-                            </span>
-                          </div>
-                        </div>
+                    <div>
+                      <label className="block font-semibold text-noir-700 mb-1">
+                        Address Line 1 (Flat, House No., Building) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={newAddrLine1}
+                        onChange={(e) => setNewAddrLine1(e.target.value)}
+                        placeholder="e.g. Flat 12A, Samudra Mahal, Worli"
+                        className="w-full border border-canvas-border px-3 py-2 rounded-sm"
+                      />
+                    </div>
 
-                        {/* Order Items */}
-                        <div className="divide-y divide-canvas-subtle">
-                          {order.items.map((item) => (
-                            <div key={item.id} className="py-3 flex items-center justify-between text-xs">
-                              <div className="space-y-0.5">
-                                <p className="font-bold text-noir-900">{item.product_name}</p>
-                                <p className="text-[11px] text-noir-500">
-                                  {item.variant_title} • Qty: {item.quantity} • SKU: {item.sku}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-sans font-bold text-noir-900">
-                                  ₹{(item.unit_price * item.quantity).toLocaleString("en-IN")}
-                                </p>
-                                {order.order_status === "delivered" && (
-                                  <button
-                                    onClick={() => setReturnOrderId(order.id)}
-                                    className="text-[10px] text-gold-700 font-bold hover:underline flex items-center gap-1 mt-1 justify-end"
-                                  >
-                                    <RotateCcw className="w-3 h-3" />
-                                    <span>Request Return</span>
-                                  </button>
-                                )}
-                              </div>
-                            </div>
+                    <div>
+                      <label className="block font-semibold text-noir-700 mb-1">
+                        Address Line 2 (Area, Landmark) - Optional
+                      </label>
+                      <input
+                        type="text"
+                        value={newAddrLine2}
+                        onChange={(e) => setNewAddrLine2(e.target.value)}
+                        className="w-full border border-canvas-border px-3 py-2 rounded-sm"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block font-semibold text-noir-700 mb-1">
+                          PIN Code (6 Digits) *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          value={newAddrPincode}
+                          onChange={(e) => setNewAddrPincode(e.target.value.replace(/[^0-9]/g, ""))}
+                          placeholder="400018"
+                          className="w-full border border-canvas-border px-3 py-2 rounded-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-semibold text-noir-700 mb-1">
+                          City / District *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newAddrCity}
+                          onChange={(e) => setNewAddrCity(e.target.value)}
+                          className="w-full border border-canvas-border px-3 py-2 rounded-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-semibold text-noir-700 mb-1">
+                          State / UT *
+                        </label>
+                        <select
+                          value={newAddrState}
+                          onChange={(e) => setNewAddrState(e.target.value)}
+                          className="w-full border border-canvas-border px-3 py-2 rounded-sm bg-white"
+                        >
+                          {INDIAN_STATES.map((s) => (
+                            <option key={s} value={s}>{s}</option>
                           ))}
-                        </div>
+                        </select>
+                      </div>
+                    </div>
 
-                        {/* Order Footer & Delhivery Tracking */}
-                        <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-canvas-border text-xs bg-canvas-subtle/50 -mx-5 -mb-5 p-4">
-                          <div className="flex items-center gap-2 text-noir-600">
-                            <Truck className="w-4 h-4 text-gold-600 shrink-0" />
-                            <span>
-                              {order.shipment?.waybill ? (
-                                <>
-                                  Waybill: <strong className="font-mono text-noir-900">{order.shipment.waybill}</strong> ({order.shipment.status})
-                                </>
-                              ) : (
-                                "Awaiting Delhivery Waybill Assignment"
-                              )}
-                            </span>
-                          </div>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="checkbox"
+                        id="is_default"
+                        checked={newAddrDefault}
+                        onChange={(e) => setNewAddrDefault(e.target.checked)}
+                      />
+                      <label htmlFor="is_default" className="text-noir-700">
+                        Set as primary delivery address for checkout
+                      </label>
+                    </div>
 
-                          <div className="flex items-center gap-4">
-                            <span className="font-bold text-sm text-noir-900 font-sans">
-                              Total: ₹{order.total_amount.toLocaleString("en-IN")}
-                            </span>
-                            {order.shipment?.waybill && (
-                              <Link
-                                href={`/track-order?waybill=${order.shipment.waybill}`}
-                                className="bg-noir-900 hover:bg-gold-600 text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-sm transition-colors flex items-center gap-1"
-                              >
-                                <span>Track Delhivery</span>
-                                <ExternalLink className="w-3 h-3" />
-                              </Link>
-                            )}
-                          </div>
-                        </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="submit"
+                        disabled={addressLoading}
+                        className="bg-noir-900 text-white px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-gold-600 disabled:opacity-50"
+                      >
+                        {addressLoading ? "Saving Address..." : "Save Address"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddAddress(false)}
+                        className="border border-canvas-border px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-canvas-subtle"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
 
-                        {/* Modal/Inline form for Return */}
-                        {returnOrderId === order.id && (
-                          <div className="p-4 bg-gold-50 border border-gold-200 rounded-sm space-y-3 mt-3">
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-bold text-gold-900 uppercase tracking-wider">
-                                Return & Inspection Request
-                              </h4>
-                              <button
-                                onClick={() => setReturnOrderId(null)}
-                                className="text-xs text-noir-500 hover:text-noir-900"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                            <p className="text-[11px] text-noir-600">
-                              LUMIÈRE processes returns strictly after physical quality inspection. Items must be unworn with original tags attached.
-                            </p>
-                            <input
-                              type="text"
-                              value={returnReason}
-                              onChange={(e) => setReturnReason(e.target.value)}
-                              placeholder="Reason for return (e.g., Size slightly small, need exchange)"
-                              className="w-full text-xs px-3 py-2 bg-white border border-gold-300 rounded-sm focus:outline-none"
-                            />
-                            <div className="flex justify-end gap-2">
-                              <button
-                                type="button"
-                                onClick={() => setReturnOrderId(null)}
-                                className="px-3 py-1.5 text-[11px] border border-noir-300 rounded-sm text-noir-700"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                type="button"
-                                disabled={returnSubmitting || !returnReason.trim()}
-                                onClick={() => handleInitiateReturn(order.id, order.items[0]?.id)}
-                                className="px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider bg-gold-600 text-white rounded-sm hover:bg-gold-500 disabled:opacity-50"
-                              >
-                                {returnSubmitting ? "Submitting..." : "Confirm Return Pickup"}
-                              </button>
-                            </div>
-                          </div>
+              {/* Address List */}
+              {addresses.length === 0 ? (
+                <div className="bg-white border border-canvas-border p-8 text-center rounded-sm text-xs text-noir-500">
+                  No saved addresses found. Add a destination above for swift checkout.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {addresses.map((addr) => (
+                    <div
+                      key={addr.id}
+                      className="bg-white border border-canvas-border p-5 rounded-sm shadow-xs space-y-2 relative text-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-noir-900">{addr.full_name}</span>
+                        {addr.is_default && (
+                          <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold uppercase rounded">
+                            Default
+                          </span>
                         )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* TAB 2: PROFILE & ADDRESSES */}
-            {activeTab === "profile" && (
-              <div className="bg-white border border-canvas-border p-6 sm:p-8 rounded-sm shadow-xs space-y-6">
-                <div>
-                  <h2 className="font-serif text-2xl font-medium text-noir-900">Fitting & Delivery Address</h2>
-                  <p className="text-xs text-noir-500 font-light mt-0.5">
-                    Your shipping details are encrypted and securely utilized for Delhivery express dispatches.
-                  </p>
+                      <p className="text-noir-600 leading-relaxed">
+                        {addr.address_line1}
+                        {addr.address_line2 && <><br />{addr.address_line2}</>}
+                        <br />
+                        {addr.city}, {addr.state} - <strong className="font-mono">{addr.pincode}</strong>
+                      </p>
+                      <p className="text-noir-500 font-mono text-[11px]">Phone: {addr.phone}</p>
+                      <div className="pt-2 border-t border-canvas-subtle flex justify-end">
+                        <button
+                          onClick={() => handleDeleteAddress(addr.id)}
+                          className="text-rose-600 hover:text-rose-800 flex items-center gap-1 text-[11px]"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
+          )}
 
-                {saveSuccess && (
-                  <div className="p-3 text-xs bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-sm flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>Your patron profile and delivery coordinates have been updated.</span>
-                  </div>
-                )}
+          {/* TAB 4: NOTIFICATIONS */}
+          {activeTab === "notifications" && (
+            <div className="bg-white border border-canvas-border p-6 rounded-sm space-y-6 shadow-xs">
+              <div className="border-b border-canvas-border pb-3">
+                <h2 className="font-serif text-xl font-medium text-noir-900">
+                  Notification Preferences
+                </h2>
+                <p className="text-xs text-noir-500 font-light">
+                  Control how LUMIÈRE communicates order tracking and luxury drops.
+                </p>
+              </div>
 
-                <form onSubmit={handleProfileSave} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="w-full px-3.5 py-2 text-xs bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                        Phone Number (+91)
-                      </label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-3.5 py-2 text-xs bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
-                      />
-                    </div>
-                  </div>
-
+              <div className="space-y-4 text-xs">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={emailUpdates}
+                    onChange={(e) => setEmailUpdates(e.target.checked)}
+                    className="mt-0.5"
+                  />
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                      Registered Email (Read Only)
-                    </label>
-                    <input
-                      type="email"
-                      disabled
-                      value={email}
-                      className="w-full px-3.5 py-2 text-xs bg-canvas-light border border-canvas-border rounded-sm text-noir-400 cursor-not-allowed"
-                    />
+                    <span className="font-bold text-noir-900 block">Email Dispatch & Invoicing</span>
+                    <span className="text-noir-500 text-[11px]">
+                      Receive automated order confirmations, GST invoices, and Delhivery tracking numbers.
+                    </span>
                   </div>
+                </label>
 
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={whatsappAlerts}
+                    onChange={(e) => setWhatsappAlerts(e.target.checked)}
+                    className="mt-0.5"
+                  />
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                      Street Address & Building / Residence
-                    </label>
-                    <input
-                      type="text"
-                      value={addressLine}
-                      onChange={(e) => setAddressLine(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
-                    />
+                    <span className="font-bold text-noir-900 block">WhatsApp Courier Updates</span>
+                    <span className="text-noir-500 text-[11px]">
+                      Receive out-for-delivery alerts and courier associate contact directly on WhatsApp.
+                    </span>
                   </div>
+                </label>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                        City
-                      </label>
-                      <input
-                        type="text"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        className="w-full px-3.5 py-2 text-xs bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                        State
-                      </label>
-                      <input
-                        type="text"
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        className="w-full px-3.5 py-2 text-xs bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                        PIN Code (6 digits)
-                      </label>
-                      <input
-                        type="text"
-                        maxLength={6}
-                        value={pincode}
-                        onChange={(e) => setPincode(e.target.value)}
-                        className="w-full px-3.5 py-2 text-xs bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
-                      />
-                    </div>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newsletter}
+                    onChange={(e) => setNewsletter(e.target.checked)}
+                    className="mt-0.5"
+                  />
+                  <div>
+                    <span className="font-bold text-noir-900 block">Atelier Private Drops & Curations</span>
+                    <span className="text-noir-500 text-[11px]">
+                      Weekly editorial on handloom heritage, festive collections, and limited edition releases.
+                    </span>
                   </div>
-
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      className="bg-noir-900 hover:bg-gold-600 text-white px-6 py-2.5 text-xs font-bold uppercase tracking-widest rounded-luxury transition-colors"
-                    >
-                      Save Profile Changes
-                    </button>
-                  </div>
-                </form>
+                </label>
               </div>
-            )}
-
-            {/* TAB 3: NOTIFICATIONS */}
-            {activeTab === "notifications" && (
-              <div className="bg-white border border-canvas-border p-6 sm:p-8 rounded-sm shadow-xs space-y-6">
-                <div>
-                  <h2 className="font-serif text-2xl font-medium text-noir-900">Communication & Dispatch Alerts</h2>
-                  <p className="text-xs text-noir-500 font-light mt-0.5">
-                    Select how you wish to receive milestone updates regarding your order progress.
-                  </p>
-                </div>
-
-                <div className="space-y-4 divide-y divide-canvas-subtle">
-                  <div className="pt-3 flex items-center justify-between">
-                    <div>
-                      <h4 className="text-xs font-bold text-noir-900">Transactional Order Emails</h4>
-                      <p className="text-[11px] text-noir-500">
-                        Receive instant digital tax invoice, order confirmation, and payment receipts.
-                      </p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={emailUpdates}
-                      onChange={(e) => setEmailUpdates(e.target.checked)}
-                      className="w-4 h-4 accent-gold-600"
-                    />
-                  </div>
-
-                  <div className="pt-3 flex items-center justify-between">
-                    <div>
-                      <h4 className="text-xs font-bold text-noir-900">Delhivery WhatsApp & SMS Dispatch Alerts</h4>
-                      <p className="text-[11px] text-noir-500">
-                        Receive live tracking notifications when parcel leaves Mumbai hub and is out for delivery.
-                      </p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={whatsappAlerts}
-                      onChange={(e) => setWhatsappAlerts(e.target.checked)}
-                      className="w-4 h-4 accent-gold-600"
-                    />
-                  </div>
-
-                  <div className="pt-3 flex items-center justify-between">
-                    <div>
-                      <h4 className="text-xs font-bold text-noir-900">Atelier Private Collection Previews</h4>
-                      <p className="text-[11px] text-noir-500">
-                        First access to strictly limited-run handcrafted silk drops and seasonal festive edits.
-                      </p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={newsletter}
-                      onChange={(e) => setNewsletter(e.target.checked)}
-                      className="w-4 h-4 accent-gold-600"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
