@@ -10,7 +10,10 @@ Before launching LUMIÈRE to live customers in the Indian market, review and sig
 - [ ] **Administrator Identity**: `ADMIN_EMAIL` environment variable configured with the official owner/superadmin email. Non-admin accounts cannot grant themselves permissions.
 - [ ] **Privileged Keys Isolated**: Ensure `SUPABASE_SERVICE_ROLE_KEY`, `PHONEPE_SALT_KEY`, `GPAY_SECRET_KEY`, and `CRON_SECRET` are never referenced in client-side components (`use client` or `NEXT_PUBLIC_*`).
 - [ ] **Cron Protection**: `CRON_SECRET` set to a strong random token (> 32 characters) on production hosting platform (Vercel / Cloudflare).
-- [ ] **Input Sanitization**: Client address inputs, phone numbers (10 digits), and PIN codes (6 digits) validated on both client and server before database write.
+- [ ] **Input Sanitization**: Client address inputs, phone numbers (10 digits), and PIN codes (6 digits) validated and sanitized on both client and server to prevent XSS.
+- [ ] **HTTP Security Headers**: Verified `Strict-Transport-Security` (HSTS), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, and `Permissions-Policy` in `next.config.mjs`.
+- [ ] **Timing-Safe Crypto**: Signatures and checksums verified via `crypto.timingSafeEqual` in `src/lib/services/payments.ts` to neutralize timing side-channel attacks.
+- [ ] **Sliding Window Rate Limiting**: Active on `/api/checkout/create-order` and `/api/account/*` via `src/lib/security/rate-limit.ts` to prevent brute-force attacks and carding spam.
 
 ---
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { 
@@ -17,16 +18,23 @@ import {
 } from "lucide-react";
 
 export function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
   const { totalCount, setIsOpen } = useCart();
   const { count: wishlistCount } = useWishlist();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(searchQuery.trim())}`;
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
     }
   };
 

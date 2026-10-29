@@ -24,6 +24,17 @@ export interface VerifyPaymentParams {
   checksum?: string;
 }
 
+function safeTimingCompare(a: string, b: string): boolean {
+  try {
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
+  } catch {
+    return false;
+  }
+}
+
 export const PaymentService = {
   /**
    * Create an Indian gateway payment order for PhonePe or Google Pay (GPay)
@@ -191,7 +202,7 @@ export const PaymentService = {
             .update(`${params.orderId}|${params.gatewayTransactionId}`)
             .digest("hex");
 
-          const isValid = expected === params.signature;
+          const isValid = safeTimingCompare(expected, params.signature);
           return {
             isValid,
             error: isValid ? undefined : "Google Pay cryptographic signature mismatch.",
@@ -225,6 +236,6 @@ export const PaymentService = {
     const calculatedHash = crypto.createHash("sha256").update(stringToHash).digest("hex");
     const expectedHeader = `${calculatedHash}###${saltIndex}`;
 
-    return expectedHeader === xVerifyHeader;
+    return safeTimingCompare(expectedHeader, xVerifyHeader);
   },
 };

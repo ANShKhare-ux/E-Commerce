@@ -151,4 +151,40 @@ describe("LUMIÈRE Security, Authorization & Isolation Guarantees", () => {
     expect(validateRedirect("javascript:alert(1)")).toBe("/account");
     expect(validateRedirect(null)).toBe("/account");
   });
+
+  it("should sanitize malicious inputs to prevent XSS and script injection", async () => {
+    const { sanitizeText, sanitizeIndianPhone, sanitizePincode } = await import("@/lib/security/sanitize");
+
+    // XSS injection attack in customer name or address
+    const maliciousInput = "<script>alert('pwned')</script>John Doe";
+    const cleaned = sanitizeText(maliciousInput);
+    expect(cleaned).not.toContain("<script>");
+    expect(cleaned).not.toContain("</script>");
+    expect(cleaned).toBe("scriptalert('pwned')/scriptJohn Doe");
+
+    // Dangerous javascript: URI
+    const jsProtocol = "javascript:alert(1)Flat 4B";
+    expect(sanitizeText(jsProtocol)).toBe("alert(1)Flat 4B");
+
+    // Phone sanitization (+91 98200 12345 -> 9820012345)
+    expect(sanitizeIndianPhone("+91 98200 12345")).toBe("9820012345");
+    expect(sanitizePincode("400 018-extra")).toBe("400018");
+  });
+
+  it("should throttle excessive automated requests with sliding window rate limiting", async () => {
+    const { checkRateLimit } = await import("@/lib/security/rate-limit");
+    const testIp = `test_attacker_${Date.now()}`;
+
+    // Allow up to 3 requests in short test window
+    const opts = { windowMs: 5000, maxRequests: 3, keyPrefix: "test" };
+
+    expect(checkRateLimit(testIp, opts).success).toBe(true);
+    expect(checkRateLimit(testIp, opts).success).toBe(true);
+    expect(checkRateLimit(testIp, opts).success).toBe(true);
+
+    // 4th request must be rejected with HTTP 429 semantics
+    const fourth = checkRateLimit(testIp, opts);
+    expect(fourth.success).toBe(false);
+    expect(fourth.remaining).toBe(0);
+  });
 });

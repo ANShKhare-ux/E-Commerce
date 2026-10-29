@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { PaymentService } from "@/lib/services/payments";
+import { checkRateLimit } from "@/lib/security/rate-limit";
+import { sanitizeText, sanitizeIndianPhone, sanitizePincode } from "@/lib/security/sanitize";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+    const rl = checkRateLimit(ip, { windowMs: 60 * 1000, maxRequests: 30, keyPrefix: "checkout" });
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many checkout requests. Please wait a moment before trying again." },
+        { status: 429, headers: { "Retry-After": "60" } }
+      );
+    }
+
     const body = await req.json();
     const {
       customerName,
@@ -25,23 +36,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid payment method. Choose PhonePe, Google Pay (GPay), or Cash on Delivery." }, { status: 400 });
     }
 
-    // Validate Indian phone number (10 digits)
-    const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
+    // Sanitize & Validate Indian phone number (10 digits)
+    const cleanPhone = sanitizeIndianPhone(customerPhone);
     if (cleanPhone.length < 10) {
       return NextResponse.json({ error: "Please enter a valid 10-digit Indian phone number." }, { status: 400 });
     }
 
-    // Validate 6-digit Indian Postal Code
-    if (!/^[1-9][0-9]{5}$/.test(shippingAddress.pincode)) {
+    // Sanitize & Validate 6-digit Indian Postal Code
+    const cleanPincode = sanitizePincode(shippingAddress.pincode);
+    if (!/^[1-9][0-9]{5}$/.test(cleanPincode)) {
       return NextResponse.json({ error: "Please enter a valid 6-digit Indian PIN code." }, { status: 400 });
     }
 
+    const sanitizedAddress = {
+      full_name: sanitizeText(shippingAddress.full_name || customerName),
+      email: customerEmail.trim().toLowerCase(),
+      phone: cleanPhone,
+      address_line1: sanitizeText(shippingAddress.address_line1),
+      address_line2: shippingAddress.address_line2 ? sanitizeText(shippingAddress.address_line2) : undefined,
+      city: sanitizeText(shippingAddress.city),
+      state: sanitizeText(shippingAddress.state),
+      pincode: cleanPincode,
+    };
+
     // 1. Create order and atomically finalize inventory deduction
     const orderResult = await db.orders.create({
-      customerName,
-      customerEmail,
+      customerName: sanitizeText(customerName),
+      customerEmail: customerEmail.trim().toLowerCase(),
       customerPhone: cleanPhone,
-      shippingAddress,
+      shippingAddress: sanitizedAddress,
       paymentMethod,
       items,
       reservationIds,

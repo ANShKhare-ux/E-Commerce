@@ -2,12 +2,18 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Mail, CheckCircle2, ShieldAlert, ArrowRight } from "lucide-react";
 
 export function Footer() {
+  const pathname = usePathname();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();

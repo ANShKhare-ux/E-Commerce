@@ -3,12 +3,18 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Clock, Truck } from "lucide-react";
 
 export function CartDrawer() {
+  const pathname = usePathname();
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal, reservationExpiresAt } = useCart();
   const [timeLeft, setTimeLeft] = useState<string>("");
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   const FREE_SHIPPING_THRESHOLD = 2999;
   const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
