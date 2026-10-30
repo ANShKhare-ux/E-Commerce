@@ -102,7 +102,7 @@ export default function CartPage() {
               <div key={item.variant_id} className="p-6 flex flex-col sm:flex-row gap-6">
                 <div className="relative w-28 h-36 bg-canvas-subtle rounded-sm overflow-hidden shrink-0 border border-canvas-border">
                   <Image
-                    src={item.product_image}
+                    src={item.product_image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"}
                     alt={item.product_name}
                     fill
                     sizes="112px"

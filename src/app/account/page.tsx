@@ -90,7 +90,10 @@ export default async function AccountPage() {
         initialOrders={orders}
       />
     );
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.digest?.startsWith?.("NEXT_REDIRECT")) {
+      throw error;
+    }
     if (isSupabaseConfigured) {
       redirect("/login?redirect=/account");
     }

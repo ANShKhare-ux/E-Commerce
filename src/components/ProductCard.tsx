@@ -90,7 +90,7 @@ export function ProductCard({ product }: ProductCardProps) {
       product_id: product.id,
       product_name: product.name,
       product_slug: product.slug,
-      product_image: activeImage || primaryImage.url,
+      product_image: activeImage || primaryImage?.url || "",
       sku: variant.sku,
       color: variant.color,
       size: variant.size,

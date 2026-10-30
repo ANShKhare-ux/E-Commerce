@@ -32,13 +32,13 @@
 | **Payment Verification** | Implemented & Verified | PhonePe Standard Checkout API (paise math, SHA256 base64 payload checksum with X-VERIFY salt index validation) + Google Pay (GPay) NPCI standard UPI deep-link intent order generation + Cash on Delivery (COD) in `src/lib/services/payments.ts`. Razorpay completely removed. Verified via `tests/payments.test.ts`. |
 | **Customer Auth & SSR** | Implemented & Verified | Full Supabase SSR customer authentication: `/signup` (name, email, password strength, confirmation), `/login` (safe internal redirect validation), `/forgot-password`, `/reset-password` (recovery session), `/auth/callback` (PKCE exchange), and `/auth/signout`. |
 | **Session Middleware & RBAC** | Implemented & Verified | `src/middleware.ts` maintains active Supabase sessions across SSR requests, protects `/account/*` (redirects to `/login`), and guards `/admin/*` (redirects to `/admin/login`). `verifyAdminAuthorization` strictly validates `ADMIN_EMAIL` and database profile roles (`admin`, `super_admin`). |
-| **Customer Account Area** | Implemented & Verified | `/account` authenticated dashboard: profile management (`/api/account/profile`), saved shipping addresses with Indian 6-digit PIN validation (`/api/account/addresses`), order history isolation (`/api/account/orders`), saved wishlist, and sign out. |
+| **Customer Account Area** | Implemented & Verified | `/account` authenticated dashboard: profile management (`/api/account/profile`), saved shipping addresses with Indian 6-digit PIN validation (`/api/account/addresses`), order history isolation (`/api/account/orders`), customer return requests (`/api/account/returns`), saved wishlist, and sign out. |
 | **Delhivery Logistics** | Implemented & Verified | 6-digit PIN validation, transit estimation, AWB waybill assignment (`DEL-AWB-...`), reverse pickup tracking. Verified via `tests/delhivery.test.ts`. |
 | **Transactional Email Outbox** | Implemented & Verified | Responsive HTML templates, Resend API integration with resilient in-memory outbox fallback. Verified via `tests/email.test.ts`. |
 | **Security & RBAC** | Implemented & Verified | Server-side identity validation against `ADMIN_EMAIL` and Supabase profile roles; client price manipulation blocked; admin route authorization checks enforced on `/api/admin/homepage` and `/api/admin/promotions`. Verified via `tests/security_auth.test.ts`. |
 | **Database Migrations** | Implemented (SQL files present) | `supabase/migrations/001_initial_schema.sql` (27 tables, RLS), `002_seed_data.sql` (categories & collections), and `003_auth_triggers_and_roles.sql` (`handle_new_user()` trigger on `auth.users`, role escalation prevention, wishlist unique constraints). |
 | **Production Integrations** | Sandbox / Fallback Verified | PhonePe, Google Pay (GPay), Delhivery, and Resend fall back gracefully to sandbox simulation when credentials are unset. Live external API calls require production keys. |
-| **Build & SSR Stability** | Implemented & Verified | All merge conflict markers eliminated; React Hook rules strictly enforced in `CartDrawer.tsx`; `<RecentlyViewed />` client-hydration stabilized; all 54 routes compiled with 0 errors. |
+| **Build & SSR Stability** | Implemented & Verified | All merge conflict markers eliminated; React Hook rules strictly enforced in `CartDrawer.tsx`; `<RecentlyViewed />` client-hydration stabilized; Next.js App Router redirect exceptions cleanly bypassed in `/account/page.tsx`; all 55 routes compiled with 0 errors. |
 
 ---
 
@@ -188,9 +188,11 @@ Refer to `.env.example` for all required environment variables:
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only administrative key | Private secret key |
 | `ADMIN_EMAIL` | Authorized SuperAdmin email | `owner@lumiere.in` |
 | `CRON_SECRET` | Bearer token for cron route protection | Random secret string (> 32 chars) |
-| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Razorpay Key ID | `rzp_test_...` or `rzp_live_...` |
-| `RAZORPAY_KEY_SECRET` | Razorpay Key Secret | Secret for signature verification |
-| `RAZORPAY_WEBHOOK_SECRET` | Razorpay Webhook Secret | Secret for webhook verification |
+| `PHONEPE_MERCHANT_ID` | PhonePe Merchant ID | `PGTESTPAYUAT` or production MID |
+| `PHONEPE_SALT_KEY` | PhonePe SHA256 Salt Key | Salt key for X-VERIFY generation |
+| `PHONEPE_SALT_INDEX` | PhonePe Salt Index | e.g. `1` |
+| `NEXT_PUBLIC_GPAY_UPI_VPA` | Merchant UPI VPA for Google Pay | e.g. `lumiere@icici` |
+| `NEXT_PUBLIC_GPAY_MERCHANT_NAME` | Merchant Name for Google Pay intent | e.g. `LUMIERE ATELIER` |
 | `DELHIVERY_API_TOKEN` | Delhivery B2C API token | API Token from Delhivery portal |
 | `DELHIVERY_CLIENT_NAME` | Delhivery Client Name | e.g. `LUMIERE_RETAIL` |
 | `DELHIVERY_WAREHOUSE_NAME` | Registered pickup hub | e.g. `LUMIERE_MUMBAI_HUB` |
@@ -205,7 +207,7 @@ Refer to `.env.example` for all required environment variables:
 
 1. **ESLint CLI Setup**: `next lint` is deprecated in Next.js 15 and has no static config (`.eslintrc` or `eslint.config.mjs`), causing an interactive CLI prompt when executed.
 2. **Stateful In-Memory Store Persistence**: When running without an active Supabase PostgreSQL connection, orders and inventory modifications reside in Node memory and reset on process restart.
-3. **External Services Fallback**: In the absence of live production API keys, Delhivery, Razorpay, and Resend operate in mock simulation mode.
+3. **External Services Fallback**: In the absence of live production API keys, Delhivery, PhonePe, and Resend operate in mock simulation mode.
 4. **Uncommitted Package Lock**: `package-lock.json` contains platform optional dependencies (glibc/musl) modified during npm install on Windows; this must be preserved.
 
 ---

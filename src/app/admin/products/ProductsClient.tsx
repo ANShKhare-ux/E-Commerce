@@ -155,7 +155,7 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
       search === "" ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.brand.toLowerCase().includes(search.toLowerCase()) ||
-      p.variants.some((v) => v.sku.toLowerCase().includes(search.toLowerCase()));
+      (p.variants || []).some((v) => v.sku.toLowerCase().includes(search.toLowerCase()));
 
     const matchesCategory =
       categoryFilter === "all" || p.category_slug === categoryFilter;
@@ -245,7 +245,7 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
             <tbody className="divide-y divide-canvas-subtle">
               {filteredProducts.map((p) => {
                 const primaryImage =
-                  p.images.find((i) => i.is_primary) || p.images[0];
+                  p.images?.find((i) => i.is_primary) || p.images?.[0];
 
                 return (
                   <tr key={p.id} className="hover:bg-canvas-light transition-colors">
@@ -288,10 +288,10 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <span className="font-bold text-noir-800 block">
-                        {p.variants.length} SKUs
+                        {(p.variants || []).length} SKUs
                       </span>
                       <span className="text-[10px] text-noir-400">
-                        {p.variants.map((v) => v.size).join(", ")}
+                        {(p.variants || []).map((v) => v.size).join(", ")}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right font-sans font-bold text-noir-900">

@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     return { title: "Product Not Found | LUMIÈRE" };
   }
 
-  const primaryImage = product.images.find((img) => img.is_primary)?.url || product.images[0]?.url;
+  const primaryImage = product.images?.find((img) => img.is_primary)?.url || product.images?.[0]?.url;
 
   return {
     title: `${product.name} | LUMIÈRE India`,
@@ -36,8 +36,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const primaryImage = product.images.find((img) => img.is_primary)?.url || product.images[0]?.url;
-  const inStock = product.variants.some((v) => (v.inventory?.available_stock ?? 0) > 0);
+  const primaryImage = product.images?.find((img) => img.is_primary)?.url || product.images?.[0]?.url;
+  const inStock = product.variants?.some((v) => (v.inventory?.available_stock ?? 0) > 0) ?? false;
 
   const related = (await db.products.getAll({ category: product.category_slug }))
     .filter((p) => p.id !== product.id)

@@ -139,7 +139,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
         {/* Left: Gallery (7 Cols) */}
         <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4">
           {/* Thumbnails */}
-          {product.images.length > 1 && (
+          {product.images && product.images.length > 1 && (
             <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto sm:w-24 shrink-0">
               {product.images.map((img) => (
                 <button
@@ -151,7 +151,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                       : "border-canvas-border hover:border-noir-400 opacity-80 hover:opacity-100"
                   }`}
                 >
-                  <Image src={img.url} alt={img.alt_text} fill className="object-cover" sizes="80px" />
+                  <Image src={img.url} alt={img.alt_text || product.name} fill className="object-cover" sizes="80px" />
                 </button>
               ))}
             </div>
@@ -163,7 +163,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
             onClick={() => setIsZoomed(!isZoomed)}
           >
             <Image
-              src={selectedImage}
+              src={selectedImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=80"}
               alt={product.name}
               fill
               priority

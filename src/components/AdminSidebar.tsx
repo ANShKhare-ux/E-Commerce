@@ -133,7 +133,7 @@ export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: A
           <span>Sign Out Admin</span>
         </button>
         <div className="px-3 text-[10px] text-noir-500 font-mono">
-          Authorized: {process.env.ADMIN_EMAIL || "owner@lumiere.in"}
+          Authorized: {process.env.NEXT_PUBLIC_ADMIN_EMAIL || "owner@lumiere.in"}
         </div>
       </div>
     </aside>

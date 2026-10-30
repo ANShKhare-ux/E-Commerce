@@ -103,7 +103,8 @@ export function AccountClient({
   const fetchOrders = async () => {
     setLoadingOrders(true);
     try {
-      const res = await fetch("/api/account/orders");
+      const emailParam = initialUser?.email ? `?email=${encodeURIComponent(initialUser.email)}` : "";
+      const res = await fetch(`/api/account/orders${emailParam}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.orders)) {
         setOrders(data.orders);

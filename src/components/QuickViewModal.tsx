@@ -108,7 +108,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
         <div className="md:w-1/2 flex flex-col bg-canvas-subtle p-4 border-b md:border-b-0 md:border-r border-canvas-border">
           <div className="relative aspect-[3/4] w-full rounded-sm overflow-hidden bg-white border border-canvas-border">
             <Image
-              src={selectedImage}
+              src={selectedImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"}
               alt={product.name}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -117,7 +117,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
           </div>
 
           {/* Thumbnails */}
-          {product.images.length > 1 && (
+          {product.images && product.images.length > 1 && (
             <div className="flex gap-2 mt-3 overflow-x-auto py-1">
               {product.images.map((img) => (
                 <button
@@ -129,7 +129,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                       : "border-canvas-border opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <Image src={img.url} alt={img.alt_text} fill sizes="56px" className="object-cover" />
+                  <Image src={img.url} alt={img.alt_text || product.name} fill sizes="56px" className="object-cover" />
                 </button>
               ))}
             </div>

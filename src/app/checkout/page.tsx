@@ -556,7 +556,7 @@ export default function CheckoutPage() {
                 <div key={item.variant_id} className="py-3 flex gap-3">
                   <div className="relative w-16 h-20 bg-canvas-subtle rounded-sm overflow-hidden shrink-0 border border-canvas-border">
                     <Image
-                      src={item.product_image}
+                      src={item.product_image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"}
                       alt={item.product_name}
                       fill
                       sizes="64px"
