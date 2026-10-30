@@ -4,24 +4,30 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+
+import { getSafeRedirectUrl } from "@/lib/auth/redirect";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect") || "/account";
-  const urlError = searchParams.get("error");
+  const rawRedirect = searchParams.get("redirect") || searchParams.get("next") || "/account";
+  const redirectUrl = getSafeRedirectUrl(rawRedirect);
+  const urlError = searchParams.get("error_description") || searchParams.get("error");
   const urlMessage = searchParams.get("message");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(urlError || "");
   const [successMsg, setSuccessMsg] = useState(urlMessage || "");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading || googleLoading) return;
     setErrorMsg("");
     setSuccessMsg("");
     setLoading(true);
@@ -40,13 +46,7 @@ function LoginForm() {
       }
 
       if (data.user) {
-        // Safe relative redirect
-        const safeDestination =
-          redirectUrl.startsWith("/") && !redirectUrl.startsWith("//")
-            ? redirectUrl
-            : "/account";
-
-        router.push(safeDestination);
+        router.push(redirectUrl);
         router.refresh();
       }
     } catch (err: any) {
@@ -93,6 +93,30 @@ function LoginForm() {
 
       {/* Login Card */}
       <div className="bg-white border border-canvas-border rounded-sm p-6 sm:p-8 shadow-xs space-y-6">
+        {/* Google OAuth */}
+        <GoogleSignInButton
+          redirectUrl={redirectUrl}
+          onStart={() => {
+            setErrorMsg("");
+            setSuccessMsg("");
+          }}
+          onError={setErrorMsg}
+          onLoadingChange={setGoogleLoading}
+          disabled={loading || googleLoading}
+        />
+
+        {/* Atelier Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-canvas-border" />
+          </div>
+          <div className="relative flex justify-center text-[10px] uppercase font-mono tracking-widest text-noir-400">
+            <span className="bg-white px-3 text-noir-400">
+              Or continue with email
+            </span>
+          </div>
+        </div>
+
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-noir-700 block">
@@ -146,7 +170,7 @@ function LoginForm() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || googleLoading}
             className="w-full bg-noir-900 hover:bg-gold-600 text-white py-3 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
           >
             {loading ? (
