@@ -8,7 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { PincodeChecker } from "@/components/PincodeChecker";
 import { ProductCard } from "@/components/ProductCard";
-import { RecentlyViewed } from "@/components/RecentlyViewed";
+import { RecentlyViewed, isValidRecentlyViewedProduct } from "@/components/RecentlyViewed";
 import {
   Heart,
   Star,
@@ -73,7 +73,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) {
-            list = parsed;
+            list = parsed.filter(isValidRecentlyViewedProduct);
           }
         }
         const filtered = [product, ...list.filter((p) => p && p.id !== product.id)].slice(0, 8);

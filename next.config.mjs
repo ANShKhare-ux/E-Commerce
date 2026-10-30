@@ -32,6 +32,14 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: [
+          ...(process.env.NODE_ENV !== "production"
+            ? [
+                {
+                  key: "Clear-Site-Data",
+                  value: '"cache"',
+                },
+              ]
+            : []),
           {
             key: "X-DNS-Prefetch-Control",
             value: "on",
@@ -63,7 +71,10 @@ const nextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            value:
+              process.env.NODE_ENV === "production"
+                ? "public, max-age=31536000, immutable"
+                : "no-cache, no-store, max-age=0, must-revalidate",
           },
         ],
       },

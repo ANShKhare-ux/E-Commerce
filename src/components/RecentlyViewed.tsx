@@ -22,10 +22,11 @@ export function isValidRecentlyViewedProduct(p: unknown): p is Product {
 }
 
 export function getStoredRecentlyViewed(limit = 4, excludeId?: string): Product[] {
-  if (typeof window === "undefined" || !window.localStorage) {
+  if (typeof window === "undefined") {
     return [];
   }
   try {
+    if (!window.localStorage) return [];
     const raw = window.localStorage.getItem("lumiere_recently_viewed");
     if (!raw) return [];
     const parsed = JSON.parse(raw);
