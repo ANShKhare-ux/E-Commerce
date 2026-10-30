@@ -223,7 +223,7 @@ Refer to `.env.example` for all required environment variables:
 ## 11. Prioritized Next Steps
 
 1. Configure flat ESLint configuration (`eslint.config.mjs`) compatible with Next.js 15 and React 19.
-2. Connect live Supabase project and execute `001_initial_schema.sql` and `002_seed_data.sql`.
+2. Connect live Supabase project and execute `001_initial_schema.sql` and `002_seed_data.sql`. *(Partially complete: full credential set — project URL, publishable key, and service-role secret key — wired into `.env.local` and verified live on 2026-10-30. Secret key passed the secret-only REST introspection endpoint with HTTP 200; introspection confirmed the remote database is empty — migrations still must be applied via Supabase SQL Editor or `supabase db push`.)*
 3. Provide live production credentials for Razorpay, Delhivery, and Resend in hosting platform environment variables.
 4. Set up an external cron scheduler (e.g. Vercel Cron or GitHub Actions) invoking `/api/cron/cleanup-reservations` every 5 minutes with `CRON_SECRET`.
 
@@ -232,4 +232,4 @@ Refer to `.env.example` for all required environment variables:
 ## 12. Areas That Could Not Be Verified
 
 - **Live Production Network APIs**: Production calls to Delhivery Express servers, Razorpay payment capture API, and Resend email transmission could not be verified in this sandbox environment without live API credentials (verified in sandbox simulation mode).
-- **Supabase Cloud PostgreSQL**: Live database connectivity and RLS policy enforcement on remote Supabase infrastructure could not be verified offline (SQL migration files inspected and verified).
+- **Supabase Cloud PostgreSQL**: Live connectivity fully verified on 2026-10-30 (project `yjjsohwtmapghxtunrgj`). Publishable key: auth service healthy, accepted by PostgREST. Service-role secret key: HTTP 200 on the secret-only REST root endpoint, confirming full privilege. Secret-key introspection confirmed **zero tables exist** in `public` — the schema is completely empty and migrations are pending application. RLS enforcement therefore remains unverified.
