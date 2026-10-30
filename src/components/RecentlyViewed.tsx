@@ -1,64 +1,67 @@
 "use client";
 
-import React, { useEffect, useState, Component, type ReactNode } from "react";
+import React, { useEffect, useState } from "react";
 import { Product } from "@/types";
 import { ProductCard } from "@/components/ProductCard";
 import { Clock } from "lucide-react";
 
-class RecentlyViewedErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
+export function isValidRecentlyViewedProduct(p: unknown): p is Product {
+  if (!p || typeof p !== "object") return false;
+  const prod = p as Record<string, unknown>;
+  return (
+    typeof prod.id === "string" &&
+    prod.id.trim().length > 0 &&
+    typeof prod.name === "string" &&
+    prod.name.trim().length > 0 &&
+    typeof prod.slug === "string" &&
+    prod.slug.trim().length > 0 &&
+    typeof prod.base_price === "number" &&
+    !isNaN(prod.base_price) &&
+    prod.base_price >= 0
+  );
+}
 
-  static getDerivedStateFromError() {
-    return { hasError: true };
+export function getStoredRecentlyViewed(limit = 4, excludeId?: string): Product[] {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return [];
   }
-
-  componentDidCatch(error: unknown) {
-    console.error("RecentlyViewed render error caught:", error);
-    try {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("lumiere_recently_viewed");
-      }
-    } catch {
-      // ignore
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return null;
-    }
-    return this.props.children;
+  try {
+    const raw = window.localStorage.getItem("lumiere_recently_viewed");
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const valid = parsed.filter(isValidRecentlyViewedProduct);
+    const filtered = excludeId ? valid.filter((p) => p.id !== excludeId) : valid;
+    return filtered.slice(0, limit);
+  } catch {
+    return [];
   }
 }
 
-function RecentlyViewedContent() {
+export interface RecentlyViewedProps {
+  excludeId?: string;
+  limit?: number;
+}
+
+export function RecentlyViewed({ excludeId, limit = 4 }: RecentlyViewedProps = {}) {
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    try {
-      const stored = localStorage.getItem("lumiere_recently_viewed");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const valid = parsed.filter(
-            (p): p is Product =>
-              Boolean(p && typeof p === "object" && p.id && typeof p.base_price === "number")
-          );
-          setRecentProducts(valid.slice(0, 4));
-        }
+    setRecentProducts(getStoredRecentlyViewed(limit, excludeId));
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "lumiere_recently_viewed" || e.key === null) {
+        setRecentProducts(getStoredRecentlyViewed(limit, excludeId));
       }
-    } catch (e) {
-      console.error("Failed to load recently viewed products", e);
-    }
-  }, []);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [excludeId, limit]);
 
   if (!mounted || recentProducts.length === 0) return null;
 
@@ -83,10 +86,5 @@ function RecentlyViewedContent() {
   );
 }
 
-export function RecentlyViewed() {
-  return (
-    <RecentlyViewedErrorBoundary>
-      <RecentlyViewedContent />
-    </RecentlyViewedErrorBoundary>
-  );
-}
+export default RecentlyViewed;
+

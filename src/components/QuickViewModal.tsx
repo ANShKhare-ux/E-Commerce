@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product, ProductVariant } from "@/types";
@@ -28,17 +28,30 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   const { addItem, setIsOpen } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  if (!isOpen || !product) return null;
-
-  const variants = product.variants || [];
+  const variants = product?.variants || [];
   const defaultVariant = variants[0];
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(defaultVariant);
   const [selectedImage, setSelectedImage] = useState(
-    product.images?.find((img) => img.is_primary)?.url || product.images?.[0]?.url || ""
+    product?.images?.find((img) => img.is_primary)?.url || product?.images?.[0]?.url || ""
   );
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen && product) {
+      const vars = product.variants || [];
+      setSelectedVariant(vars[0]);
+      setSelectedImage(
+        product.images?.find((img) => img.is_primary)?.url || product.images?.[0]?.url || ""
+      );
+      setQuantity(1);
+      setAddError(null);
+    }
+  }, [product, isOpen]);
+
+  if (!isOpen || !product) return null;
+
 
   const wishlisted = isInWishlist(product.id);
   const availableStock = selectedVariant?.inventory?.available_stock ?? 10;
@@ -330,3 +343,5 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
     </div>
   );
 }
+
+export default QuickViewModal;

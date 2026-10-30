@@ -69,8 +69,14 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("lumiere_recently_viewed");
-        const list: Product[] = stored ? JSON.parse(stored) : [];
-        const filtered = [product, ...list.filter((p) => p.id !== product.id)].slice(0, 8);
+        let list: Product[] = [];
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            list = parsed;
+          }
+        }
+        const filtered = [product, ...list.filter((p) => p && p.id !== product.id)].slice(0, 8);
         localStorage.setItem("lumiere_recently_viewed", JSON.stringify(filtered));
       } catch (e) {
         console.error("Failed to save to recently viewed", e);
@@ -570,7 +576,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
       )}
 
       {/* 4. Recently Viewed Products */}
-      <RecentlyViewed />
+      <RecentlyViewed excludeId={product.id} />
 
       {/* 5. Sticky Bottom Action Bar for Mobile Devices */}
       {!product.is_affiliate && (
