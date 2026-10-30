@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
               <span>Supabase Connection Required</span>
             </div>
             <p className="text-[11px] text-amber-300/80 leading-relaxed font-light">
-              Your Supabase credentials are currently unconfigured. Add your <code className="bg-black/40 px-1 py-0.5 rounded text-amber-200">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="bg-black/40 px-1 py-0.5 rounded text-amber-200">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to <code className="bg-black/40 px-1 py-0.5 rounded text-amber-200">.env.local</code> to activate live Supabase Authentication.
+              Your Supabase credentials are currently unconfigured. Add your <code className="bg-black/40 px-1 py-0.5 rounded text-amber-200">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="bg-black/40 px-1 py-0.5 rounded text-amber-200">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> to <code className="bg-black/40 px-1 py-0.5 rounded text-amber-200">.env.local</code> to activate live Supabase Authentication.
             </p>
           </div>
         )}
