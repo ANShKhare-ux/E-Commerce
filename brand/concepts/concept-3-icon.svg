@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c3-icon-title">
+  <title id="c3-icon-title">LUMIÈRE Concept 3 Icon — The Accented Monogram</title>
+  <g id="accent-e" fill="#0D0D0D">
+    <!-- Capital E -->
+    <path d="M 64 64 L 180 64 L 180 80 L 92 80 L 92 120 L 164 120 L 164 136 L 92 136 L 92 192 L 184 192 L 184 208 L 64 208 Z"/>
+    <!-- 45° Faceted Grave Accent (The Lumière Ray) -->
+    <polygon points="104,44 124,24 148,48 128,68"/>
+  </g>
+</svg>

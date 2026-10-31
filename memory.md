@@ -233,3 +233,21 @@ Refer to `.env.example` for all required environment variables:
 
 - **Live Production Network APIs**: Production calls to Delhivery Express servers, Razorpay payment capture API, and Resend email transmission could not be verified in this sandbox environment without live API credentials (verified in sandbox simulation mode).
 - **Supabase Cloud PostgreSQL**: Live connectivity fully verified on 2026-10-30 (project `yjjsohwtmapghxtunrgj`). Publishable key: auth service healthy, accepted by PostgREST. Service-role secret key: HTTP 200 on the secret-only REST root endpoint, confirming full privilege. Secret-key introspection confirmed **zero tables exist** in `public` — the schema is completely empty and migrations are pending application. RLS enforcement therefore remains unverified.
+
+---
+
+## 13. Brand Identity & Production Vector Assets (Version 2.0)
+
+- **Approved Brand System**: **The Sovereign Identity** (Combining Direction 3 Wordmark & Direction 5 Monogram)
+  - **Primary Wordmark**: Bespoke haute-couture Roman Didone capitals with 35% luxury letter-spacing, custom-sculpted letters, and a signature 45° diamond-shard grave accent on the first `È` (`brand/production/masters/lumiere-wordmark-master.svg`).
+  - **Sovereign Monogram**: Monumental Roman serif `L` holding a poised 45° celestial diamond facet in its optical counter (`brand/production/masters/lumiere-symbol-master.svg`).
+  - **Micro-Scale Cut**: Optically compensated cut for $\le 32\text{ px}$ favicons and mobile push icons (`brand/production/masters/lumiere-symbol-small.svg`).
+  - **Lockups**: Master Horizontal (`lumiere-lockup-horizontal.svg`) and Stacked / Crest (`lumiere-lockup-stacked.svg`).
+- **Production Exports & Deliverables**:
+  - Full monochrome black and white cuts (`brand/production/exports/`).
+  - Zari Gold mono cuts (`#C59B48`).
+  - High-resolution transparent PNG exports at 32px, 64px, 128px, 256px, 512px, 1024px, 2048px.
+  - Complete Web & PWA icon suite: `favicon.ico` (multi-res 16/32/48), `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png` (180px), `icon-192.png`, `icon-512.png`, `maskable-512.png`, `site.webmanifest`, `head-snippet.html`.
+  - Brand Guidelines specification document: `brand/BRAND_GUIDELINES.md`.
+  - Client Presentation Board with fashion mockups (shopping bag, signage, box, business cards, social, apparel): `brand/production/presentation/board.html` and slide PNGs.
+  - Web-ready assets mirrored to `public/` and `public/brand/` for direct storefront consumption.

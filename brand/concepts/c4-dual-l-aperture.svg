@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c4-title">
+  <title id="c4-title">LUMIÈRE Concept 4 — The Dual L Aperture</title>
+  <g id="dual-l" fill="#0D0D0D">
+    <!-- Upper-Left L-Monolith (with 45° beveled interior facet) -->
+    <path d="M 44 44 L 212 44 L 212 80 L 80 80 L 80 212 L 44 212 Z"/>
+    <!-- Lower-Right Inverted L-Monolith -->
+    <path d="M 212 212 L 44 212 L 44 176 L 176 176 L 176 44 L 212 44 Z"/>
+    <!-- Suspended Center Light Shard (revealed by the cut) -->
+    <polygon points="128,106 150,128 128,150 106,128"/>
+  </g>
+</svg>

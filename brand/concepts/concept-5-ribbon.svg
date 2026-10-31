@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c5-title">
+  <title id="c5-title">LUMIÈRE Concept 5 — The Sovereign L-Ribbon</title>
+  <g id="ribbon" fill="#0D0D0D">
+    <!-- Continuous Sculptural L with internal architectural loop cut -->
+    <path fill-rule="evenodd" d="
+      M 72 40
+      L 104 40
+      L 104 160
+      C 104 176, 116 188, 132 188
+      L 184 188
+      C 198 188, 208 178, 208 164
+      C 208 150, 198 140, 184 140
+      L 144 140
+      L 144 116
+      L 184 116
+      C 212 116, 232 136, 232 164
+      C 232 192, 212 212, 184 212
+      L 132 212
+      C 102 212, 72 182, 72 152
+      Z
+    "/>
+  </g>
+</svg>

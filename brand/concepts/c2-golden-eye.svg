@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c2-title">
+  <title id="c2-title">LUMIÈRE Concept 2 — The Golden Eye</title>
+  <g id="golden-eye" fill="#0D0D0D">
+    <!-- Left Blade -->
+    <path d="M 112 36 C 88 76, 80 108, 80 128 C 80 148, 88 180, 112 220 L 120 220 C 102 184, 96 154, 96 128 C 96 102, 102 72, 120 36 Z"/>
+    <!-- Right Blade -->
+    <path d="M 144 36 C 168 76, 176 108, 176 128 C 176 148, 168 180, 144 220 L 136 220 C 154 184, 160 154, 160 128 C 160 102, 154 72, 136 36 Z"/>
+    <!-- Horizontal Zari Thread / Light Beam -->
+    <rect x="48" y="126" width="160" height="4" rx="2" fill="#0D0D0D"/>
+    <!-- Center Punctum (The Spark) -->
+    <circle cx="128" cy="128" r="6" fill="#0D0D0D"/>
+  </g>
+</svg>

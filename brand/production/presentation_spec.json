@@ -1,0 +1,28 @@
+{
+  "brand": "LUMIÈRE",
+  "tagline": "Atelier · India",
+  "brief": "Modern Indian luxury fashion house pairing heritage handloom textiles (Banarasi silk, Chanderi, Mulmul) with contemporary architectural tailoring.",
+  "adjectives": ["Sovereign", "Architectural", "Luminous", "Artisanal", "Refined"],
+  "industry": "fashion",
+  "mockups": ["shopping-bag", "signage", "box", "business-card", "social", "tshirt"],
+  "nav": ["Couture", "Atelier", "Heritage Weaves", "The Gazette", "Concierge"],
+  "brand_color": "#C59B48",
+  "greyscale": false,
+  "final": true,
+  "round": 2,
+  "concepts": [
+    {
+      "name": "The Sovereign Identity",
+      "symbol": "masters/lumiere-symbol-master.svg",
+      "lockup": "masters/lumiere-lockup-horizontal.svg",
+      "stacked": "masters/lumiere-lockup-stacked.svg",
+      "idea": "An architectural Roman Didone wordmark with diamond-shard accent paired with the Sovereign L insignia.",
+      "rationale": [
+        "Custom-sculpted Roman Didone capitals with wide 35% luxury letter-spacing.",
+        "The signature 45° diamond-shard grave accent on È celebrates the soul of Lumière (Light).",
+        "The Sovereign L monogram is engineered for 3D cast metallic bag hardware, gold-foil stamping, and micro-scale app icons."
+      ]
+    }
+  ],
+  "recommendation": "Approved direction: The Sovereign Identity (Bespoke Didone Wordmark + Sovereign L Monogram)."
+}

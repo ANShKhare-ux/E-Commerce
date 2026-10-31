@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c4-title">
+  <title id="c4-title">LUMIÈRE Concept 4 — The L of Light</title>
+  <g id="c4-negative-l" fill="#0D0D0D">
+    <!-- Left Monolith (Shadow) -->
+    <path d="M 40 40 L 92 40 L 92 184 L 216 184 L 216 216 L 40 216 Z"/>
+    <!-- Top-Right Monolith (Shadow) -->
+    <path d="M 124 40 L 216 40 L 216 152 L 124 152 Z"/>
+    <!-- Center Radiance Diamond at the inner corner of the white L -->
+    <polygon points="124,136 140,152 124,168 108,152"/>
+  </g>
+</svg>

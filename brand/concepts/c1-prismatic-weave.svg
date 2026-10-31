@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c1-title">
+  <title id="c1-title">LUMIÈRE Concept 1 — The Prismatic Weave</title>
+  <g id="prismatic-weave" fill="#0D0D0D">
+    <!-- Top Chevron (The Loom Warp) -->
+    <path d="M 128 32 L 204 108 L 176 136 L 128 88 L 80 136 L 52 108 Z"/>
+    <!-- Bottom Chevron (The Loom Weft) -->
+    <path d="M 128 224 L 52 148 L 80 120 L 128 168 L 176 120 L 204 148 Z"/>
+    <!-- Floating Center Diamond (Lumière) -->
+    <polygon points="128,106 150,128 128,150 106,128"/>
+  </g>
+</svg>
