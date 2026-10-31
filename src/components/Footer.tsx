@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mail, CheckCircle2, ShieldAlert, ArrowRight } from "lucide-react";
+import { Mail, CheckCircle2, ShieldAlert, ArrowRight, ShieldCheck, Truck, Lock } from "lucide-react";
 
 export function Footer() {
   const pathname = usePathname();
@@ -99,7 +99,7 @@ export function Footer() {
 
       {/* 2. Primary Navigation Columns */}
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-        {/* Brand Bio */}
+        {/* Brand Profile (2 cols on lg) */}
         <div className="lg:col-span-2 space-y-4">
           <Link href="/" className="inline-block">
             <span className="font-serif text-2xl tracking-[0.25em] text-white font-bold uppercase block">
@@ -110,15 +110,16 @@ export function Footer() {
             </span>
           </Link>
           <p className="text-noir-400 text-xs leading-relaxed max-w-sm">
-            LUMIÈRE curates and manufactures modern Indian luxury apparel. We pair timeless indigenous handlooms with contemporary tailoring, alongside verified global affiliate fashion discoveries.
+            LUMIÈRE curates and manufactures modern Indian luxury apparel. We pair timeless indigenous handlooms with
+            contemporary architectural tailoring, alongside verified global luxury partner discoveries.
           </p>
           <div className="text-xs text-noir-400 space-y-1 pt-2">
-            <p className="text-white font-medium">LUMIÈRE Mumbai Central Hub</p>
+            <p className="text-white font-medium">LUMIÈRE Central Atelier & Hub</p>
             <p>Royal Opera House District, Girgaon, Mumbai 400004</p>
             <p>Concierge: <a href="mailto:concierge@lumiere.in" className="text-gold-400 hover:underline">concierge@lumiere.in</a></p>
-            <p>Hours: Mon–Sat, 10:00 AM – 7:00 PM IST</p>
+            <p>Helpline: <span className="text-noir-300 font-medium">+91 22 4900 8800</span> (Mon–Sat, 10 AM – 7 PM IST)</p>
           </div>
-          {/* Social Links Configured by Owner */}
+          {/* Social Links */}
           <div className="pt-2 flex items-center gap-4 text-xs">
             <a
               href="https://instagram.com/lumiere.atelier"
@@ -158,61 +159,170 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Collections */}
+        {/* Group A: CUSTOMER SERVICE */}
         <div className="space-y-3">
           <h4 className="text-xs font-semibold uppercase tracking-widest text-gold-400">
-            Atelier
+            Customer Service
           </h4>
           <ul className="space-y-2 text-xs text-noir-400 font-light">
-            <li><Link href="/category/ethnic-wear" className="hover:text-white transition-colors">Ethnic Wear & Silks</Link></li>
-            <li><Link href="/category/womens-clothing" className="hover:text-white transition-colors">Women's Collection</Link></li>
-            <li><Link href="/category/mens-clothing" className="hover:text-white transition-colors">Men's Tailoring</Link></li>
-            <li><Link href="/category/streetwear" className="hover:text-white transition-colors">District Zero Streetwear</Link></li>
-            <li><Link href="/category/premium-luxury" className="hover:text-white transition-colors">Haute Horlogerie & Luxury</Link></li>
-            <li><Link href="/outfits" className="hover:text-gold-400 transition-colors font-medium">Curated Outfits</Link></li>
-            <li><Link href="/deals" className="hover:text-red-400 transition-colors">Private Archive Deals</Link></li>
+            <li>
+              <Link href="/contact" className="hover:text-white transition-colors">
+                Contact Us
+              </Link>
+            </li>
+            <li>
+              <Link href="/faq" className="hover:text-white transition-colors">
+                FAQs
+              </Link>
+            </li>
+            <li>
+              <Link href="/shipping-policy" className="hover:text-white transition-colors">
+                Shipping Information
+              </Link>
+            </li>
+            <li>
+              <Link href="/returns-policy" className="hover:text-white transition-colors">
+                Returns & Exchanges
+              </Link>
+            </li>
+            <li>
+              <Link href="/cancellation-policy" className="hover:text-white transition-colors">
+                Order Cancellation
+              </Link>
+            </li>
+            <li>
+              <Link href="/track-order" className="hover:text-gold-400 transition-colors font-medium">
+                Track Delhivery Parcel
+              </Link>
+            </li>
+            <li>
+              <Link href="/account" className="hover:text-white transition-colors">
+                Patron Dashboard
+              </Link>
+            </li>
           </ul>
         </div>
 
-        {/* Client Services */}
+        {/* Group B: LEGAL */}
         <div className="space-y-3">
           <h4 className="text-xs font-semibold uppercase tracking-widest text-gold-400">
-            Client Concierge
+            Legal
           </h4>
           <ul className="space-y-2 text-xs text-noir-400 font-light">
-            <li><Link href="/account" className="hover:text-white transition-colors font-medium text-white">Patron Account & Orders</Link></li>
-            <li><Link href="/track-order" className="hover:text-white transition-colors font-medium text-gold-300">Track Delhivery Parcel</Link></li>
-            <li><Link href="/shipping-policy" className="hover:text-white transition-colors">Shipping & Pincode Timelines</Link></li>
-            <li><Link href="/cancellation-returns" className="hover:text-white transition-colors">Cancellation & 7-Day Returns</Link></li>
-            <li><Link href="/refund-policy" className="hover:text-white transition-colors">Refund Processing</Link></li>
-            <li><Link href="/contact" className="hover:text-white transition-colors">Contact Concierge</Link></li>
-            <li><Link href="/faq" className="hover:text-white transition-colors text-gold-300 font-medium">Frequently Asked Questions (FAQ)</Link></li>
-            <li><Link href="/size-guide" className="hover:text-white transition-colors">Size & Fit Guide</Link></li>
-            <li><Link href="/about" className="hover:text-white transition-colors">Our Artisans & Craft Heritage</Link></li>
+            <li>
+              <Link href="/terms" className="hover:text-white transition-colors">
+                Terms & Conditions
+              </Link>
+            </li>
+            <li>
+              <Link href="/privacy-policy" className="hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+            </li>
+            <li>
+              <Link href="/cookie-policy" className="hover:text-white transition-colors">
+                Cookie Policy
+              </Link>
+            </li>
+            <li>
+              <Link href="/disclaimer" className="hover:text-white transition-colors">
+                Disclaimer
+              </Link>
+            </li>
+            <li>
+              <Link href="/intellectual-property" className="hover:text-white transition-colors">
+                Intellectual Property Policy
+              </Link>
+            </li>
+            <li>
+              <Link href="/affiliate-disclosure" className="hover:text-white transition-colors">
+                Affiliate Disclosure
+              </Link>
+            </li>
           </ul>
         </div>
 
-        {/* Legal & Compliance */}
+        {/* Group C: INFORMATION */}
         <div className="space-y-3">
           <h4 className="text-xs font-semibold uppercase tracking-widest text-gold-400">
-            Compliance & Transparency
+            Information
           </h4>
           <ul className="space-y-2 text-xs text-noir-400 font-light">
-            <li><Link href="/affiliate-disclosure" className="hover:text-white transition-colors">Affiliate Disclosure Statement</Link></li>
-            <li><Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy & Cookie Policy</Link></li>
-            <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-            <li><Link href="/admin" className="hover:text-white transition-colors text-noir-500">Admin Control Room</Link></li>
+            <li>
+              <Link href="/about" className="hover:text-white transition-colors">
+                About Us
+              </Link>
+            </li>
+            <li>
+              <Link href="/payment-policy" className="hover:text-white transition-colors">
+                Payment Policy
+              </Link>
+            </li>
+            <li>
+              <Link href="/grievance-redressal" className="hover:text-white transition-colors font-medium text-gold-300">
+                Grievance Redressal
+              </Link>
+            </li>
+            <li>
+              <Link href="/accessibility" className="hover:text-white transition-colors">
+                Accessibility Statement
+              </Link>
+            </li>
+            <li>
+              <Link href="/authenticity" className="hover:text-white transition-colors">
+                Product Authenticity
+              </Link>
+            </li>
+            <li>
+              <Link href="/size-guide" className="hover:text-white transition-colors">
+                Size & Fit Guide
+              </Link>
+            </li>
+            <li>
+              <Link href="/admin" className="hover:text-white transition-colors text-noir-600">
+                Staff Control Room
+              </Link>
+            </li>
           </ul>
-          <div className="pt-2 text-[11px] text-noir-500">
-            <p>GSTIN: 27AABCL9841K1Z3</p>
-            <p>Market: Republic of India Only</p>
+        </div>
+      </div>
+
+      {/* 3. Statutory Trust Badges & Compliance Bar */}
+      <div className="border-t border-noir-800 py-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-noir-400">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-[11px]">
+            <span className="flex items-center gap-1.5 text-noir-300">
+              <ShieldCheck className="w-3.5 h-3.5 text-gold-500" />
+              <span>RBI 2FA / PCI-DSS Secured</span>
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1.5 text-noir-300">
+              <Truck className="w-3.5 h-3.5 text-gold-500" />
+              <span>Delhivery Express Logistics (19,000+ PINs)</span>
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1.5 text-noir-300">
+              <Lock className="w-3.5 h-3.5 text-gold-500" />
+              <span>DPDP Act 2023 Compliant</span>
+            </span>
+          </div>
+
+          <div className="text-[11px] text-noir-400 text-center sm:text-right">
+            <span>Market: Republic of India Only</span>
+            <span className="mx-2">•</span>
+            <span>GSTIN: 27AABCL9841K1Z3</span>
           </div>
         </div>
       </div>
 
-      {/* 3. Bottom Legal Bar */}
-      <div className="border-t border-noir-800 py-6 px-4 sm:px-6 lg:px-8 text-center text-[11px] text-noir-500 font-light">
-        <p>© {new Date().getFullYear()} LUMIÈRE Fashions India Pvt. Ltd. All rights reserved. Prices shown in Indian Rupees (₹) inclusive of all applicable taxes.</p>
+      {/* 4. Bottom Legal Copyright Bar */}
+      <div className="border-t border-noir-800/60 py-6 px-4 sm:px-6 lg:px-8 text-center text-[11px] text-noir-500 font-light">
+        <p>
+          © {new Date().getFullYear()} [LUMIÈRE Luxury Retail Private Limited]. All rights reserved. Registered under the Companies Act, 2013 (CIN: [U18109MH2025PTC000000]).
+        </p>
+        <p className="mt-1">
+          All retail prices authoritatively displayed in Indian Rupees (₹) inclusive of 12% Goods and Services Tax (GST) applicable to apparel and textiles.
+        </p>
       </div>
     </footer>
   );
