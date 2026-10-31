@@ -251,3 +251,58 @@ Refer to `.env.example` for all required environment variables:
   - Brand Guidelines specification document: `brand/BRAND_GUIDELINES.md`.
   - Client Presentation Board with fashion mockups (shopping bag, signage, box, business cards, social, apparel): `brand/production/presentation/board.html` and slide PNGs.
   - Web-ready assets mirrored to `public/` and `public/brand/` for direct storefront consumption.
+
+---
+
+## 14. Storefront Navigation Bar & Welcome Announcement Architecture
+
+- **Navbar Redesign (Myntra-Style UI/UX & LUMIÈRE Taxonomy)**:
+  - **Height & Elevation**: 80px (`h-20`), sticky `top-0`, pure white background (`bg-white`), bottom border `border-[#eaeaec]`, subtle shadow `shadow-[0_2px_12px_rgba(0,0,0,0.05)]`.
+  - **Brand Logo**: Left-aligned official vector horizontal lockup (`/brand/lumiere-lockup-horizontal.svg`), linking to `/`.
+  - **Primary Category Tabs**:
+    * `MEN` (`/category/mens-clothing`) with coral-orange bottom border (`#ee5f73`).
+    * `WOMEN` (`/category/womens-clothing`) with fuchsia bottom border (`#fb56c1`).
+    * `UNISEX` (`/category/streetwear`) replacing KIDS, with teal-cyan bottom border (`#03a685`).
+
+
+    * `COLLECTIONS` (`/products`) replacing GENZ, with signature atelier gold bottom border (`#C59B48`) and uppercase `NEW` superscript pill.
+    * `HOME`, `BEAUTY`, and `STUDIO` completely omitted per user specifications.
+  - **Hover Mega-Menus**: Multi-column drop panel with sub-categories (Topwear, Bottomwear, Heritage, Accents, etc.) and visual campaign cards with micro-debounced hover transitions.
+  - **Wide Center-Right Search Bar**: `#f5f5f6` background, magnifying glass icon, placeholder `"Search for products, brands and more"`, keyboard shortcut `/` support, and direct search submission to `/products?search=...`.
+  - **Stacked Action Icons**:
+    * `Profile`: User icon + bold "Profile" label underneath, with hover card flyout for Login/Signup, Orders, Wishlist, Track Delhivery Parcel, and Admin Control Room.
+    * `Wishlist`: Heart icon + bold "Wishlist" label underneath, with badge counter.
+    * `Bag`: ShoppingBag icon + bold "Bag" label underneath, with badge counter navigating directly to the dedicated `/cart` page.
+
+- **Dedicated Standalone Cart Page (`src/app/cart/page.tsx`)**:
+  - Full-page luxury shopping bag experience with 3-step checkout progression breadcrumb (`1. Bag` -> `2. Address` -> `3. Payment`).
+  - Real-time Delhivery express complimentary delivery threshold tracker (progress toward ₹2,999).
+  - 15-minute concurrency reservation countdown hold to prevent overselling.
+  - Complete variant metadata (size, color, SKU), item quantity adjustment, and 1-click "Move to Wishlist".
+  - Live Delhivery 6-digit PIN code serviceability & delivery date estimation checker (`/api/delhivery/check-pincode`).
+  - Promotional coupon validation with quick-apply shortcuts (`FIRSTBUY`, `LUMIERE10`).
+  - Sticky price breakdown (MRP, discounts, Delhivery courier fee, 12% GST inclusive) and direct "Proceed to Checkout" action to `/checkout`.
+  - Drawer integration: `CartDrawer` suppresses on `/cart` and provides "View Full Bag" navigation link.
+
+- **Announcement Bar Elimination & Welcome Modal**:
+  - Top fixed announcement bar completely removed from the header so the navbar sticks directly flush to `top-0`.
+  - Replaced by `WelcomeAnnouncementModal` (`src/components/WelcomeAnnouncementModal.tsx`), mounted in `layout.tsx`.
+  - **Intelligent Frequency & Navigation Guard**:
+    * Displays strictly **once** when a user first enters the website (`localStorage` + `sessionStorage` guard).
+    * Guaranteed **never to show** when navigating to the main page (`/`) from within the website itself (via internal session flag `lumiere_session_active` and `document.referrer` origin validation).
+    * Features 1-click coupon code copy (`FIRSTBUY` for ₹300 off), complimentary Delhivery express shipping notification, and direct collection discovery CTA (layered at `z-[9999]`).
+
+---
+
+## 16. Dropdown & Page Transition Motion Architecture
+
+- **Page Transitions (`src/components/PageTransition.tsx`)**:
+  - Implemented client-side `PageTransition` wrapping root `<main>` in `src/app/layout.tsx`.
+  - Driven by `framer-motion`'s `<AnimatePresence mode="wait" initial={false}>` keyed on `usePathname()`.
+  - Delivers a smooth, luxury fade animation (`opacity: 0` $\to$ `opacity: 1`) over 200ms with easeInOut curves across all page navigations.
+  - Query parameters (such as collection filtering) do not cause full page re-fades, ensuring instant catalog filtering responsiveness.
+
+- **Dropdown Animations (`src/components/Header.tsx`)**:
+  - **Mega-Menu Dropdown**: Wrapped in `<AnimatePresence>` with `motion.div` fade and subtle vertical translation (`initial={{ opacity: 0, y: -6 }}` $\to$ `animate={{ opacity: 1, y: 0 }}` $\to$ `exit={{ opacity: 0, y: -4 }}`) over 180ms easeOut.
+  - **Profile Flyout Card**: Wrapped in `<AnimatePresence>` with `motion.div` fade (`initial={{ opacity: 0, y: 8 }}` $\to$ `animate={{ opacity: 1, y: 0 }}`) over 180ms.
+  - **Mobile Menu Drawer**: Wrapped in `<AnimatePresence>` with smooth height and fade animation over 220ms.
