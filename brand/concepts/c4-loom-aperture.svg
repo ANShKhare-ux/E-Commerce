@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c4-title">
+  <title id="c4-title">LUMIÈRE Concept 4 — The Loom Aperture</title>
+  <g id="aperture" fill="#0D0D0D">
+    <!-- Top-Left Architectural L (with 45° chamfered inner corner) -->
+    <path d="M 40 40 L 196 40 L 196 76 L 76 76 L 76 196 L 40 196 Z"/>
+    <!-- Bottom-Right Architectural L (Mirrored) -->
+    <path d="M 216 216 L 60 216 L 60 180 L 180 180 L 180 60 L 216 60 Z"/>
+    <!-- Center Radiant Diamond Shard -->
+    <polygon points="128,108 148,128 128,148 108,128"/>
+  </g>
+</svg>

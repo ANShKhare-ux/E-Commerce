@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c5-test-title">
+  <title id="c5-test-title">LUMIÈRE Concept 5 — The Double-L Crest</title>
+  <g id="double-l" fill="#0D0D0D">
+    <!-- Left Roman L (facing left) -->
+    <path d="
+      M 124 48 L 124 180 L 60 180 L 60 192 L 124 192 L 124 204 L 132 204 L 132 192 L 196 192 L 196 180 L 132 180 L 132 48 Z
+    "/>
+    <!-- Top Imperial Serifs -->
+    <rect x="108" y="44" width="40" height="8" rx="1" fill="#0D0D0D"/>
+    <!-- Left Base Terminal Serifs -->
+    <path d="M 60 172 L 60 196 L 68 196 L 68 172 Z"/>
+    <!-- Right Base Terminal Serifs -->
+    <path d="M 188 172 L 188 196 L 196 196 L 196 172 Z"/>
+    <!-- Poised Imperial Diamond Crown (The Light) -->
+    <polygon points="128,16 140,28 128,40 116,28"/>
+  </g>
+</svg>

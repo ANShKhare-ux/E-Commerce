@@ -6,6 +6,8 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
+import { WelcomeAnnouncementModal } from "@/components/WelcomeAnnouncementModal";
+import { PageTransition } from "@/components/PageTransition";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -57,8 +59,11 @@ export default function RootLayout({
         <CartProvider>
           <WishlistProvider>
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 flex flex-col">
+              <PageTransition>{children}</PageTransition>
+            </main>
             <CartDrawer />
+            <WelcomeAnnouncementModal />
             <Footer />
           </WishlistProvider>
         </CartProvider>

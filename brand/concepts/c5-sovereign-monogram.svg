@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c5-title">
+  <title id="c5-title">LUMIÈRE Concept 5 — The Sovereign L-Monogram</title>
+  <g id="sovereign-monogram" fill="#0D0D0D">
+    <!-- Roman Stem with classical Didone Serifs -->
+    <path d="M 60 48 L 108 48 L 108 58 L 94 58 L 94 176 L 108 176 L 108 186 L 60 186 L 60 176 L 74 176 L 74 58 L 60 58 Z"/>
+    <!-- Architectural Foot extending into Couture Ribbon Return -->
+    <path d="
+      M 94 166
+      L 172 166
+      C 188 166, 198 176, 198 188
+      C 198 200, 188 210, 172 210
+      L 74 210
+      L 74 200
+      L 172 200
+      C 182 200, 188 194, 188 188
+      C 188 182, 182 176, 172 176
+      L 94 176
+      Z
+    "/>
+    <!-- The Lumière Radiant Diamond (Poised in the counter) -->
+    <polygon points="152,72 174,94 152,116 130,94"/>
+  </g>
+</svg>

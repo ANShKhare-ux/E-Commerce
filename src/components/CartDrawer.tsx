@@ -9,7 +9,7 @@ import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Clock, Truck } from "l
 
 export function CartDrawer() {
   const pathname = usePathname();
-  const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal, reservationExpiresAt } = useCart();
+  const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal, reservationExpiresAt, totalCount } = useCart();
   const [timeLeft, setTimeLeft] = useState<string>("");
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number } | null>(null);
@@ -90,7 +90,7 @@ export function CartDrawer() {
     return () => clearInterval(interval);
   }, [reservationExpiresAt]);
 
-  if (pathname?.startsWith("/admin") || !isOpen) return null;
+  if (pathname?.startsWith("/admin") || pathname === "/cart" || !isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -321,7 +321,7 @@ export function CartDrawer() {
               <Link
                 href="/checkout"
                 onClick={() => setIsOpen(false)}
-                className="w-full bg-noir-900 hover:bg-gold-600 text-white py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-sm transition-colors shadow-subtle"
+                className="w-full bg-noir-900 hover:bg-gold-600 text-white py-3 px-4 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-sm transition-colors shadow-subtle"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="w-4 h-4" />
@@ -329,6 +329,16 @@ export function CartDrawer() {
 
               <p className="text-[10px] text-center text-noir-500 font-light">
                 Secured by 256-bit SSL • Official Delhivery Express Courier
+              </p>
+              <Link
+                href="/cart"
+                onClick={() => setIsOpen(false)}
+                className="w-full py-2.5 px-4 border border-[#d4d5d9] hover:border-noir-900 text-noir-900 text-xs font-bold uppercase tracking-wider text-center rounded-sm transition-colors block mt-2"
+              >
+                View Full Bag ({totalCount})
+              </Link>
+              <p className="text-[10px] text-center text-noir-500 font-light mt-1">
+                Complimentary returns & exchanges across India
               </p>
             </div>
           )}

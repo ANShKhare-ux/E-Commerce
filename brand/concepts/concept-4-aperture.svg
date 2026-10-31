@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c4-title">
+  <title id="c4-title">LUMIÈRE Concept 4 — The Weaver's Aperture</title>
+  <g id="aperture" fill="#0D0D0D">
+    <!-- Top-Left Monolith -->
+    <path d="M 36 36 L 220 36 L 220 84 L 84 84 L 84 220 L 36 220 Z"/>
+    <!-- Bottom-Right Monolith with Chamfered Negative Light Channel -->
+    <path d="M 220 220 L 36 220 L 36 172 L 172 172 L 172 36 L 220 36 Z"/>
+    <!-- Center Radiant Diamond Core (Creating the light pinch) -->
+    <polygon points="128,104 152,128 128,152 104,128"/>
+  </g>
+</svg>

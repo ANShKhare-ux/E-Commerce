@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c2-title">
+  <title id="c2-title">LUMIÈRE Concept 2 — The Solar Loom</title>
+  <g id="solar-loom" fill="#0D0D0D">
+    <!-- Left Hemisphere with Chamfered Center Aperture -->
+    <path d="
+      M 120 36
+      A 92 92 0 0 0 120 220
+      L 120 156
+      L 96 128
+      L 120 100
+      Z
+    "/>
+    <!-- Right Hemisphere with Chamfered Center Aperture -->
+    <path d="
+      M 136 36
+      L 136 100
+      L 160 128
+      L 136 156
+      L 136 220
+      A 92 92 0 0 0 136 36
+      Z
+    "/>
+    <!-- Suspended Center Light Punctum -->
+    <polygon points="128,116 140,128 128,140 116,128"/>
+  </g>
+</svg>

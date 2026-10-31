@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title">
+  <title id="title">Test mark</title>
+  <rect width="256" height="256" fill="#FDFBF7"/>
+  <circle cx="128" cy="128" r="64" fill="#0D0D0D"/>
+</svg>

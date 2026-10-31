@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c5-title">
+  <title id="c5-title">LUMIÈRE Concept 5 — The Sovereign L-Crest</title>
+  <g id="sovereign-crest" fill="#0D0D0D">
+    <!-- Architectural Fluted Column (Vertical Stem with Classical Serifs) -->
+    <!-- Top Serifs & Stem -->
+    <path d="
+      M 54 44 L 102 44 L 102 54 L 88 54 L 88 184 L 102 184 L 102 194 L 54 194 L 54 184 L 68 184 L 68 54 L 54 54 Z
+    "/>
+    <!-- Interlocking Horizontal Base Ribbon with Couture Terminus -->
+    <path d="
+      M 68 174 L 174 174 C 188 174, 196 166, 196 154 C 196 142, 188 134, 174 134 L 140 134 L 140 124 L 174 124 C 194 124, 206 136, 206 154 C 206 172, 194 184, 174 184 L 68 184 Z
+    "/>
+    <!-- Radiant Diamond Finial (The Lumière Spark) -->
+    <polygon points="148,64 168,84 148,104 128,84"/>
+  </g>
+</svg>

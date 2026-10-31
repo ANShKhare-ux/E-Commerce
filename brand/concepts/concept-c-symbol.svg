@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-c">
+  <title id="title-c">LUMIÈRE Concept C — The Radiance Octagon</title>
+  <g id="symbol-c" fill="#0D0D0D">
+    <polygon points="128,36 152,60 128,84 104,60"/>
+    <polygon points="160,64 192,64 192,96 160,96"/>
+    <polygon points="196,104 220,128 196,152 172,128"/>
+    <polygon points="160,160 192,160 192,192 160,192"/>
+    <polygon points="128,172 152,196 128,220 104,196"/>
+    <polygon points="64,160 96,160 96,192 64,192"/>
+    <polygon points="60,104 84,128 60,152 36,128"/>
+    <polygon points="64,64 96,64 96,96 64,96"/>
+    <polygon points="128,114 142,128 128,142 114,128"/>
+  </g>
+</svg>

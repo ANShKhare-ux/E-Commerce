@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" width="760" height="220" role="img" aria-labelledby="c3-title">
+  <title id="c3-title">LUMIÈRE Concept 3 — Bespoke Atelier Wordmark</title>
+  <g id="wordmark" fill="#0D0D0D">
+    <!-- L (x=70 to 118) -->
+    <path d="M 70 70 L 80 70 L 80 134 L 118 134 L 118 140 L 70 140 Z"/>
+    <!-- U (x=144 to 198) -->
+    <path d="M 144 70 L 154 70 L 154 116 C 154 134, 164 141, 171 141 C 178 141, 188 134, 188 116 L 188 70 L 198 70 L 198 116 C 198 140, 184 148, 171 148 C 158 148, 144 140, 144 116 Z"/>
+    <!-- M (x=224 to 288) -->
+    <path d="M 224 70 L 235 70 L 256 122 L 277 70 L 288 70 L 288 140 L 278 140 L 278 88 L 260 134 L 252 134 L 234 88 L 234 140 L 224 140 Z"/>
+    <!-- I (x=314 to 324) -->
+    <path d="M 314 70 L 324 70 L 324 140 L 314 140 Z"/>
+    <!-- È with 45° Architectural Light Shard (x=350 to 398) -->
+    <path d="
+      M 350 70 L 396 70 L 396 76 L 360 76 L 360 102 L 390 102 L 390 108 L 360 108 L 360 134 L 398 134 L 398 140 L 350 140 Z
+      M 364 54 L 372 46 L 384 58 L 376 66 Z
+    "/>
+    <!-- R (x=424 to 476) -->
+    <path d="
+      M 424 70 L 458 70 C 472 70, 476 80, 476 90 C 476 100, 468 108, 454 109 L 476 140 L 464 140 L 444 110 L 434 110 L 434 140 L 424 140 Z
+      M 434 76 L 456 76 C 464 76, 466 82, 466 90 C 466 98, 464 104, 456 104 L 434 104 Z
+    "/>
+    <!-- E (x=502 to 550) -->
+    <path d="M 502 70 L 548 70 L 548 76 L 512 76 L 512 102 L 542 102 L 542 108 L 512 108 L 512 134 L 550 134 L 550 140 L 502 140 Z"/>
+  </g>
+  <!-- Subtitle: ATELIER · MUMBAI -->
+  <g id="sub" fill="#71717A">
+    <rect x="290" y="172" width="180" height="1" fill="#D4D4D8"/>
+    <text x="380" y="194" font-family="'Didot', 'Playfair Display', serif" font-size="11" letter-spacing="8" text-anchor="middle" text-transform="uppercase" fill="#71717A">ATELIER • MUMBAI</text>
+  </g>
+</svg>

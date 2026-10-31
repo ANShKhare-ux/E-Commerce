@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c2-title">
+  <title id="c2-title">LUMIÈRE Concept 2 — The Golden Portal</title>
+  <g id="portal" fill="#0D0D0D">
+    <!-- Outer Arch / Needle Silhouette with inner eye cutout using evenodd -->
+    <path fill-rule="evenodd" d="
+      M 128 28
+      C 160 28, 172 64, 172 128
+      C 172 192, 160 228, 128 228
+      C 96 228, 84 192, 84 128
+      C 84 64, 96 28, 128 28 Z
+      M 128 64
+      C 114 64, 108 88, 108 128
+      C 108 168, 114 192, 128 192
+      C 142 192, 148 168, 148 128
+      C 148 88, 142 64, 128 64 Z
+    "/>
+    <!-- Horizontal Light Beam (Piercing the Needle Eye) -->
+    <rect x="44" y="125" width="168" height="6" rx="3" fill="#0D0D0D"/>
+  </g>
+</svg>

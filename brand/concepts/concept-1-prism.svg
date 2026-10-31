@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="c1-title">
+  <title id="c1-title">LUMIÈRE Concept 1 — The Chiaroscuro Prism</title>
+  <g id="prism" fill="#0D0D0D">
+    <!-- Solid Shadow Half (Left Facet) -->
+    <path d="M 128 32 L 64 80 L 64 176 L 128 224 Z"/>
+    <!-- Light & Thread Facets (Right Half - 4 precision louvers) -->
+    <!-- Top louver -->
+    <path d="M 136 38 L 192 80 L 176 92 L 136 62 Z"/>
+    <!-- Upper-mid louver -->
+    <path d="M 136 78 L 192 120 L 176 132 L 136 102 Z"/>
+    <!-- Lower-mid louver -->
+    <path d="M 136 118 L 192 160 L 176 172 L 136 142 Z"/>
+    <!-- Bottom louver -->
+    <path d="M 136 158 L 192 200 L 148 220 L 136 182 Z"/>
+  </g>
+</svg>
