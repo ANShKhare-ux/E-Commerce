@@ -12,7 +12,8 @@ import {
   Edit3, 
   Loader2, 
   PlusCircle,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Download
 } from "lucide-react";
 
 interface InventoryClientProps {
@@ -43,6 +44,52 @@ export function InventoryClient({ initialInventory, initialMovements }: Inventor
     item.productName.toLowerCase().includes(search.toLowerCase()) ||
     item.variantTitle.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleExportStockCsv = () => {
+    if (inventoryList.length === 0) {
+      alert("No inventory records available to export.");
+      return;
+    }
+
+    const headers = [
+      "SKU",
+      "Product Name",
+      "Variant Title",
+      "Physical Stock",
+      "Reserved Stock",
+      "Available Stock",
+      "Low Stock Threshold",
+      "Health Status"
+    ];
+
+    const rows = inventoryList.map((item) => {
+      let status = "Healthy";
+      if (item.available_stock === 0) status = "OUT OF STOCK";
+      else if (item.available_stock <= item.low_stock_threshold) status = "LOW STOCK";
+
+      return [
+        `"${item.sku}"`,
+        `"${item.productName.replace(/"/g, '""')}"`,
+        `"${item.variantTitle.replace(/"/g, '""')}"`,
+        item.physical_stock,
+        item.reserved_stock,
+        item.available_stock,
+        item.low_stock_threshold,
+        `"${status}"`
+      ];
+    });
+
+    const csvString = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `lumiere_stock_balances_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const handleAdjustSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,10 +208,18 @@ export function InventoryClient({ initialInventory, initialMovements }: Inventor
 
           <button
             onClick={() => setShowCsvModal(true)}
+            className="bg-white border border-canvas-border hover:border-noir-900 text-noir-800 text-xs font-bold uppercase tracking-wider px-3.5 py-2.5 rounded-sm transition-colors flex items-center gap-1.5"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-gold-600" />
+            <span>Import CSV</span>
+          </button>
+
+          <button
+            onClick={handleExportStockCsv}
             className="bg-noir-900 hover:bg-gold-600 text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2.5 rounded-sm transition-colors flex items-center gap-1.5 shadow-xs"
           >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>Import CSV</span>
+            <Download className="w-4 h-4" />
+            <span>Export Stock CSV</span>
           </button>
         </div>
       </div>

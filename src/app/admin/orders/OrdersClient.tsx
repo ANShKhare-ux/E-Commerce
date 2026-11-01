@@ -12,7 +12,8 @@ import {
   Eye, 
   X, 
   Loader2, 
-  Filter 
+  Filter,
+  Download
 } from "lucide-react";
 
 interface OrdersClientProps {
@@ -37,6 +38,66 @@ export function OrdersClient({ initialOrders }: OrdersClientProps) {
     if (statusFilter === "cod") return o.payment_method === "cod";
     return o.order_status === statusFilter;
   });
+
+  const handleExportOrdersCsv = () => {
+    if (filteredOrders.length === 0) {
+      alert("No orders available to export.");
+      return;
+    }
+
+    const headers = [
+      "Order Number",
+      "Date Placed",
+      "Customer Name",
+      "Customer Email",
+      "Customer Phone",
+      "Order Status",
+      "Payment Method",
+      "Payment Status",
+      "Subtotal (INR)",
+      "Discount (INR)",
+      "Shipping Fee (INR)",
+      "Total Amount (INR)",
+      "Items Count",
+      "Address Line 1",
+      "City",
+      "State",
+      "PIN Code",
+      "Waybill"
+    ];
+
+    const rows = filteredOrders.map((o) => [
+      `"${o.order_number}"`,
+      `"${new Date(o.created_at).toISOString()}"`,
+      `"${(o.customer_name || '').replace(/"/g, '""')}"`,
+      `"${(o.customer_email || '').replace(/"/g, '""')}"`,
+      `"${o.customer_phone || ''}"`,
+      `"${o.order_status.toUpperCase()}"`,
+      `"${o.payment_method.toUpperCase()}"`,
+      `"${o.payment_status.toUpperCase()}"`,
+      o.subtotal,
+      o.discount_amount || 0,
+      o.shipping_fee || 0,
+      o.total_amount,
+      o.items?.length || 0,
+      `"${(o.shipping_address?.address_line1 || '').replace(/"/g, '""')}"`,
+      `"${(o.shipping_address?.city || '').replace(/"/g, '""')}"`,
+      `"${(o.shipping_address?.state || '').replace(/"/g, '""')}"`,
+      `"${o.shipping_address?.pincode || ''}"`,
+      `"${o.shipment?.waybill || ''}"`
+    ]);
+
+    const csvString = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `lumiere_orders_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const handleUpdateStatus = async (orderId: string, newStatus: OrderStatus) => {
     setLoading(true);
@@ -156,6 +217,16 @@ export function OrdersClient({ initialOrders }: OrdersClientProps) {
           <p className="text-xs text-noir-500 font-light mt-0.5">
             Manage customer orders, verify COD collections, and dispatch Delhivery courier parcels.
           </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <button
+            onClick={handleExportOrdersCsv}
+            className="inline-flex items-center justify-center gap-1.5 bg-noir-900 hover:bg-gold-600 text-white px-3.5 py-1.5 rounded-sm text-xs font-bold uppercase tracking-wider transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export Orders CSV</span>
+          </button>
         </div>
 
         {/* Filter Pills */}

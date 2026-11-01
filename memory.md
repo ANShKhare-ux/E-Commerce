@@ -408,3 +408,23 @@ Refer to `.env.example` for all required environment variables:
   - Enforced integer range bounds (`1..10`) on inventory reservations (`/api/inventory/reserve`).
 - **Test Suite Expansion**:
   - Expanded `tests/security_auth.test.ts` to 9 tests (72 passing tests across all 12 test suites).
+
+
+---
+
+## 21. E-Commerce Experience & Store Management Upgrades
+
+- **Faster Checkout with Saved Address Auto-Population**:
+  - `src/app/checkout/page.tsx`: Integrated saved address loading from `/api/account/addresses`.
+  - Added luxury saved address card selector allowing customers to choose between their existing addresses with automatic state and PIN code autofill, or "+ Enter a new delivery address".
+- **1-Click Reorder in Customer Account**:
+  - `src/app/account/AccountClient.tsx`: Added "Reorder Items" action to each past order card, seamlessly adding all order items to the active cart with atomic stock reservation and opening the cart drawer.
+- **Dedicated Admin Customer Management (`/admin/customers`)**:
+  - Created `src/app/api/admin/customers/route.ts` guarded by `verifyAdminAuthorization`. Aggregates unique customer metrics (Lifetime spend, Total Orders, Order History, VIP / Repeat Buyer tiers, Regional Deliveries).
+  - Created `src/app/admin/customers/page.tsx` and `CustomersClient.tsx` featuring real-time KPI cards (Total Customers, Repeat Patron Rate %, Average Order Value, VIP Patrons), tier filtering, debounced search, order inspection modal, and CSV export.
+  - Updated `AdminSidebar.tsx` to include "Customer Directory" under Core Operations.
+- **1-Click CSV Exports for Administrative Operations**:
+  - Orders (`src/app/admin/orders/OrdersClient.tsx`): Added "Export Orders CSV" button with full order details, statuses, payment methods, and delivery coordinates.
+  - Inventory (`src/app/admin/inventory/InventoryClient.tsx`): Added "Export Stock CSV" button with physical, reserved, and available stock levels and health classifications.
+- **Test Suite & Build Verification**:
+  - Added `tests/customers_admin.test.ts` (74 passing tests across 13 test suites). Clean Next.js compilation across 65 routes.

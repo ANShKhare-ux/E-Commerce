@@ -41,6 +41,23 @@ export default function CheckoutPage() {
   const [pincode, setPincode] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"phonepe" | "gpay" | "cod">("phonepe");
 
+  // Saved Addresses State (Faster Authenticated Checkout)
+  interface SavedAddressItem {
+    id: string;
+    full_name: string;
+    phone: string;
+    address_line1: string;
+    address_line2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    is_default: boolean;
+  }
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddressItem[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [isCustomAddress, setIsCustomAddress] = useState(false);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+
   // Coupon State
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountAmount: number; description: string } | null>(null);
@@ -57,6 +74,64 @@ export default function CheckoutPage() {
   const FREE_SHIPPING_THRESHOLD = 2999;
   const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 150;
   const totalAmount = Math.max(0, subtotal - discountAmount) + shippingFee;
+
+  // Fetch Saved Addresses on mount for 1-click auto-fill
+  useEffect(() => {
+    async function loadSavedAddresses() {
+      try {
+        const res = await fetch("/api/account/addresses");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.addresses) && data.addresses.length > 0) {
+            setSavedAddresses(data.addresses);
+            const defaultAddr = data.addresses.find((a: SavedAddressItem) => a.is_default) || data.addresses[0];
+            setSelectedAddressId(defaultAddr.id);
+            setFullName(defaultAddr.full_name || "");
+            setPhone(defaultAddr.phone || "");
+            setAddress1(defaultAddr.address_line1 || "");
+            setAddress2(defaultAddr.address_line2 || "");
+            setCity(defaultAddr.city || "");
+            if (defaultAddr.state && INDIAN_STATES.includes(defaultAddr.state)) {
+              setState(defaultAddr.state);
+            }
+            setPincode(defaultAddr.pincode || "");
+          } else {
+            setIsCustomAddress(true);
+          }
+        } else {
+          setIsCustomAddress(true);
+        }
+      } catch {
+        setIsCustomAddress(true);
+      } finally {
+        setLoadingAddresses(false);
+      }
+    }
+    loadSavedAddresses();
+  }, []);
+
+  const handleSelectSavedAddress = (addr: SavedAddressItem) => {
+    setSelectedAddressId(addr.id);
+    setIsCustomAddress(false);
+    setFullName(addr.full_name || "");
+    setPhone(addr.phone || "");
+    setAddress1(addr.address_line1 || "");
+    setAddress2(addr.address_line2 || "");
+    setCity(addr.city || "");
+    if (addr.state && INDIAN_STATES.includes(addr.state)) {
+      setState(addr.state);
+    }
+    setPincode(addr.pincode || "");
+  };
+
+  const handleEnterNewAddress = () => {
+    setSelectedAddressId(null);
+    setIsCustomAddress(true);
+    setAddress1("");
+    setAddress2("");
+    setCity("");
+    setPincode("");
+  };
 
   // Auto-load saved coupon from localStorage
   useEffect(() => {
@@ -321,9 +396,62 @@ export default function CheckoutPage() {
 
             {/* Step 2: Shipping Destination */}
             <div className="bg-white border border-canvas-border p-6 rounded-sm space-y-4">
-              <h2 className="font-serif text-lg font-bold text-noir-900 border-b border-canvas-border pb-2">
-                2. Shipping Destination (Delhivery Courier)
-              </h2>
+              <div className="border-b border-canvas-border pb-2 flex flex-wrap items-center justify-between gap-2">
+                <h2 className="font-serif text-lg font-bold text-noir-900">
+                  2. Shipping Destination (Delhivery Courier)
+                </h2>
+                {savedAddresses.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={isCustomAddress ? () => savedAddresses[0] && handleSelectSavedAddress(savedAddresses[0]) : handleEnterNewAddress}
+                    className="text-[11px] font-semibold text-gold-600 hover:text-gold-700 underline transition-colors"
+                  >
+                    {isCustomAddress ? "← Deliver to saved address" : "+ Enter a new delivery address"}
+                  </button>
+                )}
+              </div>
+
+              {/* Saved Address Cards */}
+              {savedAddresses.length > 0 && !isCustomAddress && (
+                <div className="space-y-3 pt-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-noir-500 block">
+                    Choose Saved Delivery Address
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {savedAddresses.map((addr) => {
+                      const isSelected = selectedAddressId === addr.id;
+                      return (
+                        <div
+                          key={addr.id}
+                          onClick={() => handleSelectSavedAddress(addr)}
+                          className={`p-3.5 border rounded-sm cursor-pointer transition-all ${
+                            isSelected
+                              ? "border-noir-900 bg-canvas-subtle ring-1 ring-noir-900"
+                              : "border-canvas-border bg-white hover:border-noir-400"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-serif font-bold text-xs text-noir-900">
+                              {addr.full_name}
+                            </span>
+                            {addr.is_default && (
+                              <span className="text-[9px] bg-gold-50 text-gold-700 font-mono px-1.5 py-0.5 rounded border border-gold-200">
+                                Default
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-noir-600 line-clamp-2">
+                            {addr.address_line1}{addr.address_line2 ? `, ${addr.address_line2}` : ""}, {addr.city}, {addr.state} - {addr.pincode}
+                          </p>
+                          <p className="text-[10px] text-noir-500 font-mono mt-1">
+                            Phone: {addr.phone}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <div>

@@ -76,6 +76,7 @@ export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: A
           badgeColor: "bg-amber-500",
         },
         { label: "Orders & COD", href: "/admin/orders", icon: ShoppingBag },
+        { label: "Customer Directory", href: "/admin/customers", icon: Users },
         { label: "Delhivery Logistics", href: "/admin/shipments", icon: Truck },
         { label: "Returns & Restock", href: "/admin/returns", icon: RotateCcw },
       ],

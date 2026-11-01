@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useCart } from "@/context/CartContext";
 import { Order } from "@/types";
 import {
   User,
@@ -65,6 +66,42 @@ export function AccountClient({
 }: AccountClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"orders" | "profile" | "addresses" | "notifications">("orders");
+  const { addItem, setIsOpen } = useCart();
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
+  const [reorderMessage, setReorderMessage] = useState<string | null>(null);
+
+  const handleReorder = async (order: Order) => {
+    setReorderingId(order.id);
+    setReorderMessage(null);
+    let addedCount = 0;
+
+    for (const item of order.items) {
+      const res = await addItem({
+        variant_id: item.variant_id,
+        product_id: item.variant_id,
+        product_name: item.product_name,
+        product_slug: item.product_name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        product_image: "",
+        sku: item.sku,
+        color: "Selected",
+        size: item.variant_title || "Standard",
+        unit_price: item.unit_price,
+        quantity: item.quantity,
+      });
+      if (res.success) {
+        addedCount++;
+      }
+    }
+
+    setReorderingId(null);
+    if (addedCount > 0) {
+      setReorderMessage(`Successfully added ${addedCount} piece${addedCount > 1 ? "s" : ""} from order #${order.order_number} to your shopping bag.`);
+      setIsOpen(true);
+      setTimeout(() => setReorderMessage(null), 5000);
+    } else {
+      alert("Selected items could not be reserved due to live inventory limits.");
+    }
+  };
 
   // Profile Form state
   const [fullName, setFullName] = useState(initialUser.fullName || "");
@@ -408,6 +445,15 @@ export function AccountClient({
                 </div>
               )}
 
+              {reorderMessage && (
+                <div className="p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs rounded-sm flex items-center justify-between">
+                  <span>{reorderMessage}</span>
+                  <Link href="/cart" className="font-bold underline text-emerald-950">
+                    View Shopping Bag →
+                  </Link>
+                </div>
+              )}
+
               {orders.length === 0 ? (
                 <div className="bg-white border border-canvas-border p-12 text-center rounded-sm space-y-4">
                   <ShoppingBag className="w-12 h-12 text-noir-300 mx-auto" />
@@ -521,9 +567,27 @@ export function AccountClient({
                               className="text-gold-700 hover:text-gold-800 font-bold flex items-center gap-1"
                             >
                               <Truck className="w-3.5 h-3.5" />
-                              <span>Track Delhivery parcel</span>
+                              <span>Track parcel</span>
                             </Link>
                           )}
+                          <button
+                            type="button"
+                            disabled={reorderingId === order.id}
+                            onClick={() => handleReorder(order)}
+                            className="bg-noir-900 hover:bg-gold-600 text-white px-3 py-1.5 rounded-sm text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                          >
+                            {reorderingId === order.id ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <span>Reserving...</span>
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingBag className="w-3.5 h-3.5" />
+                                <span>Reorder Items</span>
+                              </>
+                            )}
+                          </button>
                         </div>
                       </div>
                     </div>
