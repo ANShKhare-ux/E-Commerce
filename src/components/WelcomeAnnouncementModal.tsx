@@ -126,7 +126,7 @@ export function WelcomeAnnouncementModal() {
           </div>
 
           <span className="text-[10px] font-bold tracking-[0.25em] text-[#C59B48] uppercase block">
-            Exclusive Patron Privilege
+            Exclusive Member Privilege
           </span>
 
           <h3

@@ -229,7 +229,7 @@ export default function ReturnsPolicyPage() {
             If you love your garment but require an alternate size (e.g., Medium to Large) or color variant:
           </p>
           <ul className="list-disc pl-5 space-y-1.5 text-noir-600">
-            <li>You may request a one-time complimentary size exchange within seven (7) days of delivery via your patron account dashboard.</li>
+            <li>You may request a one-time complimentary size exchange within seven (7) days of delivery via your My Account dashboard.</li>
             <li>Exchanges are contingent on active inventory availability in our Mumbai fulfillment center.</li>
             <li>The replacement size will be dispatched immediately following physical receipt and verification of the returned piece.</li>
           </ul>
@@ -243,7 +243,7 @@ export default function ReturnsPolicyPage() {
           </h2>
           <ol className="list-decimal pl-5 space-y-2 text-noir-600">
             <li>
-              <strong>Access Account:</strong> Navigate to your patron dashboard at <Link href="/account" className="text-[#C59B48] underline">lumiere.in/account</Link> and select “Orders & Returns”.
+              <strong>Access Account:</strong> Navigate to your account dashboard at <Link href="/account" className="text-[#C59B48] underline">lumiere.in/account</Link> and select “Orders & Returns”.
             </li>
             <li>
               <strong>Select Item:</strong> Choose the delivered order, select the specific piece you wish to return, and indicate the primary reason (e.g. Size fit, Color variation, Defect).

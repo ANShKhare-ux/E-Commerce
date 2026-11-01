@@ -106,7 +106,7 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Patron profile updated successfully.",
+      message: "Profile updated successfully.",
       profile: updated || {
         id: user.id,
         email: userEmail,

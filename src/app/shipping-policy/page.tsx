@@ -190,7 +190,7 @@ export default function ShippingPolicyPage() {
             <Link href="/track-order" className="text-[#C59B48] font-semibold underline hover:text-noir-900">
               Track Delhivery Parcel
             </Link>{" "}
-            portal or via your <Link href="/account" className="text-[#C59B48] font-semibold underline hover:text-noir-900">Patron Account</Link>.
+            portal or via your <Link href="/account" className="text-[#C59B48] font-semibold underline hover:text-noir-900">My Account</Link>.
           </li>
           <li>
             Live status includes: Manifest Created, Picked Up, In Transit, Arrived at Local Delivery Hub, Out for Delivery, and Delivered.

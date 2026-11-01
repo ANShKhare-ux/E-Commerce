@@ -197,7 +197,7 @@ export function Footer() {
             </li>
             <li>
               <Link href="/account" className="hover:text-white transition-colors">
-                Patron Dashboard
+                My Account
               </Link>
             </li>
           </ul>

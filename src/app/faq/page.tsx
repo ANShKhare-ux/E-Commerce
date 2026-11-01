@@ -20,7 +20,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: "orders",
     q: "Can I cancel an order after it has been placed?",
-    a: "Yes. You may cancel your order at any time before it transitions to 'Shipped' status directly from your Patron Account dashboard (/account) or by notifying our concierge. Cancellations prior to dispatch incur zero cancellation fees, and stock is automatically restored to the atelier catalog.",
+    a: "Yes. You may cancel your order at any time before it transitions to 'Shipped' status directly from your My Account dashboard (/account) or by notifying our concierge. Cancellations prior to dispatch incur zero cancellation fees, and stock is automatically restored to the atelier catalog.",
   },
   {
     category: "orders",

@@ -269,10 +269,10 @@ export function AccountClient({
       {/* Page Title */}
       <div className="border-b border-canvas-border pb-4">
         <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold-600 block mb-1">
-          Client Concierge & Wardrobe
+          Account Overview
         </span>
         <h1 className="font-serif text-3xl font-medium text-noir-900">
-          Patron Account Dashboard
+          My Account & Orders
         </h1>
       </div>
 
@@ -284,13 +284,13 @@ export function AccountClient({
               <User className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-noir-900">{fullName || "Atelier Patron"}</h2>
+              <h2 className="font-serif text-lg font-bold text-noir-900">{fullName || "Account Member"}</h2>
               <p className="text-xs text-noir-500 truncate">{initialUser.email}</p>
               <div className="flex items-center gap-2 mt-2">
                 <span className="inline-block px-2 py-0.5 bg-canvas-subtle border border-canvas-border text-[10px] font-semibold uppercase text-gold-700 rounded">
                   {initialUser.role === "super_admin" || initialUser.role === "admin"
                     ? "Store Administrator"
-                    : "Verified Patron"}
+                    : "Verified Account"}
                 </span>
                 {initialUser.role !== "customer" && (
                   <Link
@@ -539,7 +539,7 @@ export function AccountClient({
               <div className="border-b border-canvas-border pb-3">
                 <h2 className="font-serif text-xl font-medium text-noir-900">Personal Information</h2>
                 <p className="text-xs text-noir-500 font-light">
-                  Manage your patron identity and communication preferences.
+                  Manage your personal details and communication preferences.
                 </p>
               </div>
 

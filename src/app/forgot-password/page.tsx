@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
             Reset Password
           </h1>
           <p className="text-xs text-noir-500 font-light">
-            Enter your patron email address to receive password recovery instructions.
+            Enter your registered email address to receive password recovery instructions.
           </p>
         </div>
 
@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="patron@lumiere.in"
+                    placeholder="your.email@example.com"
                     className="w-full bg-white border border-canvas-border rounded-sm pl-10 pr-4 py-2.5 text-xs text-noir-900 placeholder-noir-400 focus:outline-none focus:border-noir-900 transition-colors"
                   />
                   <Mail className="w-4 h-4 text-noir-400 absolute left-3.5 top-3" />

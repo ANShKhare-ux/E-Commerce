@@ -236,7 +236,7 @@ const NAV_CATEGORIES: NavCategory[] = [
           items: [
             { label: "Custom Fit & Tailoring", href: "/size-guide" },
             { label: "Track Delhivery Parcel", href: "/track-order" },
-            { label: "Patron Account & Orders", href: "/account" },
+            { label: "My Account & Orders", href: "/account" },
             { label: "Atelier FAQ & Concierge", href: "/faq" },
           ],
         },
@@ -562,7 +562,7 @@ export function Header() {
                   type="button"
                   onClick={() => setProfileDropdownOpen((prev) => !prev)}
                   className="flex flex-col items-center justify-center cursor-pointer group text-[#282c3f] hover:text-[#C59B48] transition-colors py-2 px-1 focus:outline-hidden"
-                  aria-label="Patron Profile & Orders"
+                  aria-label="My Account"
                 >
                   <User className="w-5 h-5 text-[#282c3f] group-hover:text-[#C59B48] transition-colors stroke-[1.8]" />
                   <span className="text-[11px] sm:text-[12px] font-bold tracking-[0.2px] text-[#282c3f] group-hover:text-[#C59B48] transition-colors mt-0.5">
@@ -583,7 +583,7 @@ export function Header() {
                       onMouseLeave={handleProfileMouseLeave}
                     >
                       {currentUser ? (
-                        /* Authenticated Patron View */
+                        /* Authenticated User View */
                         <>
                           <div className="pb-3 border-b border-[#eaeaec]">
                             <div className="flex items-center gap-2.5 mb-2">
@@ -604,7 +604,7 @@ export function Header() {
                               onClick={() => setProfileDropdownOpen(false)}
                               className="block w-full text-center py-1.5 px-3 bg-noir-900 hover:bg-gold-600 text-white hover:text-noir-900 text-[11px] font-bold uppercase tracking-wider rounded-sm transition-colors"
                             >
-                              My Account & Wardrobe
+                              My Account
                             </Link>
                           </div>
 
@@ -955,7 +955,7 @@ export function Header() {
                 className="flex items-center gap-2.5 py-2 hover:text-[#C59B48] transition-colors"
               >
                 <User className="w-4 h-4 text-[#282c3f]" />
-                <span>Patron Account & Orders</span>
+                <span>My Account & Orders</span>
               </Link>
               {currentUser?.isAdmin && (
                 <Link

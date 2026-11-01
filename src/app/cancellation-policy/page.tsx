@@ -39,7 +39,7 @@ export default function CancellationPolicyPage() {
         <p className="font-semibold text-noir-900 mb-1">Effortless Patron Flexibility</p>
         <p>
           At LUMIÈRE, we believe luxury commerce should be transparent and stress-free. You may cancel any direct
-          atelier purchase at zero penalty prior to courier dispatch through your Patron Account dashboard or by
+          atelier purchase at zero penalty prior to courier dispatch through your My Account dashboard or by
           notifying our Mumbai concierge team.
         </p>
       </div>
@@ -60,7 +60,7 @@ export default function CancellationPolicyPage() {
             <li>
               Log into your LUMIÈRE account and navigate to{" "}
               <Link href="/account" className="text-[#C59B48] font-semibold underline hover:text-noir-900">
-                Patron Dashboard &rarr; Orders
+                My Account &rarr; Orders
               </Link>.
             </li>
             <li>Select the order you wish to cancel and click the <strong>"Cancel Order"</strong> button.</li>

@@ -95,7 +95,7 @@ export default function ResetPasswordPage() {
             Create New Password
           </h1>
           <p className="text-xs text-noir-500 font-light">
-            Set a new secure master password for your patron account.
+            Set a new secure password for your account.
           </p>
         </div>
 
@@ -115,7 +115,7 @@ export default function ResetPasswordPage() {
               Password Successfully Updated
             </h2>
             <p className="text-xs text-noir-600">
-              Your patron credentials have been updated. Redirecting you to your wardrobe dashboard...
+              Your password has been updated. Redirecting you to your account...
             </p>
             <div className="pt-2">
               <Link

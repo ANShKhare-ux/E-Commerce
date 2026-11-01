@@ -124,7 +124,7 @@ function SignupForm() {
           <p className="font-semibold text-noir-900">Next Steps:</p>
           <ol className="list-decimal list-inside space-y-1 text-[11px] text-noir-500">
             <li>Open your inbox and look for the LUMIÈRE verification link.</li>
-            <li>Click the link to activate your patron profile.</li>
+            <li>Click the link to activate your account.</li>
             <li>You will be automatically redirected to your wardrobe dashboard.</li>
           </ol>
         </div>
@@ -151,7 +151,7 @@ function SignupForm() {
           </span>
         </Link>
         <h1 className="font-serif text-xl text-noir-800 font-medium pt-2">
-          Create Patron Account
+          Create Your Account
         </h1>
         <p className="text-xs text-noir-500 font-light">
           Join LUMIÈRE for curated Indian luxury, concierge fulfillment, and private drops.
@@ -281,10 +281,10 @@ function SignupForm() {
             className="w-full bg-noir-900 hover:bg-gold-600 text-white py-3 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
           >
             {loading ? (
-              <span>Creating Patron Account...</span>
+              <span>Creating Account...</span>
             ) : (
               <>
-                <span>Register Patron Account</span>
+                <span>Create Account</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

@@ -7,7 +7,7 @@ import { isConfiguredAdminEmail } from "@/lib/auth/admin";
 import { AccountClient } from "./AccountClient";
 
 export const metadata: Metadata = {
-  title: "Patron Account & Orders | LUMIÈRE Atelier",
+  title: "My Account & Orders | LUMIÈRE",
   description: "View your order history, Delhivery tracking, shipping coordinates, and account preferences.",
 };
 
@@ -36,15 +36,15 @@ export default async function AccountPage() {
         <AccountClient
           initialUser={{
             id: "dev-sandbox-user",
-            email: "patron@lumiere.in",
-            fullName: "Atelier Patron (Sandbox)",
+            email: "member@lumiere.in",
+            fullName: "Account Member (Sandbox)",
             phone: "+91 98200 12345",
             role: "customer",
           }}
           initialAddresses={[
             {
               id: "addr-sandbox-1",
-              full_name: "Atelier Patron",
+              full_name: "Account Member",
               phone: "9820012345",
               address_line1: "Sea Green Apartments, Worli",
               city: "Mumbai",
@@ -104,8 +104,8 @@ export default async function AccountPage() {
       <AccountClient
         initialUser={{
           id: "dev-sandbox-user",
-          email: "patron@lumiere.in",
-          fullName: "Atelier Patron",
+          email: "member@lumiere.in",
+          fullName: "Account Member",
           phone: "+91 98200 12345",
           role: "customer",
         }}

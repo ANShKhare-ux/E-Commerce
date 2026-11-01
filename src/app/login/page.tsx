@@ -69,10 +69,10 @@ function LoginForm() {
           </span>
         </Link>
         <h1 className="font-serif text-xl text-noir-800 font-medium pt-2">
-          Patron Sign In
+          Sign In to LUMIÈRE
         </h1>
         <p className="text-xs text-noir-500 font-light">
-          Access your curated wardrobe, Delhivery tracking, and saved measurements.
+          Access your account, order tracking, and saved measurements.
         </p>
       </div>
 
@@ -128,7 +128,7 @@ function LoginForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="patron@lumiere.in"
+                placeholder="your.email@example.com"
                 className="w-full bg-white border border-canvas-border rounded-sm pl-10 pr-4 py-2.5 text-xs text-noir-900 placeholder-noir-400 focus:outline-none focus:border-noir-900 transition-colors"
               />
               <Mail className="w-4 h-4 text-noir-400 absolute left-3.5 top-3" />
@@ -177,24 +177,12 @@ function LoginForm() {
               <span>Authenticating...</span>
             ) : (
               <>
-                <span>Sign In to Atelier</span>
+                <span>Sign In</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
-
-        <div className="border-t border-canvas-border pt-4 text-center">
-          <p className="text-xs text-noir-500">
-            Don&apos;t have an account?{" "}
-            <Link
-              href={`/signup${redirectUrl !== "/account" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
-              className="text-noir-900 font-bold hover:text-gold-600 transition-colors underline"
-            >
-              Create Patron Account
-            </Link>
-          </p>
-        </div>
       </div>
 
       {/* Back to store */}

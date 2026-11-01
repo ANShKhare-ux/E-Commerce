@@ -365,3 +365,17 @@ Refer to `.env.example` for all required environment variables:
 - **Structured Admin Navigation (`src/components/AdminSidebar.tsx`)**:
   - Reorganized into 3 distinct functional groups: `Core Operations`, `Merchandising & Studio`, and `System & Governance`.
   - Displays authenticated administrator email in the sidebar footer.
+
+
+---
+
+## 19. Clean Minimalist Terminology & Sign-In UI Simplification
+
+- **Terminology Standardization**:
+  - Replaced archaic "Patron" references across customer-facing interfaces with modern, universal luxury commerce naming.
+  - **Sign-in Heading**: `"Sign In to LUMIÈRE"` ([`src/app/login/page.tsx`](file:///c:/Users/Taraksh%20jain/OneDrive/Documents/E-commerce/E-Commerce/src/app/login/page.tsx)).
+  - **Submit Button**: `"Sign In"` ([`src/app/login/page.tsx`](file:///c:/Users/Taraksh%20jain/OneDrive/Documents/E-commerce/E-Commerce/src/app/login/page.tsx)).
+  - **Sign-In Card Simplification**: Removed the redundant `"Don't have an account? Create Patron Account"` section from the sign-in modal for a cleaner, high-conversion authentication card.
+  - **Account Page**: `"My Account & Orders"` ([`src/app/account/AccountClient.tsx`](file:///c:/Users/Taraksh%20jain/OneDrive/Documents/E-commerce/E-Commerce/src/app/account/AccountClient.tsx), [`src/app/account/page.tsx`](file:///c:/Users/Taraksh%20jain/OneDrive/Documents/E-commerce/E-Commerce/src/app/account/page.tsx)).
+  - **Account Verification Badge**: `"Verified Account"` for customer members; `"Store Administrator"` for verified admins.
+  - Updated policy pages (`/faq`, `/shipping-policy`, `/cancellation-policy`, `/returns-policy`) and profile API responses to maintain uniform terminology throughout.
