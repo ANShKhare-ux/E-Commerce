@@ -183,6 +183,18 @@ function LoginForm() {
             )}
           </button>
         </form>
+
+        <div className="border-t border-canvas-border pt-4 text-center">
+          <p className="text-xs text-noir-500">
+            Don&apos;t have a LUMIÈRE account?{" "}
+            <Link
+              href={`/signup${redirectUrl !== "/account" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
+              className="text-noir-900 font-bold hover:text-gold-600 transition-colors underline"
+            >
+              Create your account
+            </Link>
+          </p>
+        </div>
       </div>
 
       {/* Back to store */}
