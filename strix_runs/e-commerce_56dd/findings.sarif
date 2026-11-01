@@ -19,7 +19,7 @@
             {
               "level": "warning",
               "message": {
-                "text": "The scan ended with status 'running' rather than completing, so coverage reflects only the work finished before it stopped."
+                "text": "The scan ended with status 'stopped' rather than completing, so coverage reflects only the work finished before it stopped."
               }
             }
           ]

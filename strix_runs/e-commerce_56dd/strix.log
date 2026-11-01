@@ -218,3 +218,6 @@ litellm.exceptions.BadRequestError: litellm.BadRequestError: OpenrouterException
 2026-11-01 11:32:55.727 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
 2026-11-01 11:32:55.735 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
 2026-11-01 11:32:55.741 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:37:33.332 INFO    e-commerce_56dd - strix.core.runner: Tearing down sandbox session for scan e-commerce_56dd
+2026-11-01 11:37:33.666 INFO    e-commerce_56dd - strix.runtime.session_manager: Cleaned up sandbox session for scan e-commerce_56dd
+2026-11-01 11:37:33.667 INFO    e-commerce_56dd - strix.core.runner: Strix scan e-commerce_56dd done
