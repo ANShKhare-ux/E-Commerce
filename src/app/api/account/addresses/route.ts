@@ -98,6 +98,50 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function PATCH(req: NextRequest) {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { addressId } = body;
+
+    if (!addressId) {
+      return NextResponse.json({ error: "addressId is required" }, { status: 400 });
+    }
+
+    // 1. Unset existing default for this user
+    await supabase
+      .from("addresses")
+      .update({ is_default: false })
+      .eq("user_id", user.id);
+
+    // 2. Set the chosen address as default
+    const { data: updated, error } = await supabase
+      .from("addresses")
+      .update({ is_default: true })
+      .eq("id", addressId)
+      .eq("user_id", user.id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, address: updated });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Failed to update default address" }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
@@ -133,4 +177,3 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: error.message || "Failed to delete address" }, { status: 500 });
   }
 }
-

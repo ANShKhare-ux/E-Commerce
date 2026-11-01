@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin";
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAdminAuthorization(req.headers);
     const body = await req.json();
     const { id, reviewStatus, isPublished, adminEmail } = body;
 
@@ -10,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "id and reviewStatus are required." }, { status: 400 });
     }
 
-    const email = adminEmail || process.env.ADMIN_EMAIL || "owner@lumiere.in";
+    const email = auth.email || adminEmail || getPrimaryAdminEmail();
     const result = await db.affiliate.updateReview(id, reviewStatus, isPublished ?? false, email);
 
     if (!result.success) {

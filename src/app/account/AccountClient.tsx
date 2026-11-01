@@ -131,7 +131,14 @@ export function AccountClient({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
+      if (data.profile?.full_name) {
+        setFullName(data.profile.full_name);
+      }
+      if (data.profile?.phone) {
+        setPhone(data.profile.phone);
+      }
       setProfileSuccess(true);
+      router.refresh();
       setTimeout(() => setProfileSuccess(false), 3000);
     } catch (err: any) {
       setProfileError(err.message || "Failed to update profile.");
@@ -176,6 +183,26 @@ export function AccountClient({
       setAddressError(err.message || "Failed to save address.");
     } finally {
       setAddressLoading(false);
+    }
+  };
+
+  const handleSetDefaultAddress = async (id: string) => {
+    try {
+      const res = await fetch("/api/account/addresses", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ addressId: id }),
+      });
+      if (res.ok) {
+        setAddresses((prev) =>
+          prev.map((a) => ({
+            ...a,
+            is_default: a.id === id,
+          }))
+        );
+      }
+    } catch {
+      // Handled silently
     }
   };
 
@@ -784,7 +811,18 @@ export function AccountClient({
                         {addr.city}, {addr.state} - <strong className="font-mono">{addr.pincode}</strong>
                       </p>
                       <p className="text-noir-500 font-mono text-[11px]">Phone: {addr.phone}</p>
-                      <div className="pt-2 border-t border-canvas-subtle flex justify-end">
+                      <div className="pt-2 border-t border-canvas-subtle flex items-center justify-between">
+                        {!addr.is_default ? (
+                          <button
+                            type="button"
+                            onClick={() => handleSetDefaultAddress(addr.id)}
+                            className="text-noir-600 hover:text-gold-600 font-medium text-[11px] underline"
+                          >
+                            Set as Default
+                          </button>
+                        ) : (
+                          <span className="text-[11px] text-emerald-700 font-medium">Primary Destination</span>
+                        )}
                         <button
                           onClick={() => handleDeleteAddress(addr.id)}
                           className="text-rose-600 hover:text-rose-800 flex items-center gap-1 text-[11px]"

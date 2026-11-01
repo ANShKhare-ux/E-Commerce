@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin";
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAdminAuthorization(req.headers);
     const body = await req.json();
     const { orderId, action, status, reason, adminEmail } = body;
 
@@ -10,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "orderId is required" }, { status: 400 });
     }
 
-    const email = adminEmail || process.env.ADMIN_EMAIL || "owner@lumiere.in";
+    const email = auth.email || adminEmail || getPrimaryAdminEmail();
 
     if (action === "cancel") {
       if (!reason || reason.trim().length === 0) {
@@ -48,8 +50,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: "COD payment marked as collected." });
     }
 
-    return NextResponse.json({ error: "Invalid action." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid action specified." }, { status: 400 });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to process order action" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to update order status." }, { status: 500 });
   }
 }

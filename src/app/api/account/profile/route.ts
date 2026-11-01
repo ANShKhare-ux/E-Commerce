@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { isConfiguredAdminEmail } from "@/lib/auth/admin";
 
 export async function GET() {
   try {
@@ -27,7 +28,8 @@ export async function GET() {
           id: user.id,
           email: user.email,
           full_name: user.user_metadata?.full_name || user.email?.split("@")[0],
-          role: "customer",
+          phone: user.user_metadata?.phone || "",
+          role: isConfiguredAdminEmail(user.email) ? "super_admin" : "customer",
         },
       });
     }
@@ -38,7 +40,8 @@ export async function GET() {
         id: user.id,
         email: user.email,
         full_name: user.user_metadata?.full_name || user.email?.split("@")[0],
-        role: "customer",
+        phone: user.user_metadata?.phone || "",
+        role: isConfiguredAdminEmail(user.email) ? "super_admin" : "customer",
       },
     });
   } catch (error: any) {
@@ -72,38 +75,47 @@ export async function PUT(req: NextRequest) {
       }
     }
 
-    // Update in Supabase profiles table
-    // Note: Customers can ONLY update permitted fields (full_name, phone). Role is NEVER updated here.
+    const userEmail = user.email || "";
+    const isSuperAdmin = isConfiguredAdminEmail(userEmail);
+
+    // Upsert in Supabase profiles table so missing rows are safely initialized
     const { data: updated, error } = await supabase
       .from("profiles")
-      .update({
-        full_name: full_name?.trim(),
-        phone: phone?.trim(),
+      .upsert({
+        id: user.id,
+        email: userEmail,
+        full_name: full_name?.trim() || null,
+        phone: phone?.trim() || null,
+        role: isSuperAdmin ? "super_admin" : "customer",
         updated_at: new Date().toISOString(),
-      })
-      .eq("id", user.id)
+      }, { onConflict: "id" })
       .select()
       .single();
 
-    if (error) {
-      // Also update auth metadata
+    // Also update auth user metadata
+    try {
       await supabase.auth.updateUser({
-        data: { full_name: full_name?.trim() },
+        data: {
+          full_name: full_name?.trim(),
+          phone: phone?.trim(),
+        },
       });
+    } catch {
+      // Non-blocking
     }
 
     return NextResponse.json({
       success: true,
-      message: "Patron profile updated.",
+      message: "Patron profile updated successfully.",
       profile: updated || {
         id: user.id,
-        email: user.email,
-        full_name,
-        phone,
+        email: userEmail,
+        full_name: full_name?.trim(),
+        phone: phone?.trim(),
+        role: isSuperAdmin ? "super_admin" : "customer",
       },
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to update profile" }, { status: 500 });
   }
 }
-

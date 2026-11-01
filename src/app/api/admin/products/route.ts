@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyAdminAuthorization } from "@/lib/auth/admin";
+import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin";
 
 export async function GET() {
   try {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await verifyAdminAuthorization(req.headers);
     // In local development sandbox, fallback to admin email if not set
-    const adminEmail = auth.email || process.env.ADMIN_EMAIL || "admin@lumiere.in";
+    const adminEmail = auth.email || getPrimaryAdminEmail();
 
     const body = await req.json();
     const {

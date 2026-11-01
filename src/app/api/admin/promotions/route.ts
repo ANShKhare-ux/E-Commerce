@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyAdminAuthorization } from "@/lib/auth/admin";
+import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin";
 
 export async function GET() {
   try {
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     if (!auth.authorized && process.env.NODE_ENV === "production") {
       return NextResponse.json({ success: false, error: auth.error || "Unauthorized admin access." }, { status: 401 });
     }
-    const adminEmail = auth.email || process.env.ADMIN_EMAIL || "admin@lumiere.in";
+    const adminEmail = auth.email || getPrimaryAdminEmail();
 
     const body = await req.json();
     const {

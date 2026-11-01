@@ -1,42 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin";
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAdminAuthorization(req.headers);
     const body = await req.json();
-    const { csvData, adminEmail } = body;
+    const { csvData, defaultReason, adminEmail } = body;
 
-    if (!csvData || typeof csvData !== "string") {
-      return NextResponse.json({ error: "CSV string content is required." }, { status: 400 });
+    if (!csvData) {
+      return NextResponse.json({ error: "csvData is required." }, { status: 400 });
     }
 
-    // Parse CSV lines
-    // Expected format: SKU,PhysicalStock,LowStockThreshold,Reason
     const lines = csvData.trim().split("\n");
-    const rows: Array<{ sku: string; physical_stock: number; low_stock_threshold?: number; reason: string }> = [];
+    const rows = [];
 
-    let startIndex = 0;
-    // Check if header exists
-    if (lines[0].toLowerCase().includes("sku")) {
-      startIndex = 1;
-    }
+    // Skip header line if present
+    const startIndex = lines[0].toLowerCase().includes("sku") ? 1 : 0;
 
     for (let i = startIndex; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
-      const parts = line.split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
 
-      if (parts.length >= 2) {
-        const sku = parts[0];
-        const stock = parseInt(parts[1], 10);
-        const threshold = parts[2] ? parseInt(parts[2], 10) : undefined;
-        const reason = parts[3] || "Bulk CSV Import";
-
-        if (sku && !isNaN(stock)) {
+      const [sku, stockStr, reasonStr] = line.split(",").map((s: string) => s?.trim());
+      if (sku && stockStr !== undefined) {
+        const physical_stock = parseInt(stockStr, 10);
+        const reason = reasonStr || defaultReason || "Bulk stock upload via CSV";
+        if (!isNaN(physical_stock) && physical_stock >= 0) {
           rows.push({
             sku,
-            physical_stock: stock,
-            low_stock_threshold: isNaN(threshold as number) ? undefined : threshold,
+            physical_stock,
             reason,
           });
         }
@@ -47,7 +40,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No valid SKU rows parsed from CSV." }, { status: 400 });
     }
 
-    const email = adminEmail || process.env.ADMIN_EMAIL || "owner@lumiere.in";
+    const email = auth.email || adminEmail || getPrimaryAdminEmail();
     const result = await db.inventory.importCsvStock(rows, email);
 
     return NextResponse.json(result);

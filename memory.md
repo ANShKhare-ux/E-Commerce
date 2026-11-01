@@ -334,3 +334,34 @@ Refer to `.env.example` for all required environment variables:
   - Added `preconnect` link to `https://images.unsplash.com` in `layout.tsx` for fast TLS/TCP negotiation.
   - Configured `loading="lazy"` on secondary product hover images and switched card transitions to targeted GPU-composited CSS transforms (`transition-[opacity,transform] duration-500`).
   - Added single-run guard on `WelcomeAnnouncementModal.tsx` local storage key cleanup.
+
+
+---
+
+## 17. Multi-Admin Authorization & Comma-Separated ADMIN_EMAIL Architecture
+
+- **Multi-Admin Configuration**:
+  - `src/lib/auth/admin.ts` implements `isConfiguredAdminEmail(email)` supporting comma-separated `ADMIN_EMAIL` lists (e.g. `silentstrike7777@gmail.com, preetiansh16@gmail.com`).
+  - Trims, lowercases, and checks email arrays with zero whitespace sensitivity.
+  - Automatically promotes matching users to `super_admin` in `verifyAdminAuthorization`.
+  - Syncs the role directly to `public.profiles` in Supabase using the service-role client upon verification.
+  - Eliminates the admin redirect loop between `/admin/login` and `/admin` when multiple admin emails are configured.
+  - All admin API routes (`/api/admin/products`, `/api/admin/inventory/adjust`, `/api/admin/orders/status`, `/api/admin/returns/inspect`, `/api/admin/affiliate/review`, `/api/admin/inventory/bulk-csv`) utilize authoritative admin identity and `getPrimaryAdminEmail()`.
+
+---
+
+## 18. Dynamic Navbar Profile Flyout & Account Management
+
+- **Navbar Profile Flyout (`src/components/Header.tsx`)**:
+  - Dynamically detects authenticated user session via `createClient().auth.onAuthStateChange` and `getSession()`.
+  - **Guest Shoppers**: Displays "Welcome to LUMIÈRE", "To access account & manage orders", and a prominent "Login / Sign Up" button. "Admin Control Room" is **completely omitted** from the DOM for public/guest shoppers.
+  - **Logged-in Customers**: Displays avatar initials, full name, email, and quick links to Orders, Addresses, Wishlist, and Tracking, along with a "Sign Out" button.
+  - **Logged-in Administrators**: Displays the user information plus a dedicated, gold-accented "Admin Control Room" section with `<ShieldCheck />` and external navigation.
+  - **Hover & Touch Refinement**: Increased hover debounce buffer to 250ms and introduced click-outside ref handlers to ensure smooth desktop hover transitions and mobile tap-to-toggle interactions.
+- **Account & Address Management (`/account`)**:
+  - `PUT /api/account/profile` uses `upsert` on `public.profiles` to ensure profile persistence succeeds even if the database user row was not pre-initialized by an auth trigger.
+  - `PATCH /api/account/addresses` added for 1-click "Set as Default" address selection.
+  - `AccountClient.tsx` updated with immediate state synchronization and "Set as Default" trigger.
+- **Structured Admin Navigation (`src/components/AdminSidebar.tsx`)**:
+  - Reorganized into 3 distinct functional groups: `Core Operations`, `Merchandising & Studio`, and `System & Governance`.
+  - Displays authenticated administrator email in the sidebar footer.

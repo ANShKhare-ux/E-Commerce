@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
+import { isConfiguredAdminEmail } from "@/lib/auth/admin";
 import { AccountClient } from "./AccountClient";
 
 export const metadata: Metadata = {
@@ -83,8 +84,8 @@ export default async function AccountPage() {
             profile?.full_name ||
             user.user_metadata?.full_name ||
             user.email.split("@")[0],
-          phone: profile?.phone || "",
-          role: profile?.role || "customer",
+          phone: profile?.phone || user.user_metadata?.phone || "",
+          role: isConfiguredAdminEmail(user.email) ? "super_admin" : (profile?.role || "customer"),
         }}
         initialAddresses={addresses || []}
         initialOrders={orders}

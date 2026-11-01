@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Shirt,
@@ -12,14 +12,13 @@ import {
   RotateCcw,
   Sparkles,
   ClipboardList,
-  ShieldAlert,
   ArrowLeft,
   Zap,
   Sliders,
   Users,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 interface AdminSidebarProps {
@@ -27,9 +26,30 @@ interface AdminSidebarProps {
   pendingAffiliateCount?: number;
 }
 
+interface NavSection {
+  title: string;
+  items: {
+    label: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+    badge?: string;
+    badgeColor?: string;
+  }[];
+}
+
 export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [adminEmail, setAdminEmail] = useState<string>("");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email) {
+        setAdminEmail(session.user.email);
+      }
+    });
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -42,32 +62,47 @@ export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: A
     }
   };
 
-  const navItems = [
-    { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { label: "Products & SKUs", href: "/admin/products", icon: Shirt },
+  const navSections: NavSection[] = [
     {
-      label: "Inventory & Stock",
-      href: "/admin/inventory",
-      icon: Boxes,
-      badge: lowStockCount > 0 ? `${lowStockCount} Low` : undefined,
-      badgeColor: "bg-amber-500",
+      title: "Core Operations",
+      items: [
+        { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+        { label: "Products & SKUs", href: "/admin/products", icon: Shirt },
+        {
+          label: "Inventory & Stock",
+          href: "/admin/inventory",
+          icon: Boxes,
+          badge: lowStockCount > 0 ? `${lowStockCount} Low` : undefined,
+          badgeColor: "bg-amber-500",
+        },
+        { label: "Orders & COD", href: "/admin/orders", icon: ShoppingBag },
+        { label: "Delhivery Logistics", href: "/admin/shipments", icon: Truck },
+        { label: "Returns & Restock", href: "/admin/returns", icon: RotateCcw },
+      ],
     },
-    { label: "Orders & COD", href: "/admin/orders", icon: ShoppingBag },
-    { label: "Delhivery Logistics", href: "/admin/shipments", icon: Truck },
-    { label: "Returns & Restock", href: "/admin/returns", icon: RotateCcw },
     {
-      label: "Affiliate Review",
-      href: "/admin/affiliate",
-      icon: Sparkles,
-      badge: pendingAffiliateCount > 0 ? `${pendingAffiliateCount} New` : undefined,
-      badgeColor: "bg-gold-500",
+      title: "Merchandising & Studio",
+      items: [
+        {
+          label: "Affiliate Curations",
+          href: "/admin/affiliate",
+          icon: Sparkles,
+          badge: pendingAffiliateCount > 0 ? `${pendingAffiliateCount} New` : undefined,
+          badgeColor: "bg-gold-500",
+        },
+        { label: "Promotions & Coupons", href: "/admin/promotions", icon: Zap },
+        { label: "Homepage Studio", href: "/admin/homepage", icon: Sliders },
+      ],
     },
-    { label: "Promotions & Coupons", href: "/admin/promotions", icon: Zap },
-    { label: "Homepage Studio", href: "/admin/homepage", icon: Sliders },
-    { label: "Automations & Health", href: "/admin/automations", icon: Zap },
-    { label: "Shipping Policies", href: "/admin/policies", icon: Sliders },
-    { label: "Administrators", href: "/admin/administrators", icon: Users },
-    { label: "Audit & Jobs", href: "/admin/audit-logs", icon: ClipboardList },
+    {
+      title: "System & Governance",
+      items: [
+        { label: "Automations & Health", href: "/admin/automations", icon: Zap },
+        { label: "Shipping Policies", href: "/admin/policies", icon: Sliders },
+        { label: "Administrators", href: "/admin/administrators", icon: Users },
+        { label: "Audit & Concurrency", href: "/admin/audit-logs", icon: ClipboardList },
+      ],
+    },
   ];
 
   return (
@@ -75,45 +110,55 @@ export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: A
       {/* Brand Header */}
       <div className="p-6 border-b border-noir-800">
         <Link href="/" className="inline-block group">
-          <span className="font-serif text-xl tracking-[0.2em] font-bold text-white block group-hover:text-gold-400 transition-colors">
-            LUMIÈRE
-          </span>
-          <span className="text-[9px] tracking-[0.25em] text-gold-400 uppercase font-mono block">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-gold-500" />
+            <span className="font-serif text-xl tracking-[0.2em] font-bold text-white block group-hover:text-gold-400 transition-colors">
+              LUMIÈRE
+            </span>
+          </div>
+          <span className="text-[9px] tracking-[0.25em] text-gold-400 uppercase font-mono block mt-1">
             Control Room • SuperAdmin
           </span>
         </Link>
       </div>
 
-      {/* Nav List */}
-      <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
+      {/* Nav List with Sections */}
+      <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
+        {navSections.map((section) => (
+          <div key={section.title} className="space-y-1">
+            <h4 className="px-3 text-[10px] font-bold tracking-[0.15em] uppercase text-noir-400 mb-2">
+              {section.title}
+            </h4>
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-sm text-xs font-medium tracking-wide transition-colors ${
-                isActive
-                  ? "bg-gold-600 text-noir-900 font-bold shadow-xs"
-                  : "text-noir-300 hover:bg-noir-800 hover:text-white"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 ${isActive ? "text-noir-900" : "text-gold-400"}`} />
-                <span>{item.label}</span>
-              </div>
-              {item.badge && (
-                <span
-                  className={`px-1.5 py-0.5 text-[9px] font-bold rounded text-white ${item.badgeColor || "bg-noir-700"}`}
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center justify-between px-3 py-2 rounded-sm text-xs font-medium tracking-wide transition-colors ${
+                    isActive
+                      ? "bg-gold-600 text-noir-900 font-bold shadow-xs"
+                      : "text-noir-300 hover:bg-noir-800 hover:text-white"
+                  }`}
                 >
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-noir-900" : "text-gold-400"}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span
+                      className={`px-1.5 py-0.5 text-[9px] font-bold rounded text-white ${item.badgeColor || "bg-noir-700"}`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Footer / Storefront Link */}
@@ -132,8 +177,8 @@ export function AdminSidebar({ lowStockCount = 0, pendingAffiliateCount = 0 }: A
           <LogOut className="w-3.5 h-3.5" />
           <span>Sign Out Admin</span>
         </button>
-        <div className="px-3 text-[10px] text-noir-500 font-mono">
-          Authorized: {process.env.NEXT_PUBLIC_ADMIN_EMAIL || "owner@lumiere.in"}
+        <div className="px-3 text-[10px] text-noir-500 font-mono truncate" title={adminEmail || process.env.NEXT_PUBLIC_ADMIN_EMAIL || "owner@lumiere.in"}>
+          Admin: {adminEmail || "Authenticated"}
         </div>
       </div>
     </aside>

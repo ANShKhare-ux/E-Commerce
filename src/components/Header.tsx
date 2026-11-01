@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { SearchDialog } from "@/components/SearchDialog";
+import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
@@ -22,6 +23,8 @@ import {
   Flame,
   ChevronDown,
   ExternalLink,
+  LogOut,
+  ChevronRight,
 } from "lucide-react";
 
 interface MegaMenuColumn {
@@ -270,7 +273,134 @@ export function Header() {
 
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const profileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const profileContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const [currentUser, setCurrentUser] = useState<{
+    id: string;
+    email: string;
+    fullName?: string;
+    role?: string;
+    isAdmin?: boolean;
+  } | null>(null);
+
+  // Check admin status against configured ADMIN_EMAIL or database role
+  const checkIsAdmin = (email?: string, role?: string) => {
+    if (role === "admin" || role === "super_admin") return true;
+    if (!email) return false;
+    const configuredAdmins = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    return configuredAdmins.includes(email.trim().toLowerCase());
+  };
+
+  // Listen to Supabase session state
+  useEffect(() => {
+    let isMounted = true;
+    const supabase = createClient();
+
+    const loadSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!isMounted) return;
+
+        if (session?.user) {
+          const user = session.user;
+          const userEmail = user.email || "";
+          const fullName =
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            userEmail.split("@")[0];
+
+          let role = "customer";
+          try {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("role")
+              .eq("id", user.id)
+              .single();
+            if (profile?.role) role = profile.role;
+          } catch {
+            // non-blocking
+          }
+
+          const isAdmin = checkIsAdmin(userEmail, role);
+
+          setCurrentUser({
+            id: user.id,
+            email: userEmail,
+            fullName,
+            role,
+            isAdmin,
+          });
+        } else {
+          setCurrentUser(null);
+        }
+      } catch {
+        if (isMounted) setCurrentUser(null);
+      }
+    };
+
+    loadSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!isMounted) return;
+        if (session?.user) {
+          const user = session.user;
+          const userEmail = user.email || "";
+          const fullName =
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            userEmail.split("@")[0];
+          const isAdmin = checkIsAdmin(userEmail);
+          setCurrentUser({
+            id: user.id,
+            email: userEmail,
+            fullName,
+            role: isAdmin ? "super_admin" : "customer",
+            isAdmin,
+          });
+        } else {
+          setCurrentUser(null);
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
+  }, []);
+
+  // Click outside listener for profile flyout
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        profileContainerRef.current &&
+        !profileContainerRef.current.contains(e.target as Node)
+      ) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      setCurrentUser(null);
+      setProfileDropdownOpen(false);
+      router.push("/");
+      router.refresh();
+    } catch {
+      setProfileDropdownOpen(false);
+      router.push("/");
+    }
+  };
 
   // Keyboard shortcut '/' to focus search input
   useEffect(() => {
@@ -311,7 +441,7 @@ export function Header() {
   const handleProfileMouseLeave = () => {
     profileTimeoutRef.current = setTimeout(() => {
       setProfileDropdownOpen(false);
-    }, 150);
+    }, 250);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -421,22 +551,24 @@ export function Header() {
 
             {/* Far Right Section: Stacked Actions (Profile, Wishlist, Bag) */}
             <div className="flex items-center gap-4 sm:gap-6 lg:gap-7 h-full flex-shrink-0">
-              {/* 1. Profile Action (Icon on top, Label on bottom, with hover flyout) */}
+              {/* 1. Profile Action (Icon on top, Label on bottom, with dynamic flyout) */}
               <div
+                ref={profileContainerRef}
                 className="relative h-full flex items-center"
                 onMouseEnter={handleProfileMouseEnter}
                 onMouseLeave={handleProfileMouseLeave}
               >
-                <Link
-                  href="/account"
-                  className="flex flex-col items-center justify-center cursor-pointer group text-[#282c3f] hover:text-[#C59B48] transition-colors py-2 px-1"
+                <button
+                  type="button"
+                  onClick={() => setProfileDropdownOpen((prev) => !prev)}
+                  className="flex flex-col items-center justify-center cursor-pointer group text-[#282c3f] hover:text-[#C59B48] transition-colors py-2 px-1 focus:outline-hidden"
                   aria-label="Patron Profile & Orders"
                 >
                   <User className="w-5 h-5 text-[#282c3f] group-hover:text-[#C59B48] transition-colors stroke-[1.8]" />
                   <span className="text-[11px] sm:text-[12px] font-bold tracking-[0.2px] text-[#282c3f] group-hover:text-[#C59B48] transition-colors mt-0.5">
-                    Profile
+                    {currentUser ? (currentUser.fullName ? currentUser.fullName.split(" ")[0] : "Profile") : "Profile"}
                   </span>
-                </Link>
+                </button>
 
                 {/* Profile Flyout Dropdown Card */}
                 <AnimatePresence>
@@ -450,79 +582,162 @@ export function Header() {
                       onMouseEnter={handleProfileMouseEnter}
                       onMouseLeave={handleProfileMouseLeave}
                     >
-                    <div className="pb-3 border-b border-[#eaeaec]">
-                      <h4 className="text-[13px] font-bold text-[#282c3f]">
-                        Welcome to LUMIÈRE
-                      </h4>
-                      <p className="text-[11px] text-[#696e79] mt-0.5 mb-3">
-                        To access account & manage orders
-                      </p>
-                      <Link
-                        href="/account"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="block w-full text-center py-2 px-3 border border-[#d4d5d9] hover:border-[#282c3f] text-[#282c3f] hover:text-[#C59B48] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
-                      >
-                        Login / Sign Up
-                      </Link>
-                    </div>
+                      {currentUser ? (
+                        /* Authenticated Patron View */
+                        <>
+                          <div className="pb-3 border-b border-[#eaeaec]">
+                            <div className="flex items-center gap-2.5 mb-2">
+                              <div className="w-8 h-8 rounded-full bg-gold-100 border border-gold-300 text-gold-900 font-bold flex items-center justify-center text-xs uppercase tracking-wider shrink-0">
+                                {(currentUser.fullName || currentUser.email).slice(0, 2).toUpperCase()}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-[13px] font-bold text-[#282c3f] truncate">
+                                  {currentUser.fullName}
+                                </h4>
+                                <p className="text-[11px] text-[#696e79] truncate font-mono">
+                                  {currentUser.email}
+                                </p>
+                              </div>
+                            </div>
+                            <Link
+                              href="/account"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="block w-full text-center py-1.5 px-3 bg-noir-900 hover:bg-gold-600 text-white hover:text-noir-900 text-[11px] font-bold uppercase tracking-wider rounded-sm transition-colors"
+                            >
+                              My Account & Wardrobe
+                            </Link>
+                          </div>
 
-                    <div className="pt-3 space-y-2 text-xs">
-                      <Link
-                        href="/account"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="block py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
-                      >
-                        Orders & Returns
-                      </Link>
-                      <Link
-                        href="/wishlist"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="block py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
-                      >
-                        Saved Wishlist
-                      </Link>
-                      <Link
-                        href="/track-order"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center justify-between py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
-                      >
-                        <span>Track Delhivery Parcel</span>
-                        <Truck className="w-3.5 h-3.5 text-[#C59B48]" />
-                      </Link>
-                      <Link
-                        href="/outfits"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center justify-between py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
-                      >
-                        <span>Curated Outfits</span>
-                        <Sparkles className="w-3.5 h-3.5 text-[#C59B48]" />
-                      </Link>
-                      <Link
-                        href="/deals"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center justify-between py-1 text-[#ee5f73] font-medium transition-colors"
-                      >
-                        <span>Private Archive Deals</span>
-                        <Flame className="w-3.5 h-3.5 text-[#ee5f73]" />
-                      </Link>
+                          <div className="pt-3 space-y-2 text-xs">
+                            <Link
+                              href="/account#orders"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="flex items-center justify-between py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
+                            >
+                              <span>Orders & Returns</span>
+                              <ChevronRight className="w-3.5 h-3.5 text-noir-400" />
+                            </Link>
+                            <Link
+                              href="/account#addresses"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="flex items-center justify-between py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
+                            >
+                              <span>Saved Addresses</span>
+                              <ChevronRight className="w-3.5 h-3.5 text-noir-400" />
+                            </Link>
+                            <Link
+                              href="/wishlist"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="flex items-center justify-between py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
+                            >
+                              <span>Saved Wishlist</span>
+                              <Heart className="w-3.5 h-3.5 text-rose-500" />
+                            </Link>
+                            <Link
+                              href="/track-order"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="flex items-center justify-between py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
+                            >
+                              <span>Track Delhivery Parcel</span>
+                              <Truck className="w-3.5 h-3.5 text-[#C59B48]" />
+                            </Link>
 
-                      <div className="pt-2 border-t border-[#eaeaec]">
-                        <Link
-                          href="/admin"
-                          onClick={() => setProfileDropdownOpen(false)}
-                          className="flex items-center justify-between py-1 text-[#696e79] hover:text-[#282c3f] font-semibold text-[11px] uppercase tracking-wider"
-                        >
-                          <span className="flex items-center gap-1.5">
-                            <ShieldCheck className="w-3.5 h-3.5 text-[#C59B48]" />
-                            <span>Admin Control Room</span>
-                          </span>
-                          <ExternalLink className="w-3 h-3 text-[#696e79]" />
-                        </Link>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                            {/* Admin Control Room: STRICTLY SHOWN ONLY TO VERIFIED ADMINS */}
+                            {currentUser.isAdmin && (
+                              <div className="pt-2 border-t border-[#eaeaec]">
+                                <Link
+                                  href="/admin"
+                                  onClick={() => setProfileDropdownOpen(false)}
+                                  className="flex items-center justify-between py-1.5 px-2.5 bg-gold-50/70 hover:bg-gold-100/90 text-noir-900 rounded-sm font-semibold text-[11px] uppercase tracking-wider border border-gold-300 transition-colors"
+                                >
+                                  <span className="flex items-center gap-1.5">
+                                    <ShieldCheck className="w-3.5 h-3.5 text-gold-600" />
+                                    <span>Admin Control Room</span>
+                                  </span>
+                                  <ExternalLink className="w-3 h-3 text-gold-600" />
+                                </Link>
+                              </div>
+                            )}
+
+                            {/* Sign Out Action */}
+                            <div className="pt-2 border-t border-[#eaeaec]">
+                              <button
+                                type="button"
+                                onClick={handleSignOut}
+                                className="w-full flex items-center justify-between py-1 text-rose-600 hover:text-rose-800 font-medium text-xs transition-colors"
+                              >
+                                <span className="flex items-center gap-1.5">
+                                  <LogOut className="w-3.5 h-3.5" />
+                                  <span>Sign Out</span>
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        /* Guest Shopper View (Admin link is completely omitted) */
+                        <>
+                          <div className="pb-3 border-b border-[#eaeaec]">
+                            <h4 className="text-[13px] font-bold text-[#282c3f]">
+                              Welcome to LUMIÈRE
+                            </h4>
+                            <p className="text-[11px] text-[#696e79] mt-0.5 mb-3">
+                              To access account & manage orders
+                            </p>
+                            <Link
+                              href="/login?redirect=/account"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="block w-full text-center py-2 px-3 border border-noir-900 bg-noir-900 text-white hover:bg-gold-600 hover:border-gold-600 hover:text-noir-900 text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
+                            >
+                              Login / Sign Up
+                            </Link>
+                          </div>
+
+                          <div className="pt-3 space-y-2 text-xs">
+                            <Link
+                              href="/login?redirect=/account"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="block py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
+                            >
+                              Orders & Returns
+                            </Link>
+                            <Link
+                              href="/wishlist"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="block py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
+                            >
+                              Saved Wishlist
+                            </Link>
+                            <Link
+                              href="/track-order"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="flex items-center justify-between py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
+                            >
+                              <span>Track Delhivery Parcel</span>
+                              <Truck className="w-3.5 h-3.5 text-[#C59B48]" />
+                            </Link>
+                            <Link
+                              href="/outfits"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="flex items-center justify-between py-1 text-[#282c3f] hover:text-[#C59B48] font-medium transition-colors"
+                            >
+                              <span>Curated Outfits</span>
+                              <Sparkles className="w-3.5 h-3.5 text-[#C59B48]" />
+                            </Link>
+                            <Link
+                              href="/deals"
+                              onClick={() => setProfileDropdownOpen(false)}
+                              className="flex items-center justify-between py-1 text-[#ee5f73] font-medium transition-colors"
+                            >
+                              <span>Private Archive Deals</span>
+                              <Flame className="w-3.5 h-3.5 text-[#ee5f73]" />
+                            </Link>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* 2. Wishlist Action (Icon on top, Label on bottom, with badge counter) */}
@@ -742,14 +957,38 @@ export function Header() {
                 <User className="w-4 h-4 text-[#282c3f]" />
                 <span>Patron Account & Orders</span>
               </Link>
-              <Link
-                href="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2.5 py-2 text-[#282c3f] font-bold"
-              >
-                <ShieldCheck className="w-4 h-4 text-[#C59B48]" />
-                <span>Private Admin Control Room</span>
-              </Link>
+              {currentUser?.isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2.5 py-2 text-gold-700 font-bold"
+                >
+                  <ShieldCheck className="w-4 h-4 text-[#C59B48]" />
+                  <span>Private Admin Control Room</span>
+                </Link>
+              )}
+              {currentUser ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleSignOut();
+                  }}
+                  className="w-full flex items-center gap-2.5 py-2 text-rose-600 font-medium text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              ) : (
+                <Link
+                  href="/login?redirect=/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2.5 py-2 text-[#282c3f] font-bold"
+                >
+                  <User className="w-4 h-4 text-[#C59B48]" />
+                  <span>Sign In / Register</span>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}

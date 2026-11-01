@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin";
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAdminAuthorization(req.headers);
     const body = await req.json();
     const { returnId, notes, adminEmail } = body;
 
@@ -13,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const email = adminEmail || process.env.ADMIN_EMAIL || "owner@lumiere.in";
+    const email = auth.email || adminEmail || getPrimaryAdminEmail();
     const result = await db.returns.inspectAndRestock(returnId, notes, email);
 
     if (!result.success) {
