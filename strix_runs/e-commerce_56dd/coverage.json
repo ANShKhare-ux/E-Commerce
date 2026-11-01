@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-01 06:01:59 UTC",
+  "run_id": "e-commerce_56dd",
+  "run_name": "e-commerce_56dd",
+  "scope": {
+    "targets": [
+      {
+        "type": "local_code",
+        "details": {
+          "target_path": "C:\\Users\\Taraksh jain\\OneDrive\\Documents\\E-commerce\\E-Commerce",
+          "workspace_subdir": "E-Commerce"
+        },
+        "original": "C:\\Users\\Taraksh jain\\OneDrive\\Documents\\E-commerce\\E-Commerce"
+      }
+    ],
+    "scan_mode": "quick",
+    "scope_mode": "auto",
+    "diff_scope": {
+      "active": false,
+      "mode": "auto"
+    },
+    "instruction": ""
+  },
+  "summary": {
+    "surfaces_reviewed": 0,
+    "outcomes": {},
+    "findings_filed": 0,
+    "gaps": 0
+  },
+  "machine_observed": {
+    "agents": [],
+    "skills_exercised": [],
+    "findings_filed": 0,
+    "source": "runtime"
+  },
+  "completeness": {
+    "complete": false,
+    "scan_status": "running",
+    "exit_reason": null,
+    "caveats": [
+      "The scan ended with status 'running' rather than completing, so coverage reflects only the work finished before it stopped."
+    ]
+  },
+  "entries": [],
+  "gaps": []
+}

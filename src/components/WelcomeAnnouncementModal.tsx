@@ -14,6 +14,7 @@ export function WelcomeAnnouncementModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const hasTriggeredRef = useRef(false);
+  const cleanedUpRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -21,12 +22,15 @@ export function WelcomeAnnouncementModal() {
     // Do not show on admin routes
     if (pathname?.startsWith("/admin")) return;
 
-    // Clear stale keys from previous buggy iterations to unblock immediate display
-    try {
-      localStorage.removeItem("lumiere_welcome_popup_shown");
-      sessionStorage.removeItem("lumiere_welcome_popup_shown");
-      sessionStorage.removeItem("lumiere_session_active");
-    } catch {}
+    // Clear stale keys once on initial mount to unblock display
+    if (!cleanedUpRef.current) {
+      cleanedUpRef.current = true;
+      try {
+        localStorage.removeItem("lumiere_welcome_popup_shown");
+        sessionStorage.removeItem("lumiere_welcome_popup_shown");
+        sessionStorage.removeItem("lumiere_session_active");
+      } catch {}
+    }
 
     // 1. If previously dismissed in this browser session, do not show
     const isDismissed = sessionStorage.getItem("lumiere_popup_dismissed") === "true";

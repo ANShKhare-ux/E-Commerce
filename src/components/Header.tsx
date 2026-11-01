@@ -44,76 +44,9 @@ interface NavCategory {
   };
 }
 
-export function Header() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const { totalCount, setIsOpen } = useCart();
-  const { count: wishlistCount } = useWishlist();
-
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const profileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Keyboard shortcut '/' to focus search input
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === "/" &&
-        !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement)?.tagName)
-      ) {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  if (pathname?.startsWith("/admin")) {
-    return null;
-  }
-
-  // Hover handlers with micro-debouncing to prevent flickering
-  const handleNavMouseEnter = (catId: string) => {
-    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-    setActiveMegaMenu(catId);
-  };
-
-  const handleNavMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setActiveMegaMenu(null);
-    }, 120);
-  };
-
-  const handleProfileMouseEnter = () => {
-    if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
-    setProfileDropdownOpen(true);
-  };
-
-  const handleProfileMouseLeave = () => {
-    profileTimeoutRef.current = setTimeout(() => {
-      setProfileDropdownOpen(false);
-    }, 150);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      setSearchDialogOpen(true);
-    }
-  };
-
-  // Navigation data aligned with website taxonomy:
-  // Categories: MEN, WOMEN, UNISEX, COLLECTIONS
-  const categories: NavCategory[] = [
+// Navigation data aligned with website taxonomy (module-level constant to prevent re-allocating on every render):
+// Categories: MEN, WOMEN, UNISEX, COLLECTIONS
+const NAV_CATEGORIES: NavCategory[] = [
     {
       id: "men",
       label: "MEN",
@@ -323,11 +256,79 @@ export function Header() {
     },
   ];
 
-  const currentMegaMenu = categories.find((cat) => cat.id === activeMegaMenu);
+export function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { totalCount } = useCart();
+  const { count: wishlistCount } = useWishlist();
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const profileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcut '/' to focus search input
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === "/" &&
+        !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement)?.tagName)
+      ) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
+  // Hover handlers with micro-debouncing to prevent flickering
+  const handleNavMouseEnter = (catId: string) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setActiveMegaMenu(catId);
+  };
+
+  const handleNavMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setActiveMegaMenu(null);
+    }, 120);
+  };
+
+  const handleProfileMouseEnter = () => {
+    if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+    setProfileDropdownOpen(true);
+  };
+
+  const handleProfileMouseLeave = () => {
+    profileTimeoutRef.current = setTimeout(() => {
+      setProfileDropdownOpen(false);
+    }, 150);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      setSearchDialogOpen(true);
+    }
+  };
+
+  const categories = NAV_CATEGORIES;
+  const currentMegaMenu = NAV_CATEGORIES.find((cat) => cat.id === activeMegaMenu);
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-white border-b border-[#eaeaec] shadow-[0_2px_12px_rgba(0,0,0,0.05)] transition-all">
+      <header className="sticky top-0 z-40 w-full bg-white border-b border-[#eaeaec] shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
         {/* Main Navigation Bar (80px height, Myntra-style UI/UX) */}
         <div className="w-full px-4 sm:px-6 lg:px-10 max-w-[1680px] mx-auto">
           <div className="flex items-center justify-between h-20">
@@ -756,10 +757,12 @@ export function Header() {
       </header>
 
       {/* Live Interactive Search Dialog */}
-      <SearchDialog
-        isOpen={searchDialogOpen}
-        onClose={() => setSearchDialogOpen(false)}
-      />
+      {searchDialogOpen && (
+        <SearchDialog
+          isOpen={searchDialogOpen}
+          onClose={() => setSearchDialogOpen(false)}
+        />
+      )}
     </>
   );
 }

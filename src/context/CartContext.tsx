@@ -26,6 +26,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [reservationId, setReservationId] = useState<string | undefined>();
   const [reservationExpiresAt, setReservationExpiresAt] = useState<string | undefined>();
 
+  const isInitializedRef = React.useRef(false);
+
   // Initialize unique session ID and load persisted cart
   useEffect(() => {
     let sid = localStorage.getItem("lumiere_session_id");
@@ -42,11 +44,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (e) {
       console.error("Failed to parse cart from storage", e);
+    } finally {
+      isInitializedRef.current = true;
     }
   }, []);
 
-  // Sync cart to localStorage
+  // Sync cart to localStorage (only after initial load has finished)
   useEffect(() => {
+    if (!isInitializedRef.current) return;
     if (typeof window !== "undefined") {
       localStorage.setItem("lumiere_cart", JSON.stringify(items));
     }

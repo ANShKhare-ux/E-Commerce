@@ -20,61 +20,62 @@ import {
 
 export const revalidate = 60; // ISR cache revalidation
 
+const CATEGORY_TILES = [
+  {
+    title: "Shop Men",
+    subtitle: "Tailoring, Hoodies & Gurkhas",
+    image: "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=800&q=80",
+    href: "/category/mens-clothing",
+  },
+  {
+    title: "Shop Women",
+    subtitle: "Silks, Anarkalis & Linens",
+    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
+    href: "/category/womens-clothing",
+  },
+  {
+    title: "Shop Unisex",
+    subtitle: "Drop-Shoulder Boxy Fits",
+    image: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&w=800&q=80",
+    href: "/category/streetwear",
+  },
+  {
+    title: "Streetwear",
+    subtitle: "450 GSM Heavyweight Terry",
+    image: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=800&q=80",
+    href: "/category/streetwear",
+  },
+  {
+    title: "Ethnic Wear",
+    subtitle: "Chanderi & Banarasi Brocades",
+    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
+    href: "/category/ethnic-wear",
+  },
+  {
+    title: "Accessories & Horlogerie",
+    subtitle: "Pashmina Shawls & Curations",
+    image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
+    href: "/category/premium-luxury",
+  },
+];
+
+const STYLE_DISCOVERY = [
+  { name: "Minimal", desc: "Clean lines & unadorned tailoring", href: "/products?style=minimal", tag: "Atelier" },
+  { name: "Streetwear", desc: "Boxy 450 GSM terry drops", href: "/category/streetwear", tag: "District Zero" },
+  { name: "Oversized", desc: "Wide dropped shoulders & loose drapes", href: "/products?style=oversized", tag: "Contemporary" },
+  { name: "Ethnic", desc: "Hand-spun Chanderi & Kadhwa silk", href: "/category/ethnic-wear", tag: "Heirloom" },
+  { name: "Casual", desc: "Fluid organic flax linens", href: "/collection/monsoon-minimalism", tag: "Everyday" },
+  { name: "Premium", desc: "Mulberry silks & Changthangi wool", href: "/category/premium-luxury", tag: "Haute" },
+];
+
 export default async function HomePage() {
-  const homepageConfig = await db.homepage.get();
+  const [homepageConfig, newArrivals, bestsellers, dealProducts] = await Promise.all([
+    db.homepage.get(),
+    db.products.getAll({ sort: "newest", limit: 8 }),
+    db.products.getAll({ sort: "rating", limit: 4 }),
+    db.products.getAll({ isDeal: true, limit: 4 }),
+  ]);
   const hero = homepageConfig.hero;
-
-  const newArrivals = await db.products.getAll({ sort: "newest" });
-  const bestsellers = await db.products.getAll({ sort: "rating" });
-  const dealProducts = await db.products.getAll({ isDeal: true });
-
-  const categoryTiles = [
-    {
-      title: "Shop Men",
-      subtitle: "Tailoring, Hoodies & Gurkhas",
-      image: "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=800&q=80",
-      href: "/category/mens-clothing",
-    },
-    {
-      title: "Shop Women",
-      subtitle: "Silks, Anarkalis & Linens",
-      image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
-      href: "/category/womens-clothing",
-    },
-    {
-      title: "Shop Unisex",
-      subtitle: "Drop-Shoulder Boxy Fits",
-      image: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?auto=format&fit=crop&w=800&q=80",
-      href: "/category/streetwear",
-    },
-    {
-      title: "Streetwear",
-      subtitle: "450 GSM Heavyweight Terry",
-      image: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=800&q=80",
-      href: "/category/streetwear",
-    },
-    {
-      title: "Ethnic Wear",
-      subtitle: "Chanderi & Banarasi Brocades",
-      image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
-      href: "/category/ethnic-wear",
-    },
-    {
-      title: "Accessories & Horlogerie",
-      subtitle: "Pashmina Shawls & Curations",
-      image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
-      href: "/category/premium-luxury",
-    },
-  ];
-
-  const styleDiscovery = [
-    { name: "Minimal", desc: "Clean lines & unadorned tailoring", href: "/products?style=minimal", tag: "Atelier" },
-    { name: "Streetwear", desc: "Boxy 450 GSM terry drops", href: "/category/streetwear", tag: "District Zero" },
-    { name: "Oversized", desc: "Wide dropped shoulders & loose drapes", href: "/products?style=oversized", tag: "Contemporary" },
-    { name: "Ethnic", desc: "Hand-spun Chanderi & Kadhwa silk", href: "/category/ethnic-wear", tag: "Heirloom" },
-    { name: "Casual", desc: "Fluid organic flax linens", href: "/collection/monsoon-minimalism", tag: "Everyday" },
-    { name: "Premium", desc: "Mulberry silks & Changthangi wool", href: "/category/premium-luxury", tag: "Haute" },
-  ];
 
   return (
     <div className="space-y-16 sm:space-y-24 pb-16">
@@ -172,7 +173,7 @@ export default async function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categoryTiles.map((tile) => (
+          {CATEGORY_TILES.map((tile) => (
             <Link
               key={tile.title}
               href={tile.href}
@@ -330,7 +331,7 @@ export default async function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {styleDiscovery.map((style) => (
+          {STYLE_DISCOVERY.map((style) => (
             <Link
               key={style.name}
               href={style.href}

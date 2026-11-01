@@ -225,6 +225,7 @@ export const db = {
       minPrice?: number;
       maxPrice?: number;
       sort?: 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'newest' | 'discount';
+      limit?: number;
     }): Promise<Product[]> => {
       let list = [...dbStore.products].filter(p => p.status === 'active');
 
@@ -305,6 +306,10 @@ export const db = {
           const discB = b.discount_price ? ((b.base_price - b.discount_price) / b.base_price) : 0;
           return discB - discA;
         });
+      }
+
+      if (filter?.limit && filter.limit > 0) {
+        list = list.slice(0, filter.limit);
       }
 
       return list;

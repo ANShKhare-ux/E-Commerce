@@ -1,0 +1,220 @@
+2026-11-01 11:31:59.746 INFO    e-commerce_56dd - strix.core.runner: Starting Strix scan e-commerce_56dd (image=ghcr.io/usestrix/strix-sandbox:1.3.0, max_turns=500, interactive=True, run_dir=C:\Users\Taraksh jain\OneDrive\Documents\E-commerce\E-Commerce\strix_runs\e-commerce_56dd)
+2026-11-01 11:31:59.746 INFO    e-commerce_56dd - strix.config.models: OpenAI API route for openrouter/liquid/lfm-2.5-2.6b:free: chat_completions
+2026-11-01 11:31:59.746 INFO    e-commerce_56dd - strix.core.runner: LLM model resolved: openrouter/liquid/lfm-2.5-2.6b:free
+2026-11-01 11:31:59.747 INFO    e-commerce_56dd - strix.core.runner: Bringing up sandbox session for scan e-commerce_56dd
+2026-11-01 11:31:59.747 DEBUG   e-commerce_56dd - strix.runtime.backends: Selected sandbox backend: docker
+2026-11-01 11:31:59.748 INFO    e-commerce_56dd - strix.runtime.session_manager: Creating sandbox session for scan e-commerce_56dd (backend=docker, image=ghcr.io/usestrix/strix-sandbox:1.3.0)
+2026-11-01 11:31:59.894 DEBUG   e-commerce_56dd - strix.runtime.docker_client: Creating sandbox container: image=ghcr.io/usestrix/strix-sandbox:1.3.0 caps=['NET_ADMIN', 'NET_RAW'] exposed_ports=[48080]
+2026-11-01 11:32:00.017 INFO    e-commerce_56dd - strix.runtime.docker_client: Sandbox container created: id=aaf296065f27 image=ghcr.io/usestrix/strix-sandbox:1.3.0
+2026-11-01 11:32:00.494 DEBUG   e-commerce_56dd - strix.runtime.session_manager: Caido host endpoint resolved: http://127.0.0.1:59299
+2026-11-01 11:32:00.494 INFO    e-commerce_56dd - strix.runtime.session_manager: Sandbox session for scan e-commerce_56dd ready and cached
+2026-11-01 11:32:00.494 INFO    e-commerce_56dd - strix.core.runner: Sandbox ready for scan e-commerce_56dd
+2026-11-01 11:32:00.499 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: scan_modes/quick -> quick
+2026-11-01 11:32:00.500 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: tooling/agent_browser -> agent_browser
+2026-11-01 11:32:00.500 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: tooling/python -> python
+2026-11-01 11:32:00.501 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: analysis/counterevidence -> counterevidence
+2026-11-01 11:32:00.502 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: analysis/severity_calibration -> severity_calibration
+2026-11-01 11:32:00.504 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: coordination/root_agent -> root_agent
+2026-11-01 11:32:00.505 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: coordination/source_aware_whitebox -> source_aware_whitebox
+2026-11-01 11:32:00.506 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: custom/source_aware_sast -> source_aware_sast
+2026-11-01 11:32:00.506 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: analysis/source_aware_discovery -> source_aware_discovery
+2026-11-01 11:32:00.507 DEBUG   e-commerce_56dd - strix.skills: Loaded skill: analysis/fix_verification -> fix_verification
+2026-11-01 11:32:00.508 DEBUG   e-commerce_56dd - strix.skills: load_skills: 10 skill(s) resolved
+2026-11-01 11:32:00.559 DEBUG   e-commerce_56dd - strix.agents.prompt: render_system_prompt: scan_mode=quick root=True whitebox=True skills=10 prompt_len=131025
+2026-11-01 11:32:00.559 INFO    e-commerce_56dd - strix.agents.factory: Built root agent 'Root Agent' (skills=0, tools=45, scan_mode=quick, whitebox=True)
+2026-11-01 11:32:00.560 INFO    e-commerce_56dd - strix.core.agents: agent.register 21d91e11 (Root Agent) parent=-
+2026-11-01 11:32:00.574 INFO    e-commerce_56dd - strix.runtime.caido_bootstrap: Bootstrapping Caido client (host=http://127.0.0.1:59299, container=http://127.0.0.1:48080)
+2026-11-01 11:32:00.603 DEBUG   e-commerce_56dd - openai.agents: Tracing is disabled. Not creating trace
+2026-11-01 11:32:00.605 DEBUG   e-commerce_56dd - openai.agents: Setting current trace: no-op
+2026-11-01 11:32:00.605 DEBUG   e-commerce_56dd - openai.agents: Tracing is disabled. Not creating span
+2026-11-01 11:32:00.624 DEBUG   e-commerce_56dd - openai.agents: Tracing is disabled. Not creating span
+2026-11-01 11:32:00.624 DEBUG   e-commerce_56dd - openai.agents: Starting turn 1, current_agent=Root Agent
+2026-11-01 11:32:00.625 DEBUG   e-commerce_56dd - openai.agents: Tracing is disabled. Not creating span
+2026-11-01 11:32:00.627 DEBUG   e-commerce_56dd - openai.agents: No conversation_id available for request
+2026-11-01 11:32:00.627 DEBUG   e-commerce_56dd - openai.agents: Tracing is disabled. Not creating span
+2026-11-01 11:32:00.631 DEBUG   e-commerce_56dd - openai.agents: Calling LLM
+2026-11-01 11:32:00.780 INFO    e-commerce_56dd - strix.runtime.caido_bootstrap: Caido project selected: 9cfd2bd2-6b56-4aeb-a233-a6966b48175a
+2026-11-01 11:32:01.440 WARNING e-commerce_56dd - strix.llm.request_log: llm_request route=litellm provider=openrouter model=liquid/lfm-2.5-2.6b:free host=openrouter.ai outcome=error status=400 request_id=gen-1793512921-Dl7rxgS2eIpSuK7Yjc2O response_id=- stream=1 duration_ms=794 ttft_ms=- req_bytes=112226 res_bytes=327 finish=- in=- out=- cached=- cost=- agent=21d91e11 attempt=0 error=BadRequestError: litellm.BadRequestError: OpenrouterException - {"error":{"message":"This endpoint's maximum context length is 65536 tokens. However, you requested about 65721 tokens (37989 of text input, 27732 of tool input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.","code":400,"metadata":{"provider_name":null}}}
+2026-11-01 11:32:01.440 DEBUG   e-commerce_56dd - openai.agents: Resetting current trace
+2026-11-01 11:32:01.455 ERROR   e-commerce_56dd - strix.core.execution: agent run failed for 21d91e11; marking failed
+Traceback (most recent call last):
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 461, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\litellm_core_utils\logging_utils.py", line 340, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\http_handler.py", line 868, in post
+    await _raise_masked_async_error(e, stream)
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\http_handler.py", line 542, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_body, text=_body) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '400 Bad Request' for url 'https://openrouter.ai/api/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\main.py", line 681, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\main.py", line 746, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 985, in acompletion_stream_function
+    completion_stream, _response_headers = await self.make_async_call_stream_helper(
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 1045, in make_async_call_stream_helper
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 478, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 6111, in _handle_error
+    raise provider_error
+litellm.llms.openrouter.common_utils.OpenRouterException: {"error":{"message":"This endpoint's maximum context length is 65536 tokens. However, you requested about 65721 tokens (37989 of text input, 27732 of tool input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.","code":400,"metadata":{"provider_name":null}}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\strix\core\execution.py", line 759, in _run_cycle
+    async for event in stream.stream_events():
+    ...<4 lines>...
+                logger.exception("stream event sink failed for %s", agent_id)
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\result.py", line 931, in stream_events
+    raise self._stored_exception
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\result.py", line 1021, in _await_task_safely
+    await task
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\result.py", line 695, in _await_run_and_cleanup
+    result = await original_task
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\run_internal\run_loop.py", line 1226, in start_streaming
+    turn_result = await run_single_turn_streamed(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\run_internal\run_loop.py", line 1712, in run_single_turn_streamed
+    async for event in model_run_context_stream(retry_stream, tool_use_tracker):
+    ...<142 lines>...
+                    )
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\models\_run_context.py", line 31, in model_run_context_stream
+    async for item in stream:
+        yield item
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\run_internal\model_retry.py", line 560, in stream_response_with_retry
+    event = await stream.__anext__()
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\strix\config\models.py", line 363, in stream_response
+    async for event in _with_idle_timeout(stream, self._stream_idle_timeout):
+    ...<2 lines>...
+            yield guarded
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\strix\config\models.py", line 408, in _with_idle_timeout
+    event = await asyncio.wait_for(iterator.__anext__(), timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\asyncio\tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\strix\llm\request_log.py", line 1244, in stream_response
+    async for event in self._inner.stream_response(
+    ...<28 lines>...
+        yield event
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\extensions\models\litellm_model.py", line 404, in stream_response
+    response, stream = await self._fetch_response(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\extensions\models\litellm_model.py", line 635, in _fetch_response
+    ret = await litellm.acompletion(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<19 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\chat_completions\dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\rust_bridge\dispatch.py", line 114, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\utils.py", line 2288, in wrapper_async
+    raise e
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\utils.py", line 2099, in wrapper_async
+    result = await original_function(*args, **call_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\main.py", line 734, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 2730, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 2651, in exception_type
+    _map_openrouter_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 2154, in _map_openrouter_exception
+    raise BadRequestError(
+    ...<5 lines>...
+    )
+litellm.exceptions.BadRequestError: litellm.BadRequestError: OpenrouterException - {"error":{"message":"This endpoint's maximum context length is 65536 tokens. However, you requested about 65721 tokens (37989 of text input, 27732 of tool input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.","code":400,"metadata":{"provider_name":null}}}
+2026-11-01 11:32:01.467 INFO    e-commerce_56dd - strix.core.agents: agent.status 21d91e11=failed
+2026-11-01 11:32:51.140 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /?token=4OqPEpR60LuPxUEREvdx2xI0XYau9KwqIdFWnLD2pgk HTTP/1.1" 200 -
+2026-11-01 11:32:51.162 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /assets/index-B1JzV4Vu.js HTTP/1.1" 200 -
+2026-11-01 11:32:51.173 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /assets/index-CrLE9rrV.css HTTP/1.1" 200 -
+2026-11-01 11:32:51.262 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /logo.png HTTP/1.1" 200 -
+2026-11-01 11:32:51.341 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/auth/status HTTP/1.1" 200 -
+2026-11-01 11:32:51.379 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/runs HTTP/1.1" 200 -
+2026-11-01 11:32:51.398 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/capabilities HTTP/1.1" 200 -
+2026-11-01 11:32:51.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:51.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /logo.png HTTP/1.1" 200 -
+2026-11-01 11:32:51.453 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:51.468 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/report HTTP/1.1" 200 -
+2026-11-01 11:32:51.484 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:32:52.006 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:52.034 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:52.038 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:32:52.319 DEBUG   - - strix.telemetry.posthog: posthog event sent: viewer_opened
+2026-11-01 11:32:52.556 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:52.566 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:52.572 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:32:53.082 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:53.093 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:53.096 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:32:53.609 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:53.621 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:53.624 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:32:54.138 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:54.146 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:54.151 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:32:54.667 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:54.677 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:54.680 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:32:55.197 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:55.213 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:55.217 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:32:55.727 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:32:55.735 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:32:55.741 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -

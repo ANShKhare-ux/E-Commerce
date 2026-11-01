@@ -1,0 +1,891 @@
+2026-11-01 11:23:48.603 INFO    e-commerce_fbdd - strix.core.runner: Starting Strix scan e-commerce_fbdd (image=ghcr.io/usestrix/strix-sandbox:1.3.0, max_turns=500, interactive=True, run_dir=C:\Users\Taraksh jain\OneDrive\Documents\E-commerce\E-Commerce\strix_runs\e-commerce_fbdd)
+2026-11-01 11:23:48.603 INFO    e-commerce_fbdd - strix.config.models: OpenAI API route for openrouter/liquid/lfm-2.5-2.6b:free: chat_completions
+2026-11-01 11:23:48.603 INFO    e-commerce_fbdd - strix.core.runner: LLM model resolved: openrouter/liquid/lfm-2.5-2.6b:free
+2026-11-01 11:23:48.604 INFO    e-commerce_fbdd - strix.core.runner: Bringing up sandbox session for scan e-commerce_fbdd
+2026-11-01 11:23:48.604 DEBUG   e-commerce_fbdd - strix.runtime.backends: Selected sandbox backend: docker
+2026-11-01 11:23:48.604 INFO    e-commerce_fbdd - strix.runtime.session_manager: Creating sandbox session for scan e-commerce_fbdd (backend=docker, image=ghcr.io/usestrix/strix-sandbox:1.3.0)
+2026-11-01 11:23:48.749 DEBUG   e-commerce_fbdd - strix.runtime.docker_client: Creating sandbox container: image=ghcr.io/usestrix/strix-sandbox:1.3.0 caps=['NET_ADMIN', 'NET_RAW'] exposed_ports=[48080]
+2026-11-01 11:23:48.903 INFO    e-commerce_fbdd - strix.runtime.docker_client: Sandbox container created: id=6db60e19c220 image=ghcr.io/usestrix/strix-sandbox:1.3.0
+2026-11-01 11:23:49.527 DEBUG   e-commerce_fbdd - strix.runtime.session_manager: Caido host endpoint resolved: http://127.0.0.1:58522
+2026-11-01 11:23:49.527 INFO    e-commerce_fbdd - strix.runtime.session_manager: Sandbox session for scan e-commerce_fbdd ready and cached
+2026-11-01 11:23:49.527 INFO    e-commerce_fbdd - strix.core.runner: Sandbox ready for scan e-commerce_fbdd
+2026-11-01 11:23:49.535 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: scan_modes/deep -> deep
+2026-11-01 11:23:49.537 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: tooling/agent_browser -> agent_browser
+2026-11-01 11:23:49.538 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: tooling/python -> python
+2026-11-01 11:23:49.540 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: analysis/counterevidence -> counterevidence
+2026-11-01 11:23:49.542 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: analysis/severity_calibration -> severity_calibration
+2026-11-01 11:23:49.545 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: coordination/root_agent -> root_agent
+2026-11-01 11:23:49.548 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: coordination/source_aware_whitebox -> source_aware_whitebox
+2026-11-01 11:23:49.550 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: custom/source_aware_sast -> source_aware_sast
+2026-11-01 11:23:49.552 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: analysis/source_aware_discovery -> source_aware_discovery
+2026-11-01 11:23:49.554 DEBUG   e-commerce_fbdd - strix.skills: Loaded skill: analysis/fix_verification -> fix_verification
+2026-11-01 11:23:49.554 DEBUG   e-commerce_fbdd - strix.skills: load_skills: 10 skill(s) resolved
+2026-11-01 11:23:49.620 DEBUG   e-commerce_fbdd - strix.agents.prompt: render_system_prompt: scan_mode=deep root=True whitebox=True skills=10 prompt_len=135241
+2026-11-01 11:23:49.621 INFO    e-commerce_fbdd - strix.agents.factory: Built root agent 'Root Agent' (skills=0, tools=45, scan_mode=deep, whitebox=True)
+2026-11-01 11:23:49.621 INFO    e-commerce_fbdd - strix.core.agents: agent.register 1ddc91f8 (Root Agent) parent=-
+2026-11-01 11:23:49.648 INFO    e-commerce_fbdd - strix.runtime.caido_bootstrap: Bootstrapping Caido client (host=http://127.0.0.1:58522, container=http://127.0.0.1:48080)
+2026-11-01 11:23:49.683 DEBUG   e-commerce_fbdd - openai.agents: Tracing is disabled. Not creating trace
+2026-11-01 11:23:49.685 DEBUG   e-commerce_fbdd - openai.agents: Setting current trace: no-op
+2026-11-01 11:23:49.686 DEBUG   e-commerce_fbdd - openai.agents: Tracing is disabled. Not creating span
+2026-11-01 11:23:49.707 DEBUG   e-commerce_fbdd - openai.agents: Tracing is disabled. Not creating span
+2026-11-01 11:23:49.707 DEBUG   e-commerce_fbdd - openai.agents: Starting turn 1, current_agent=Root Agent
+2026-11-01 11:23:49.708 DEBUG   e-commerce_fbdd - openai.agents: Tracing is disabled. Not creating span
+2026-11-01 11:23:49.712 DEBUG   e-commerce_fbdd - openai.agents: No conversation_id available for request
+2026-11-01 11:23:49.713 DEBUG   e-commerce_fbdd - openai.agents: Tracing is disabled. Not creating span
+2026-11-01 11:23:49.717 DEBUG   e-commerce_fbdd - openai.agents: Calling LLM
+2026-11-01 11:23:49.838 INFO    e-commerce_fbdd - strix.runtime.caido_bootstrap: Caido project selected: 20cfdc74-1a09-46d3-912d-584b911d33d4
+2026-11-01 11:23:50.557 WARNING e-commerce_fbdd - strix.llm.request_log: llm_request route=litellm provider=openrouter model=liquid/lfm-2.5-2.6b:free host=openrouter.ai outcome=error status=400 request_id=gen-1793512430-fHUfILHJeY1dI0U6H7KK response_id=- stream=1 duration_ms=816 ttft_ms=- req_bytes=112226 res_bytes=327 finish=- in=- out=- cached=- cost=- agent=1ddc91f8 attempt=0 error=BadRequestError: litellm.BadRequestError: OpenrouterException - {"error":{"message":"This endpoint's maximum context length is 65536 tokens. However, you requested about 66803 tokens (39071 of text input, 27732 of tool input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.","code":400,"metadata":{"provider_name":null}}}
+2026-11-01 11:23:50.557 DEBUG   e-commerce_fbdd - openai.agents: Resetting current trace
+2026-11-01 11:23:50.573 ERROR   e-commerce_fbdd - strix.core.execution: agent run failed for 1ddc91f8; marking failed
+Traceback (most recent call last):
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 461, in _make_common_async_call
+    response = await async_httpx_client.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\litellm_core_utils\logging_utils.py", line 340, in async_wrapper
+    result: Final = await func(*args, **kwargs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\http_handler.py", line 868, in post
+    await _raise_masked_async_error(e, stream)
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\http_handler.py", line 542, in _raise_masked_async_error
+    raise MaskedHTTPStatusError(e, message=_body, text=_body) from None
+litellm.llms.custom_httpx.http_handler.MaskedHTTPStatusError: Client error '400 Bad Request' for url 'https://openrouter.ai/api/v1/chat/completions'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\main.py", line 681, in acompletion
+    response = await _resolve_dispatched_chat_response(init_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\main.py", line 746, in _resolve_dispatched_chat_response
+    return await pending
+           ^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 985, in acompletion_stream_function
+    completion_stream, _response_headers = await self.make_async_call_stream_helper(
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 1045, in make_async_call_stream_helper
+    response: Final = await self._make_common_async_call(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 478, in _make_common_async_call
+    raise self._handle_error(e=e, provider_config=provider_config)
+          ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\llms\custom_httpx\llm_http_handler.py", line 6111, in _handle_error
+    raise provider_error
+litellm.llms.openrouter.common_utils.OpenRouterException: {"error":{"message":"This endpoint's maximum context length is 65536 tokens. However, you requested about 66803 tokens (39071 of text input, 27732 of tool input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.","code":400,"metadata":{"provider_name":null}}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\strix\core\execution.py", line 759, in _run_cycle
+    async for event in stream.stream_events():
+    ...<4 lines>...
+                logger.exception("stream event sink failed for %s", agent_id)
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\result.py", line 931, in stream_events
+    raise self._stored_exception
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\result.py", line 1021, in _await_task_safely
+    await task
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\result.py", line 695, in _await_run_and_cleanup
+    result = await original_task
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\run_internal\run_loop.py", line 1226, in start_streaming
+    turn_result = await run_single_turn_streamed(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\run_internal\run_loop.py", line 1712, in run_single_turn_streamed
+    async for event in model_run_context_stream(retry_stream, tool_use_tracker):
+    ...<142 lines>...
+                    )
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\models\_run_context.py", line 31, in model_run_context_stream
+    async for item in stream:
+        yield item
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\run_internal\model_retry.py", line 560, in stream_response_with_retry
+    event = await stream.__anext__()
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\strix\config\models.py", line 363, in stream_response
+    async for event in _with_idle_timeout(stream, self._stream_idle_timeout):
+    ...<2 lines>...
+            yield guarded
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\strix\config\models.py", line 408, in _with_idle_timeout
+    event = await asyncio.wait_for(iterator.__anext__(), timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\asyncio\tasks.py", line 488, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\strix\llm\request_log.py", line 1244, in stream_response
+    async for event in self._inner.stream_response(
+    ...<28 lines>...
+        yield event
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\extensions\models\litellm_model.py", line 404, in stream_response
+    response, stream = await self._fetch_response(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\agents\extensions\models\litellm_model.py", line 635, in _fetch_response
+    ret = await litellm.acompletion(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<19 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\chat_completions\dispatch.py", line 114, in acompletion
+    return await _ADISPATCH.arun(
+           ^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\rust_bridge\dispatch.py", line 114, in arun
+    return await python(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\utils.py", line 2288, in wrapper_async
+    raise e
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\utils.py", line 2099, in wrapper_async
+    result = await original_function(*args, **call_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\main.py", line 734, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 2730, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 2651, in exception_type
+    _map_openrouter_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Taraksh jain\AppData\Local\Programs\Python\Python314\Lib\site-packages\litellm\litellm_core_utils\exception_mapping_utils.py", line 2154, in _map_openrouter_exception
+    raise BadRequestError(
+    ...<5 lines>...
+    )
+litellm.exceptions.BadRequestError: litellm.BadRequestError: OpenrouterException - {"error":{"message":"This endpoint's maximum context length is 65536 tokens. However, you requested about 66803 tokens (39071 of text input, 27732 of tool input). Please reduce the length of either one, or use the context-compression plugin to compress your prompt automatically.","code":400,"metadata":{"provider_name":null}}}
+2026-11-01 11:23:50.586 INFO    e-commerce_fbdd - strix.core.agents: agent.status 1ddc91f8=failed
+2026-11-01 11:24:10.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /?token=zib3mgvVPbWCkUXR_HGN30Zzp3nZCeHLKLPq5eja5MA HTTP/1.1" 200 -
+2026-11-01 11:24:10.474 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /assets/index-B1JzV4Vu.js HTTP/1.1" 200 -
+2026-11-01 11:24:10.475 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /assets/index-CrLE9rrV.css HTTP/1.1" 200 -
+2026-11-01 11:24:10.568 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /logo.png HTTP/1.1" 200 -
+2026-11-01 11:24:10.607 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/auth/status HTTP/1.1" 200 -
+2026-11-01 11:24:10.612 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/runs HTTP/1.1" 200 -
+2026-11-01 11:24:10.613 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/capabilities HTTP/1.1" 200 -
+2026-11-01 11:24:10.616 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:10.623 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /logo.png HTTP/1.1" 200 -
+2026-11-01 11:24:10.631 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:10.633 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/report HTTP/1.1" 200 -
+2026-11-01 11:24:10.638 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:11.013 DEBUG   - - strix.telemetry.posthog: posthog event sent: viewer_opened
+2026-11-01 11:24:11.149 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:11.167 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:11.176 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:11.687 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:11.696 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:11.699 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:12.212 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:12.218 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:12.221 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:12.730 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:12.743 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:12.751 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:13.261 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:13.273 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:13.279 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:13.789 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:13.802 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:13.816 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:14.331 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:14.340 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:14.345 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:14.858 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:14.867 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:14.874 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:15.386 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:15.393 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:15.398 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:15.909 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:15.918 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:15.925 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:16.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:16.457 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:16.462 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:16.971 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:16.977 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:16.983 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:17.490 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:17.499 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:17.505 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:18.012 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:18.022 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:18.027 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:18.537 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:18.543 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:18.549 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:19.061 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:19.068 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:19.074 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:19.581 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:19.593 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:19.595 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:20.102 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:20.106 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:20.114 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:20.635 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:20.643 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:20.652 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:21.166 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:21.178 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:21.183 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:21.691 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:21.697 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:21.700 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:22.212 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:22.219 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:22.228 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:22.736 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:22.742 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:22.749 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:23.266 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:23.289 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:23.294 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:23.805 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:23.816 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:23.822 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:24.332 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:24.339 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:24.347 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:24.856 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:24.861 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:24.863 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:25.373 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:25.388 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:25.402 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:26.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:26.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:26.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:27.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:27.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:27.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:28.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:28.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:28.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:29.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:29.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:29.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:30.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:30.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:30.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:31.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:31.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:31.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:32.426 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:32.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:32.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:33.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:33.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:33.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:34.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:34.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:34.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:35.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:35.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:35.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:36.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:36.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:36.448 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:37.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:37.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:37.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:38.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:38.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:38.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:39.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:39.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:39.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:40.418 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:40.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:40.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:41.419 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:41.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:41.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:42.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:42.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:42.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:43.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:43.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:43.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:44.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:44.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:44.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:45.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:45.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:45.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:46.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:46.453 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:46.453 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:47.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:47.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:47.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:48.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:48.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:48.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:49.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:49.452 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:49.453 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:50.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:50.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:50.450 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:51.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:51.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:51.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:52.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:52.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:52.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:53.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:53.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:53.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:54.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:54.448 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:54.450 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:55.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:55.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:55.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:56.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:56.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:56.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:57.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:57.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:57.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:58.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:58.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:58.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:24:59.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:24:59.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:24:59.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:00.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:00.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:00.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:01.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:01.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:01.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:02.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:02.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:02.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:03.420 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:03.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:03.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:04.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:04.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:04.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:05.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:05.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:05.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:06.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:06.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:06.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:07.419 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:07.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:07.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:08.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:08.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:08.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:09.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:09.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:09.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:10.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:10.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:10.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:11.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:11.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:11.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:12.426 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:12.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:12.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:13.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:13.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:13.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:14.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:14.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:14.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:15.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:15.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:15.448 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:16.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:16.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:16.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:17.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:17.471 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:17.473 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:18.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:18.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:18.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:19.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:19.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:19.451 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:20.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:20.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:20.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:21.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:21.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:21.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:22.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:22.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:22.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:23.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:23.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:23.450 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:24.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:24.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:24.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:25.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:25.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:25.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:26.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:26.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:26.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:27.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:27.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:27.450 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:28.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:28.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:28.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:29.420 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:29.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:29.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:30.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:30.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:30.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:31.426 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:31.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:31.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:32.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:32.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:32.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:33.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:33.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:33.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:34.420 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:34.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:34.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:35.418 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:35.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:35.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:36.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:36.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:36.448 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:37.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:37.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:37.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:38.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:38.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:38.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:39.420 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:39.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:39.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:40.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:40.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:40.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:41.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:41.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:41.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:42.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:42.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:42.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:43.418 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:43.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:43.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:44.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:44.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:44.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:45.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:45.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:45.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:46.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:46.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:46.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:47.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:47.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:47.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:48.418 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:48.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:48.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:49.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:49.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:49.448 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:50.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:50.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:50.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:51.420 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:51.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:51.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:52.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:52.452 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:52.452 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:53.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:53.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:53.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:54.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:54.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:54.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:55.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:55.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:55.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:56.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:56.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:56.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:57.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:57.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:57.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:58.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:58.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:58.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:25:59.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:25:59.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:25:59.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:00.418 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:00.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:00.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:01.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:01.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:01.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:02.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:02.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:02.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:03.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:03.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:03.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:04.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:04.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:04.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:05.419 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:05.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:05.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:06.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:06.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:06.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:07.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:07.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:07.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:08.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:08.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:08.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:09.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:09.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:09.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:10.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:10.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:10.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:11.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:11.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:11.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:12.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:12.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:12.450 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:13.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:13.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:13.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:14.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:14.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:14.451 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:15.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:15.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:15.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:16.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:16.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:16.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:17.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:17.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:17.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:18.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:18.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:18.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:19.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:19.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:19.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:20.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:20.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:20.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:21.419 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:21.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:21.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:22.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:22.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:22.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:23.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:23.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:23.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:24.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:24.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:24.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:25.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:25.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:25.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:26.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:26.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:26.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:27.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:27.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:27.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:28.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:28.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:28.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:29.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:29.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:29.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:30.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:30.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:30.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:31.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:31.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:31.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:32.426 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:32.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:32.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:33.426 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:33.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:33.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:34.420 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:34.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:34.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:35.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:35.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:35.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:36.420 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:36.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:36.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:37.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:37.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:37.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:38.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:38.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:38.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:39.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:39.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:39.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:40.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:40.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:40.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:41.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:41.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:41.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:42.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:42.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:42.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:43.419 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:43.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:43.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:44.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:44.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:44.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:45.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:45.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:45.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:46.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:46.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:46.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:47.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:47.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:47.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:48.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:48.448 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:48.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:49.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:49.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:49.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:50.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:50.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:50.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:51.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:51.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:51.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:52.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:52.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:52.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:53.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:53.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:53.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:54.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:54.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:54.450 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:55.418 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:55.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:55.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:56.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:56.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:56.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:57.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:57.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:57.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:58.426 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:58.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:26:58.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:59.419 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:26:59.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:26:59.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:00.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:00.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:00.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:01.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:01.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:01.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:02.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:02.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:02.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:03.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:03.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:03.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:04.421 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:04.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:04.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:05.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:05.468 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:05.470 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:06.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:06.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:06.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:07.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:07.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:07.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:08.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:08.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:08.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:09.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:09.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:09.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:10.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:10.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:10.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:11.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:11.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:11.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:12.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:12.449 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:12.450 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:13.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:13.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:13.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:14.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:14.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:14.439 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:15.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:15.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:15.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:16.422 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:16.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:16.432 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:17.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:17.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:17.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:18.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:18.435 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:18.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:19.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:19.431 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:19.434 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:20.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:20.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:20.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:21.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:21.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:21.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:22.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:22.428 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:22.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:23.427 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:23.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:23.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:24.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:24.442 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:24.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:25.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:25.446 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:25.448 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:26.430 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:26.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:26.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:26.845 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /?token=zib3mgvVPbWCkUXR_HGN30Zzp3nZCeHLKLPq5eja5MA HTTP/1.1" 200 -
+2026-11-01 11:27:26.879 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /assets/index-B1JzV4Vu.js HTTP/1.1" 200 -
+2026-11-01 11:27:26.887 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /assets/index-CrLE9rrV.css HTTP/1.1" 200 -
+2026-11-01 11:27:26.959 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /logo.png HTTP/1.1" 200 -
+2026-11-01 11:27:26.999 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/auth/status HTTP/1.1" 200 -
+2026-11-01 11:27:27.002 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/capabilities HTTP/1.1" 200 -
+2026-11-01 11:27:27.005 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/runs HTTP/1.1" 200 -
+2026-11-01 11:27:27.011 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:27.038 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:27.040 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/report HTTP/1.1" 200 -
+2026-11-01 11:27:27.049 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:27.441 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:27.467 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:27.473 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:27.562 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:27.573 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:27.582 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:28.094 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:28.101 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:28.107 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:28.424 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:28.437 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:28.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:28.615 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:28.622 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:28.627 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:29.136 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:29.147 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:29.148 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:29.423 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:29.440 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:29.445 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:29.656 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:29.668 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:29.676 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:30.185 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:30.195 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:30.199 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:30.426 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:30.433 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:30.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:30.712 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:30.721 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:30.726 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:31.232 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:31.240 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:31.245 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:31.429 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:31.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:31.447 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:31.754 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:31.764 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:31.769 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:32.282 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:32.289 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:32.296 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:32.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:32.438 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:32.444 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:32.812 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:32.820 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:32.827 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:33.338 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:33.345 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:33.355 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -
+2026-11-01 11:27:33.425 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/run HTTP/1.1" 200 -
+2026-11-01 11:27:33.436 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/vulnerabilities HTTP/1.1" 200 -
+2026-11-01 11:27:33.443 DEBUG   - - strix.interface.viewer.server: viewer 127.0.0.1 - "GET /api/transcript HTTP/1.1" 200 -

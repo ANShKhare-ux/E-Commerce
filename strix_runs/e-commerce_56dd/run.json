@@ -1,0 +1,59 @@
+{
+  "run_id": "e-commerce_56dd",
+  "run_name": "e-commerce_56dd",
+  "start_time": "2026-11-01T06:01:56.995867+00:00",
+  "end_time": null,
+  "status": "running",
+  "auth_mode": "api_key",
+  "targets_info": [
+    {
+      "type": "local_code",
+      "details": {
+        "target_path": "C:\\Users\\Taraksh jain\\OneDrive\\Documents\\E-commerce\\E-Commerce",
+        "workspace_subdir": "E-Commerce"
+      },
+      "original": "C:\\Users\\Taraksh jain\\OneDrive\\Documents\\E-commerce\\E-Commerce"
+    }
+  ],
+  "llm_usage": {
+    "requests": 0,
+    "input_tokens": 0,
+    "input_tokens_details": [
+      {
+        "cache_write_tokens": 0,
+        "cached_tokens": 0
+      }
+    ],
+    "output_tokens": 0,
+    "output_tokens_details": [
+      {
+        "reasoning_tokens": 0
+      }
+    ],
+    "total_tokens": 0,
+    "request_usage_entries": [],
+    "cost": 0.0,
+    "providers": {},
+    "agents": []
+  },
+  "scan_mode": "quick",
+  "instruction": "",
+  "user_instruction": null,
+  "non_interactive": false,
+  "local_sources": [
+    {
+      "source_path": "C:\\Users\\Taraksh jain\\OneDrive\\Documents\\E-commerce\\E-Commerce",
+      "workspace_subdir": "E-Commerce",
+      "protect_metadata": true,
+      "read_only": false
+    }
+  ],
+  "workspace_files": [],
+  "workspace_mount": null,
+  "diff_scope": {
+    "active": false,
+    "mode": "auto"
+  },
+  "scope_mode": "auto",
+  "diff_base": null
+}

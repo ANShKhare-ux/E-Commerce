@@ -34,6 +34,46 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Determine if this route requires authentication checks or redirects
+  const isProtectedAdmin = pathname.startsWith("/admin") && pathname !== "/admin/login";
+  const isProtectedAccount = pathname.startsWith("/account");
+  const isGuestAuthPage = pathname === "/login" || pathname === "/signup";
+  const requiresAuthCheck = isProtectedAdmin || isProtectedAccount || isGuestAuthPage;
+
+  // For all public storefront routes (/, /products, /category/*, /cart, /checkout, /about, etc.),
+  // bypass remote Supabase network roundtrips completely for both guests and authenticated users.
+  if (!requiresAuthCheck) {
+    return supabaseResponse;
+  }
+
+  // Check if any Supabase authentication cookies are present in the request
+  const allCookies = request.cookies.getAll();
+  const hasAuthCookie = allCookies.some(
+    (c) => c.name.startsWith("sb-") || c.name.includes("auth-token")
+  );
+
+  // If no auth cookie exists, the user is guaranteed to be unauthenticated (guest)
+  if (!hasAuthCookie) {
+    // 1. Unauthenticated attempt to access protected admin routes -> redirect immediately (0ms network cost)
+    if (isProtectedAdmin) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/admin/login";
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // 2. Unauthenticated attempt to access customer account -> redirect to login immediately (0ms network cost)
+    if (isProtectedAccount) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // 3. For guest authentication pages (/login, /signup), allow immediate continuation
+    return supabaseResponse;
+  }
+
+  // Auth cookie is present on a protected or guest-auth route: verify and refresh session
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() {
@@ -53,13 +93,17 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Refreshes the auth token by calling getUser()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Safe session verification with error handling
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data?.user || null;
+  } catch {
+    user = null;
+  }
 
   // 1. Protected Admin Control Room Routes (/admin/*)
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+  if (isProtectedAdmin) {
     if (!user) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/admin/login";
@@ -68,7 +112,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Protected Customer Account Routes (/account/*)
-  if (pathname.startsWith("/account")) {
+  if (isProtectedAccount) {
     if (!user) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/login";
@@ -78,7 +122,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 3. Guest-Only Authentication Pages (/login, /signup)
-  if (user && (pathname === "/login" || pathname === "/signup")) {
+  if (user && isGuestAuthPage) {
     const redirectParam = request.nextUrl.searchParams.get("redirect");
     const targetUrl = request.nextUrl.clone();
     targetUrl.search = "";
@@ -97,6 +141,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|site\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?|ttf|eot|ico|css|js)$).*)",
   ],
 };

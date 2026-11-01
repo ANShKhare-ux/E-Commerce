@@ -107,7 +107,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <>
-      <div className="group relative flex flex-col bg-white border border-canvas-border rounded-sm overflow-hidden hover:shadow-card transition-all duration-300">
+      <div className="group relative flex flex-col bg-white border border-canvas-border rounded-sm overflow-hidden hover:shadow-card transition-shadow duration-300">
         {/* 1. Image Container */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-canvas-subtle">
           <Link href={`/products/${product.slug}`} className="block w-full h-full relative">
@@ -117,7 +117,7 @@ export function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className={`object-cover object-center transition-all duration-700 ease-out ${
+              className={`object-cover object-center transition-[opacity,transform] duration-500 ease-out ${
                 secondaryImage && secondaryImage.url !== activeImage
                   ? "group-hover:opacity-0 group-hover:scale-105"
                   : "group-hover:scale-105"
@@ -130,8 +130,9 @@ export function ProductCard({ product }: ProductCardProps) {
                 src={secondaryImage.url}
                 alt={`${product.name} alternate view`}
                 fill
+                loading="lazy"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover object-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out group-hover:scale-105"
+                className="object-cover object-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-[opacity,transform] duration-500 ease-out group-hover:scale-105"
               />
             )}
           </Link>
@@ -349,11 +350,13 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Quick View Modal */}
-      <QuickViewModal
-        product={product}
-        isOpen={quickViewOpen}
-        onClose={() => setQuickViewOpen(false)}
-      />
+      {quickViewOpen && (
+        <QuickViewModal
+          product={product}
+          isOpen={quickViewOpen}
+          onClose={() => setQuickViewOpen(false)}
+        />
+      )}
     </>
   );
 }

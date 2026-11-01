@@ -53,6 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
       <body className="font-sans bg-canvas-light text-noir-900 min-h-screen flex flex-col selection:bg-gold-500 selection:text-white antialiased">
