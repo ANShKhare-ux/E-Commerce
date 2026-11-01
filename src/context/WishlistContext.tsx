@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Product } from "@/types";
 
 interface WishlistContextType {
@@ -14,22 +14,32 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [wishlist, setWishlist] = useState<Product[]>([]);
+  const isInitializedRef = useRef(false);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem("lumiere_wishlist");
       if (saved) setWishlist(JSON.parse(saved));
     } catch (e) {
-      console.error(e);
+      console.error("Failed to load wishlist from storage", e);
+    } finally {
+      isInitializedRef.current = true;
     }
   }, []);
+
+  useEffect(() => {
+    if (!isInitializedRef.current) return;
+    try {
+      localStorage.setItem("lumiere_wishlist", JSON.stringify(wishlist));
+    } catch (e) {
+      console.error("Failed to persist wishlist to storage", e);
+    }
+  }, [wishlist]);
 
   const toggleWishlist = (product: Product) => {
     setWishlist(prev => {
       const exists = prev.some(p => p.id === product.id);
-      const updated = exists ? prev.filter(p => p.id !== product.id) : [...prev, product];
-      localStorage.setItem("lumiere_wishlist", JSON.stringify(updated));
-      return updated;
+      return exists ? prev.filter(p => p.id !== product.id) : [...prev, product];
     });
   };
 

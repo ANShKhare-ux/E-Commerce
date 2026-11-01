@@ -31,15 +31,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: verification.error || "Payment verification failed." }, { status: 400 });
     }
 
-    const order = await db.orders.getById(orderId);
-    if (!order) {
-      return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    // Update payment and order state authoritatively in persistent store
+    const updateResult = await db.orders.updatePayment(orderId, "captured", "processing");
+    if (!updateResult.success || !updateResult.order) {
+      return NextResponse.json({ error: updateResult.error || "Order not found." }, { status: 404 });
     }
-
-    // Update payment and order state
-    order.payment_status = "captured";
-    order.order_status = "processing";
-    order.updated_at = new Date().toISOString();
+    const order = updateResult.order;
 
     return NextResponse.json({
       success: true,

@@ -83,7 +83,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const existingIndex = prev.findIndex(i => i.variant_id === newItem.variant_id);
         if (existingIndex > -1) {
           const updated = [...prev];
-          updated[existingIndex].quantity += newItem.quantity;
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            quantity: updated[existingIndex].quantity + newItem.quantity,
+          };
           return updated;
         }
         return [...prev, newItem];

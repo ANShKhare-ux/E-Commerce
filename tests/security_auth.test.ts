@@ -187,4 +187,74 @@ describe("LUMIÈRE Security, Authorization & Isolation Guarantees", () => {
     expect(fourth.success).toBe(false);
     expect(fourth.remaining).toBe(0);
   });
+  it("should update persistent order payment state and write audit logs upon verification", async () => {
+    const variant = await db.products.getVariantBySku("LUM-ETH-GUL-S-ROSE");
+    const orderRes = await db.orders.create({
+      customerName: "Audit Test Customer",
+      customerEmail: "audit@test.com",
+      customerPhone: "9820033333",
+      shippingAddress: {
+        full_name: "Audit Test Customer",
+        email: "audit@test.com",
+        phone: "9820033333",
+        address_line1: "Marine Drive",
+        city: "Mumbai",
+        state: "Maharashtra",
+        pincode: "400020",
+      },
+      paymentMethod: "cod",
+      items: [{ variantId: variant!.id, quantity: 1 }],
+    });
+    expect(orderRes.success).toBe(true);
+    const orderId = orderRes.order!.id;
+
+    // Initially pending for COD
+    const orderBefore = await db.orders.getById(orderId);
+    expect(orderBefore?.payment_status).toBe("pending");
+
+    // Mark paid via db.orders.markPaid
+    const markRes = await db.orders.markPaid(orderId, "admin@lumiere.in");
+    expect(markRes.success).toBe(true);
+
+    const orderAfter = await db.orders.getById(orderId);
+    expect(orderAfter?.payment_status).toBe("captured");
+
+    // Also verify updatePayment method
+    const updateRes = await db.orders.updatePayment(orderId, "captured", "processing");
+    expect(updateRes.success).toBe(true);
+    expect(updateRes.order?.payment_status).toBe("captured");
+    expect(updateRes.order?.order_status).toBe("processing");
+  });
+
+  it("should reject unauthenticated administrative requests to protected admin API handlers", async () => {
+    // 1. Inventory adjust without admin session
+    const { POST: adjustPost } = await import("@/app/api/admin/inventory/adjust/route");
+    const adjustReq = new (await import("next/server")).NextRequest("http://localhost:3000/api/admin/inventory/adjust", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ variantId: "var-1", newPhysicalStock: 50, reason: "Unauthorized attempt" }),
+    });
+    const adjustRes = await adjustPost(adjustReq);
+    expect(adjustRes.status).toBe(401);
+
+    // 2. Order status update without admin session
+    const { POST: orderStatusPost } = await import("@/app/api/admin/orders/status/route");
+    const orderStatusReq = new (await import("next/server")).NextRequest("http://localhost:3000/api/admin/orders/status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: "ord-1", action: "cancel", reason: "Unauthorized" }),
+    });
+    const orderStatusRes = await orderStatusPost(orderStatusReq);
+    expect(orderStatusRes.status).toBe(401);
+
+    // 3. Delhivery shipment creation without admin session
+    const { POST: shipmentPost } = await import("@/app/api/delhivery/create-shipment/route");
+    const shipmentReq = new (await import("next/server")).NextRequest("http://localhost:3000/api/delhivery/create-shipment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: "ord-1" }),
+    });
+    const shipmentRes = await shipmentPost(shipmentReq);
+    expect(shipmentRes.status).toBe(401);
+  });
 });

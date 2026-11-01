@@ -18,6 +18,7 @@ import {
   AuditLog,
   ScheduledJobRecord,
   PaymentMethod,
+  PaymentStatus,
   OrderStatus,
   ShippingAddressInput,
   Coupon,
@@ -954,6 +955,54 @@ export const db = {
         entity: "orders",
         entity_id: orderId,
         details: `Updated order ${order.order_number} status from ${oldStatus} to ${status}`,
+        created_at: new Date().toISOString(),
+      });
+
+      return { success: true };
+    },
+
+    updatePayment: async (
+      orderId: string,
+      paymentStatus: PaymentStatus,
+      orderStatus?: OrderStatus
+    ): Promise<{ success: boolean; order?: Order; error?: string }> => {
+      const order = dbStore.orders.get(orderId);
+      if (!order) return { success: false, error: "Order not found" };
+
+      const oldPaymentStatus = order.payment_status;
+      order.payment_status = paymentStatus;
+      if (orderStatus) {
+        order.order_status = orderStatus;
+      }
+      order.updated_at = new Date().toISOString();
+
+      dbStore.auditLogs.push({
+        id: `aud-${Date.now()}`,
+        user_email: "system:payment",
+        action: "ORDER_PAYMENT_UPDATE",
+        entity: "orders",
+        entity_id: orderId,
+        details: `Updated order ${order.order_number} payment from ${oldPaymentStatus} to ${paymentStatus}`,
+        created_at: new Date().toISOString(),
+      });
+
+      return { success: true, order: { ...order, shipment: dbStore.shipments.get(order.id) } };
+    },
+
+    markPaid: async (orderId: string, adminEmail = "admin"): Promise<{ success: boolean; error?: string }> => {
+      const order = dbStore.orders.get(orderId);
+      if (!order) return { success: false, error: "Order not found" };
+
+      order.payment_status = "captured";
+      order.updated_at = new Date().toISOString();
+
+      dbStore.auditLogs.push({
+        id: `aud-${Date.now()}`,
+        user_email: adminEmail,
+        action: "ORDER_PAYMENT_COLLECTED",
+        entity: "orders",
+        entity_id: orderId,
+        details: `Marked order ${order.order_number} payment as captured/collected`,
         created_at: new Date().toISOString(),
       });
 

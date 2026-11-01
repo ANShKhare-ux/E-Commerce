@@ -14,6 +14,12 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const auth = await verifyAdminAuthorization(req.headers);
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: auth.error || "Unauthorized administrative access." },
+        { status: 401 }
+      );
+    }
     // In local development sandbox, fallback to admin email if not set
     const adminEmail = auth.email || getPrimaryAdminEmail();
 

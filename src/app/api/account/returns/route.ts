@@ -13,6 +13,19 @@ export async function POST(req: NextRequest) {
       // Cookies not available or in test runner
     }
 
+    const isTest = process.env.NODE_ENV === "test" || process.env.VITEST === "true";
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const isSupabaseConfigured =
+      supabaseUrl &&
+      !supabaseUrl.includes("placeholder-project");
+
+    if (!user && (isSupabaseConfigured || (!isTest && process.env.NODE_ENV === "production"))) {
+      return NextResponse.json(
+        { error: "Authentication required to submit return requests." },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { orderId, orderItemId, reason } = body;
 
@@ -28,7 +41,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
     }
 
-    // Security check: If authenticated with Supabase, ensure the order belongs to this customer
+    // Security check: Customer can ONLY request returns for their own orders
     if (user?.email && order.customer_email.toLowerCase() !== user.email.toLowerCase()) {
       return NextResponse.json(
         { error: "Unauthorized. You may only request returns for your own orders." },

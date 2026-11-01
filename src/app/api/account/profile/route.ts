@@ -78,6 +78,20 @@ export async function PUT(req: NextRequest) {
     const userEmail = user.email || "";
     const isSuperAdmin = isConfiguredAdminEmail(userEmail);
 
+    // Retrieve existing role to avoid demoting an administrator who updates their profile
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    let assignedRole: "customer" | "admin" | "super_admin" = "customer";
+    if (isSuperAdmin) {
+      assignedRole = "super_admin";
+    } else if (existingProfile?.role === "admin" || existingProfile?.role === "super_admin") {
+      assignedRole = existingProfile.role;
+    }
+
     // Upsert in Supabase profiles table so missing rows are safely initialized
     const { data: updated, error } = await supabase
       .from("profiles")
@@ -86,7 +100,7 @@ export async function PUT(req: NextRequest) {
         email: userEmail,
         full_name: full_name?.trim() || null,
         phone: phone?.trim() || null,
-        role: isSuperAdmin ? "super_admin" : "customer",
+        role: assignedRole,
         updated_at: new Date().toISOString(),
       }, { onConflict: "id" })
       .select()
@@ -112,7 +126,7 @@ export async function PUT(req: NextRequest) {
         email: userEmail,
         full_name: full_name?.trim(),
         phone: phone?.trim(),
-        role: isSuperAdmin ? "super_admin" : "customer",
+        role: assignedRole,
       },
     });
   } catch (error: any) {

@@ -379,3 +379,32 @@ Refer to `.env.example` for all required environment variables:
   - **Account Page**: `"My Account & Orders"` ([`src/app/account/AccountClient.tsx`](file:///c:/Users/Taraksh%20jain/OneDrive/Documents/E-commerce/E-Commerce/src/app/account/AccountClient.tsx), [`src/app/account/page.tsx`](file:///c:/Users/Taraksh%20jain/OneDrive/Documents/E-commerce/E-Commerce/src/app/account/page.tsx)).
   - **Account Verification Badge**: `"Verified Account"` for customer members; `"Store Administrator"` for verified admins.
   - Updated policy pages (`/faq`, `/shipping-policy`, `/cancellation-policy`, `/returns-policy`) and profile API responses to maintain uniform terminology throughout.
+
+
+---
+
+## 20. Comprehensive Full-Stack Security, Authorization & Concurrency Hardening
+
+- **Authorization Guards on Admin Route Handlers**:
+  - Enforced strict `if (!auth.authorized)` return `401 Unauthorized` checks across all administrative mutation routes:
+    - `POST /api/admin/products`
+    - `POST /api/admin/inventory/adjust`
+    - `POST /api/admin/inventory/bulk-csv`
+    - `POST /api/admin/orders/status`
+    - `POST /api/admin/returns/inspect`
+    - `POST /api/admin/affiliate/review`
+    - `POST /api/admin/affiliate/sync`
+    - `POST /api/delhivery/create-shipment`
+- **IDOR Remediation on Customer Orders & Returns**:
+  - `/api/account/orders`: Eliminated unauthenticated order querying via `?email=...`. Pinned order retrieval strictly to authenticated Supabase session `user.email`.
+  - `/api/account/returns`: Enforced session check so unauthenticated actors cannot forge return requests on other customers' orders.
+- **Persistent Order State Mutation & Audit Logging**:
+  - Resolved shallow-clone detachment in `verify-payment` and `orders/status (mark_cod_paid)`. Added `db.orders.updatePayment` and `db.orders.markPaid` to mutate `dbStore.orders` reliably and record structured audit entries.
+- **Role Retention in Profile Updates**:
+  - `/api/account/profile`: Safeguarded existing `admin` / `super_admin` roles from being demoted to `customer` when administrators update their profile details.
+- **State Immutability & Boundary Validation**:
+  - Fixed direct array object mutation in `CartContext.tsx` (`addItem`).
+  - Extracted side-effect from pure state updater in `WishlistContext.tsx`.
+  - Enforced integer range bounds (`1..10`) on inventory reservations (`/api/inventory/reserve`).
+- **Test Suite Expansion**:
+  - Expanded `tests/security_auth.test.ts` to 9 tests (72 passing tests across all 12 test suites).

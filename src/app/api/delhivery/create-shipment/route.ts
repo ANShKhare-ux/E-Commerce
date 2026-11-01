@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { DelhiveryService } from "@/lib/services/delhivery";
+import { verifyAdminAuthorization } from "@/lib/auth/admin";
 import { EmailService } from "@/lib/services/email";
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyAdminAuthorization(req.headers);
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: auth.error || "Unauthorized administrative access." },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { orderId } = body;
 

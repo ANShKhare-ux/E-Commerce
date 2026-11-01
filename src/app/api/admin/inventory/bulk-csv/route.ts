@@ -5,6 +5,12 @@ import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin
 export async function POST(req: NextRequest) {
   try {
     const auth = await verifyAdminAuthorization(req.headers);
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: auth.error || "Unauthorized administrative access." },
+        { status: 401 }
+      );
+    }
     const body = await req.json();
     const { csvData, defaultReason, adminEmail } = body;
 

@@ -5,6 +5,12 @@ import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin
 export async function POST(req: NextRequest) {
   try {
     const auth = await verifyAdminAuthorization(req.headers);
+    if (!auth.authorized) {
+      return NextResponse.json(
+        { error: auth.error || "Unauthorized administrative access." },
+        { status: 401 }
+      );
+    }
     const body = await req.json();
     const { orderId, action, status, reason, adminEmail } = body;
 
@@ -41,11 +47,8 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "mark_cod_paid") {
-      const order = await db.orders.getById(orderId);
-      if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
-
-      order.payment_status = "captured";
-      order.updated_at = new Date().toISOString();
+      const result = await db.orders.markPaid(orderId, email);
+      if (!result.success) return NextResponse.json({ error: result.error || "Order not found" }, { status: 404 });
 
       return NextResponse.json({ success: true, message: "COD payment marked as collected." });
     }
