@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Product, ProductVariant } from "@/types";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
@@ -17,14 +18,18 @@ import {
   Check,
   ShoppingBag,
   Flame,
-  Sparkles
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
+  index?: number;
+  className?: string;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, index = 0, className = "" }: ProductCardProps) {
+  const shouldReduceMotion = useReducedMotion();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addItem, setIsOpen } = useCart();
   const wishlisted = isInWishlist(product.id);
@@ -33,6 +38,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [addingVariantId, setAddingVariantId] = useState<string | null>(null);
+  const [addedVariantId, setAddedVariantId] = useState<string | null>(null);
+  const [isWishlistBouncing, setIsWishlistBouncing] = useState(false);
 
   // Variant and Image selection
   const variants = product.variants || [];
@@ -59,11 +66,12 @@ export function ProductCard({ product }: ProductCardProps) {
   // Unique colors
   const uniqueColors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean)));
 
-  const handleColorSelect = (colorName: string) => {
+  const handleColorSelect = (colorName: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const matched = variants.find((v) => v.color === colorName);
     if (matched) {
       setSelectedVariant(matched);
-      // Requirement 4: Selecting a color should update the displayed product image when variant images exist
       const variantImg =
         matched.image_url ||
         product.images?.find(
@@ -75,6 +83,14 @@ export function ProductCard({ product }: ProductCardProps) {
         setActiveImage(variantImg);
       }
     }
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsWishlistBouncing(true);
+    toggleWishlist(product);
+    setTimeout(() => setIsWishlistBouncing(false), 450);
   };
 
   const handleQuickAddSize = async (variant: ProductVariant, e: React.MouseEvent) => {
@@ -100,24 +116,42 @@ export function ProductCard({ product }: ProductCardProps) {
 
     setAddingVariantId(null);
     if (res.success) {
-      setIsOpen(true);
-      setQuickAddOpen(false);
+      setAddedVariantId(variant.id);
+      setTimeout(() => {
+        setAddedVariantId(null);
+        setIsOpen(true);
+        setQuickAddOpen(false);
+      }, 400);
     }
   };
 
   return (
     <>
-      <div className="group relative flex flex-col bg-white border border-canvas-border rounded-sm overflow-hidden hover:shadow-card transition-shadow duration-300">
+      <motion.div
+        initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-30px" }}
+        transition={{
+          duration: 0.45,
+          ease: [0.22, 1, 0.36, 1],
+          delay: shouldReduceMotion ? 0 : Math.min(index * 0.04, 0.24),
+        }}
+        className={`group relative flex flex-col bg-white border border-canvas-border rounded-sm overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(0,0,0,0.08)] ${className}`}
+      >
         {/* 1. Image Container */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-canvas-subtle">
-          <Link href={`/products/${product.slug}`} className="block w-full h-full relative">
+          <Link
+            href={`/products/${product.slug}`}
+            className="block w-full h-full relative focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+            aria-label={`View details of ${product.name}`}
+          >
             {/* Primary Image */}
             <Image
               src={activeImage || primaryImage?.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"}
               alt={product.name}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className={`object-cover object-center transition-[opacity,transform] duration-500 ease-out ${
+              className={`object-cover object-center transition-[opacity,transform] duration-700 ease-out ${
                 secondaryImage && secondaryImage.url !== activeImage
                   ? "group-hover:opacity-0 group-hover:scale-105"
                   : "group-hover:scale-105"
@@ -132,7 +166,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 fill
                 loading="lazy"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover object-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-[opacity,transform] duration-500 ease-out group-hover:scale-105"
+                className="object-cover object-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-[opacity,transform] duration-700 ease-out group-hover:scale-105"
               />
             )}
           </Link>
@@ -140,7 +174,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {/* Badges Overlay */}
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10 pointer-events-none">
             {product.is_affiliate ? (
-              <span className="bg-noir-900/90 text-white text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-sm backdrop-blur-sm flex items-center gap-1">
+              <span className="bg-noir-900/90 text-white text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-sm backdrop-blur-sm flex items-center gap-1 shadow-xs">
                 <ExternalLink className="w-2.5 h-2.5 text-gold-400" />
                 <span>{product.affiliate_source_name || "Partner Edit"}</span>
               </span>
@@ -180,92 +214,121 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* Wishlist Button */}
+          {/* Wishlist Button with Micro-Pulse Animation */}
           <button
-            onClick={() => toggleWishlist(product)}
-            className={`absolute top-2.5 right-2.5 p-2 rounded-full transition-colors z-10 backdrop-blur-sm shadow-xs ${
+            type="button"
+            onClick={handleToggleWishlist}
+            className={`absolute top-2.5 right-2.5 p-2 rounded-full transition-all duration-200 z-10 backdrop-blur-sm shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 ${
               wishlisted
-                ? "bg-rose-50 text-rose-600"
-                : "bg-white/90 text-noir-700 hover:bg-white hover:text-rose-600"
-            }`}
+                ? "bg-rose-50 text-rose-600 scale-100"
+                : "bg-white/90 text-noir-700 hover:bg-white hover:text-rose-600 hover:scale-105 active:scale-90"
+            } ${isWishlistBouncing ? "animate-heartbeat" : ""}`}
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
-            <Heart className={`w-4 h-4 ${wishlisted ? "fill-rose-600" : ""}`} />
+            <Heart
+              className={`w-4 h-4 transition-transform duration-200 ${
+                wishlisted ? "fill-rose-600 text-rose-600 scale-110" : ""
+              }`}
+            />
           </button>
 
-          {/* Quick Actions Strip (Appears on Hover) */}
-          <div className="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 border-t border-canvas-border z-10">
+          {/* Quick Actions Strip (Desktop Hover + Mobile Tap Accessible) */}
+          <div className="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300 ease-out border-t border-canvas-border z-10">
             {/* If Quick Add size selector is opened */}
-            {quickAddOpen ? (
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-noir-600 px-1">
-                  <span>Select Size:</span>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setQuickAddOpen(false);
-                    }}
-                    className="text-noir-400 hover:text-noir-800"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-1 justify-center">
-                  {variants.map((v) => {
-                    const vStock = v.inventory?.available_stock ?? 10;
-                    const vOut = vStock <= 0;
-                    const isProcessing = addingVariantId === v.id;
-
-                    return (
-                      <button
-                        key={v.id}
-                        onClick={(e) => handleQuickAddSize(v, e)}
-                        disabled={vOut || isProcessing}
-                        className={`text-[10px] font-bold px-2 py-1 rounded border transition-colors ${
-                          vOut
-                            ? "border-canvas-border text-noir-300 line-through cursor-not-allowed bg-canvas-subtle"
-                            : "border-noir-900 bg-white text-noir-900 hover:bg-noir-900 hover:text-white"
-                        }`}
-                        title={vOut ? "Out of Stock" : `Add ${v.size} to bag`}
-                      >
-                        {isProcessing ? "..." : v.size}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                {/* Quick View Button */}
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setQuickViewOpen(true);
-                  }}
-                  className="flex-1 py-1.5 px-2 bg-white hover:bg-noir-100 text-noir-800 text-[11px] font-bold uppercase tracking-wider border border-canvas-border rounded-sm transition-colors flex items-center justify-center gap-1"
+            <AnimatePresence mode="wait">
+              {quickAddOpen ? (
+                <motion.div
+                  key="size-selector"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-1"
                 >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Quick View</span>
-                </button>
+                  <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-noir-600 px-1">
+                    <span>Select Size:</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setQuickAddOpen(false);
+                      }}
+                      className="text-noir-400 hover:text-noir-800 p-0.5 rounded transition-colors"
+                      aria-label="Close size selector"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {variants.map((v) => {
+                      const vStock = v.inventory?.available_stock ?? 10;
+                      const vOut = vStock <= 0;
+                      const isProcessing = addingVariantId === v.id;
+                      const isSuccess = addedVariantId === v.id;
 
-                {/* Quick Add Button */}
-                {!product.is_affiliate && variants.length > 0 && !isAllOutOfStock && (
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={(e) => handleQuickAddSize(v, e)}
+                          disabled={vOut || isProcessing}
+                          className={`text-[10px] font-bold px-2 py-1 rounded border transition-all duration-150 active:scale-95 flex items-center justify-center min-w-[28px] ${
+                            isSuccess
+                              ? "border-emerald-600 bg-emerald-600 text-white"
+                              : vOut
+                              ? "border-canvas-border text-noir-300 line-through cursor-not-allowed bg-canvas-subtle"
+                              : "border-noir-900 bg-white text-noir-900 hover:bg-noir-900 hover:text-white"
+                          }`}
+                          title={vOut ? "Out of Stock" : `Add size ${v.size} to bag`}
+                        >
+                          {isProcessing ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : isSuccess ? (
+                            <Check className="w-3 h-3" />
+                          ) : (
+                            v.size
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              ) : (
+                <div key="action-buttons" className="flex items-center gap-1.5">
+                  {/* Quick View Button */}
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setQuickAddOpen(true);
+                      setQuickViewOpen(true);
                     }}
-                    className="flex-1 py-1.5 px-2 bg-noir-900 hover:bg-gold-600 text-white text-[11px] font-bold uppercase tracking-wider rounded-sm transition-colors flex items-center justify-center gap-1"
+                    className="flex-1 py-1.5 px-2 bg-white hover:bg-noir-100 active:scale-95 text-noir-800 text-[11px] font-bold uppercase tracking-wider border border-canvas-border rounded-sm transition-all duration-150 flex items-center justify-center gap-1 shadow-2xs"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Quick Add</span>
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Quick View</span>
                   </button>
-                )}
-              </div>
-            )}
+
+                  {/* Quick Add Button */}
+                  {!product.is_affiliate && variants.length > 0 && !isAllOutOfStock && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setQuickAddOpen(true);
+                      }}
+                      className="flex-1 py-1.5 px-2 bg-noir-900 hover:bg-gold-600 active:scale-95 text-white text-[11px] font-bold uppercase tracking-wider rounded-sm transition-all duration-150 flex items-center justify-center gap-1 shadow-2xs"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Quick Add</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -281,9 +344,12 @@ export function ProductCard({ product }: ProductCardProps) {
                   return (
                     <button
                       key={colorName}
-                      onClick={() => handleColorSelect(colorName)}
-                      className={`w-3.5 h-3.5 rounded-full border transition-all ${
-                        isSelected ? "ring-1 ring-noir-900 scale-110" : "hover:scale-105"
+                      type="button"
+                      onClick={(e) => handleColorSelect(colorName, e)}
+                      className={`w-3.5 h-3.5 rounded-full border transition-all duration-200 ${
+                        isSelected
+                          ? "ring-2 ring-noir-900 ring-offset-1 scale-110"
+                          : "hover:scale-110 opacity-80 hover:opacity-100"
                       }`}
                       style={{ backgroundColor: varColor?.color_hex || "#888" }}
                       title={colorName}
@@ -307,7 +373,7 @@ export function ProductCard({ product }: ProductCardProps) {
               )}
             </div>
 
-            <Link href={`/products/${product.slug}`}>
+            <Link href={`/products/${product.slug}`} className="block focus:outline-none focus-visible:underline">
               <h3 className="font-serif text-sm font-medium text-noir-900 line-clamp-1 group-hover:text-gold-700 transition-colors">
                 {product.name}
               </h3>
@@ -347,7 +413,7 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Quick View Modal */}
       {quickViewOpen && (

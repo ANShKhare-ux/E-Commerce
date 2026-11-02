@@ -2,14 +2,15 @@
 
 import React, { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   SlidersHorizontal,
   X,
   RotateCcw,
   ChevronDown,
   ChevronUp,
-  Check
 } from "lucide-react";
+import { accordionVariant, drawerRightVariant, fadeIn } from "@/lib/motion";
 
 interface CollectionFiltersProps {
   totalCount: number;
@@ -20,6 +21,7 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const shouldReduceMotion = useReducedMotion();
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
@@ -130,128 +132,169 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
       {/* 1. Gender / Audience */}
       <div className="border-b border-canvas-border pb-4 space-y-2">
         <button
+          type="button"
           onClick={() => toggleSection("gender")}
-          className="w-full flex items-center justify-between font-bold uppercase tracking-wider text-[11px] text-noir-900"
+          className="w-full flex items-center justify-between font-bold uppercase tracking-wider text-[11px] text-noir-900 hover:text-gold-700 transition-colors"
+          aria-expanded={openSections.gender}
         >
           <span>Department</span>
           {openSections.gender ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
-        {openSections.gender && (
-          <div className="space-y-1.5 pt-1">
-            {[
-              { label: "All Departments", val: "" },
-              { label: "Men's Apparel", val: "men" },
-              { label: "Women's Collection", val: "women" },
-              { label: "Unisex & Oversized", val: "unisex" },
-            ].map((opt) => (
-              <label key={opt.val} className="flex items-center gap-2 cursor-pointer hover:text-gold-700">
-                <input
-                  type="radio"
-                  name="genderFilter"
-                  checked={currentGender === opt.val}
-                  onChange={() => updateFilter("gender", opt.val || null)}
-                  className="rounded text-noir-900 focus:ring-0"
-                />
-                <span>{opt.label}</span>
-              </label>
-            ))}
-          </div>
-        )}
+        <AnimatePresence>
+          {openSections.gender && (
+            <motion.div
+              variants={accordionVariant}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className="space-y-1.5 pt-1"
+            >
+              {[
+                { label: "All Departments", val: "" },
+                { label: "Men's Apparel", val: "men" },
+                { label: "Women's Collection", val: "women" },
+                { label: "Unisex & Oversized", val: "unisex" },
+              ].map((opt) => (
+                <label key={opt.val} className="flex items-center gap-2 cursor-pointer hover:text-gold-700">
+                  <input
+                    type="radio"
+                    name="genderFilter"
+                    checked={currentGender === opt.val}
+                    onChange={() => updateFilter("gender", opt.val || null)}
+                    className="rounded text-noir-900 focus:ring-0"
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 2. Categories */}
       <div className="border-b border-canvas-border pb-4 space-y-2">
         <button
+          type="button"
           onClick={() => toggleSection("category")}
-          className="w-full flex items-center justify-between font-bold uppercase tracking-wider text-[11px] text-noir-900"
+          className="w-full flex items-center justify-between font-bold uppercase tracking-wider text-[11px] text-noir-900 hover:text-gold-700 transition-colors"
+          aria-expanded={openSections.category}
         >
           <span>Category</span>
           {openSections.category ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
-        {openSections.category && (
-          <div className="space-y-1.5 pt-1">
-            {[
-              { label: "All Categories", val: "" },
-              { label: "Artisanal Ethnic Wear", val: "ethnic-wear" },
-              { label: "Women's Clothing & Linens", val: "womens-clothing" },
-              { label: "Men's Tailoring & Shirts", val: "mens-clothing" },
-              { label: "District Zero Streetwear", val: "streetwear" },
-              { label: "Haute Luxury & Horlogerie", val: "premium-luxury" },
-            ].map((opt) => (
-              <label key={opt.val} className="flex items-center gap-2 cursor-pointer hover:text-gold-700">
-                <input
-                  type="radio"
-                  name="categoryFilter"
-                  checked={currentCategory === opt.val}
-                  onChange={() => updateFilter("category", opt.val || null)}
-                  className="rounded text-noir-900 focus:ring-0"
-                />
-                <span>{opt.label}</span>
-              </label>
-            ))}
-          </div>
-        )}
+        <AnimatePresence>
+          {openSections.category && (
+            <motion.div
+              variants={accordionVariant}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className="space-y-1.5 pt-1"
+            >
+              {[
+                { label: "All Categories", val: "" },
+                { label: "Artisanal Ethnic Wear", val: "ethnic-wear" },
+                { label: "Women's Clothing & Linens", val: "womens-clothing" },
+                { label: "Men's Tailoring & Shirts", val: "mens-clothing" },
+                { label: "District Zero Streetwear", val: "streetwear" },
+                { label: "Haute Luxury & Horlogerie", val: "premium-luxury" },
+              ].map((opt) => (
+                <label key={opt.val} className="flex items-center gap-2 cursor-pointer hover:text-gold-700">
+                  <input
+                    type="radio"
+                    name="categoryFilter"
+                    checked={currentCategory === opt.val}
+                    onChange={() => updateFilter("category", opt.val || null)}
+                    className="rounded text-noir-900 focus:ring-0"
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 3. Sizes */}
       <div className="border-b border-canvas-border pb-4 space-y-2">
         <button
+          type="button"
           onClick={() => toggleSection("size")}
-          className="w-full flex items-center justify-between font-bold uppercase tracking-wider text-[11px] text-noir-900"
+          className="w-full flex items-center justify-between font-bold uppercase tracking-wider text-[11px] text-noir-900 hover:text-gold-700 transition-colors"
+          aria-expanded={openSections.size}
         >
           <span>Size</span>
           {openSections.size ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
-        {openSections.size && (
-          <div className="grid grid-cols-3 gap-1.5 pt-1">
-            {["XS", "S", "M", "L", "XL", "XXL"].map((sz) => {
-              const isSelected = currentSize === sz;
-              return (
-                <button
-                  key={sz}
-                  onClick={() => updateFilter("size", isSelected ? null : sz)}
-                  className={`py-1.5 rounded-sm border text-center text-xs font-bold transition-all ${
-                    isSelected
-                      ? "bg-noir-900 text-white border-noir-900"
-                      : "bg-white text-noir-700 border-canvas-border hover:border-noir-900"
-                  }`}
-                >
-                  {sz}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        <AnimatePresence>
+          {openSections.size && (
+            <motion.div
+              variants={accordionVariant}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className="grid grid-cols-3 gap-1.5 pt-1"
+            >
+              {["XS", "S", "M", "L", "XL", "XXL"].map((sz) => {
+                const isSelected = currentSize === sz;
+                return (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => updateFilter("size", isSelected ? null : sz)}
+                    className={`py-1.5 rounded-sm border text-center text-xs font-bold transition-all duration-150 active:scale-95 ${
+                      isSelected
+                        ? "bg-noir-900 text-white border-noir-900 shadow-2xs"
+                        : "bg-white text-noir-700 border-canvas-border hover:border-noir-900"
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 4. Style Matrix */}
       <div className="border-b border-canvas-border pb-4 space-y-2">
         <button
+          type="button"
           onClick={() => toggleSection("style")}
-          className="w-full flex items-center justify-between font-bold uppercase tracking-wider text-[11px] text-noir-900"
+          className="w-full flex items-center justify-between font-bold uppercase tracking-wider text-[11px] text-noir-900 hover:text-gold-700 transition-colors"
+          aria-expanded={openSections.style}
         >
           <span>Style & Silhouette</span>
           {openSections.style ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
-        {openSections.style && (
-          <div className="space-y-1.5 pt-1">
-            {["Minimal", "Streetwear", "Oversized", "Ethnic", "Casual"].map((st) => {
-              const isSelected = currentStyle.toLowerCase() === st.toLowerCase();
-              return (
-                <label key={st} className="flex items-center gap-2 cursor-pointer hover:text-gold-700">
-                  <input
-                    type="radio"
-                    name="styleFilter"
-                    checked={isSelected}
-                    onChange={() => updateFilter("style", isSelected ? null : st.toLowerCase())}
-                    className="rounded text-noir-900 focus:ring-0"
-                  />
-                  <span>{st}</span>
-                </label>
-              );
-            })}
-          </div>
-        )}
+        <AnimatePresence>
+          {openSections.style && (
+            <motion.div
+              variants={accordionVariant}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className="space-y-1.5 pt-1"
+            >
+              {["Minimal", "Streetwear", "Oversized", "Ethnic", "Casual"].map((st) => {
+                const isSelected = currentStyle.toLowerCase() === st.toLowerCase();
+                return (
+                  <label key={st} className="flex items-center gap-2 cursor-pointer hover:text-gold-700">
+                    <input
+                      type="radio"
+                      name="styleFilter"
+                      checked={isSelected}
+                      onChange={() => updateFilter("style", isSelected ? null : st.toLowerCase())}
+                      className="rounded text-noir-900 focus:ring-0"
+                    />
+                    <span>{st}</span>
+                  </label>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 5. Availability & Discounts */}
@@ -285,8 +328,9 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
         {/* Mobile Filter Button */}
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={() => setMobileDrawerOpen(true)}
-            className="lg:hidden flex items-center gap-2 px-3 py-2 border border-canvas-border rounded-sm text-xs font-bold uppercase tracking-wider text-noir-900 bg-white"
+            className="lg:hidden flex items-center gap-2 px-3 py-2 border border-canvas-border rounded-sm text-xs font-bold uppercase tracking-wider text-noir-900 bg-white hover:bg-canvas-subtle transition-colors shadow-2xs"
           >
             <SlidersHorizontal className="w-4 h-4 text-gold-600" />
             <span>Filters {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ""}</span>
@@ -302,7 +346,7 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
           <select
             value={currentSort}
             onChange={(e) => updateFilter("sort", e.target.value)}
-            className="bg-white border border-canvas-border text-noir-900 text-xs px-3 py-1.5 rounded-sm focus:outline-none focus:border-noir-900"
+            className="bg-white border border-canvas-border text-noir-900 text-xs px-3 py-1.5 rounded-sm focus:outline-none focus:border-noir-900 shadow-2xs cursor-pointer"
           >
             <option value="newest">Newest Arrivals</option>
             <option value="price-asc">Price: Low to High</option>
@@ -313,40 +357,54 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
         </div>
       </div>
 
-      {/* Mobile Filter Drawer */}
-      {mobileDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs"
-            onClick={() => setMobileDrawerOpen(false)}
-          />
-          <div className="relative ml-auto w-full max-w-xs bg-white h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto z-10">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-canvas-border pb-3">
-                <span className="font-serif text-lg font-medium text-noir-900">
-                  Refine Collection
-                </span>
+      {/* Mobile Filter Drawer with Smooth Slide Transition */}
+      <AnimatePresence>
+        {mobileDrawerOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden">
+            <motion.div
+              variants={fadeIn}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 bg-black/50 backdrop-blur-xs"
+              onClick={() => setMobileDrawerOpen(false)}
+            />
+            <motion.div
+              variants={shouldReduceMotion ? fadeIn : drawerRightVariant}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="relative ml-auto w-full max-w-xs bg-white h-full shadow-2xl p-6 flex flex-col justify-between overflow-y-auto z-10"
+            >
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-canvas-border pb-3">
+                  <span className="font-serif text-lg font-medium text-noir-900">
+                    Refine Collection
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setMobileDrawerOpen(false)}
+                    className="p-1 text-noir-500 hover:text-noir-900 rounded transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                {filterContent}
+              </div>
+
+              <div className="pt-4 border-t border-canvas-border">
                 <button
+                  type="button"
                   onClick={() => setMobileDrawerOpen(false)}
-                  className="p-1 text-noir-500 hover:text-noir-900"
+                  className="w-full py-3 bg-noir-900 hover:bg-gold-600 text-white hover:text-noir-900 text-xs font-bold uppercase tracking-wider rounded-sm transition-colors shadow-subtle"
                 >
-                  <X className="w-5 h-5" />
+                  Apply Filters ({totalCount} Designs)
                 </button>
               </div>
-              {filterContent}
-            </div>
-
-            <div className="pt-4 border-t border-canvas-border">
-              <button
-                onClick={() => setMobileDrawerOpen(false)}
-                className="w-full py-3 bg-noir-900 text-white text-xs font-bold uppercase tracking-wider rounded-sm"
-              >
-                Apply Filters ({totalCount} Designs)
-              </button>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Main Content: Desktop Filter Sidebar + Children (Product Grid) */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -368,3 +426,5 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
     </div>
   );
 }
+
+export default CollectionFilters;

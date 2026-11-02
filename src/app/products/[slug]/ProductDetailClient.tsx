@@ -1,33 +1,32 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Product, ProductVariant } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { PincodeChecker } from "@/components/PincodeChecker";
 import { ProductCard } from "@/components/ProductCard";
 import { RecentlyViewed, isValidRecentlyViewedProduct } from "@/components/RecentlyViewed";
+import { accordionVariant, LUXURY_EASE } from "@/lib/motion";
 import {
   Heart,
   Star,
-  Truck,
   ShieldCheck,
-  RotateCcw,
-  ExternalLink,
   Check,
   Ruler,
   AlertCircle,
   ShoppingBag,
-  Sparkles,
   ChevronDown,
   ChevronUp,
   Plus,
   Minus,
   ZoomIn,
   ArrowRight,
-  HelpCircle
+  Loader2,
+  ExternalLink,
 } from "lucide-react";
 
 interface ProductDetailClientProps {
@@ -36,6 +35,7 @@ interface ProductDetailClientProps {
 }
 
 export function ProductDetailClient({ product, relatedProducts = [] }: ProductDetailClientProps) {
+  const shouldReduceMotion = useReducedMotion();
   const { addItem, setIsOpen } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
@@ -47,9 +47,12 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(variants[0]);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
+  const [addSuccess, setAddSuccess] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [isWishlistBouncing, setIsWishlistBouncing] = useState(false);
 
   // Accordion state
   const [activeAccordion, setActiveAccordion] = useState<string | null>("fabric");
@@ -84,6 +87,20 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
     }
   }, [product]);
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isZoomed) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setMousePos({ x, y });
+  };
+
+  const handleToggleWishlist = () => {
+    setIsWishlistBouncing(true);
+    toggleWishlist(product);
+    setTimeout(() => setIsWishlistBouncing(false), 450);
+  };
+
   const handleAddToCart = async (goToCheckout = false) => {
     setAddError(null);
     if (!selectedVariant) {
@@ -115,6 +132,8 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
     if (!result.success) {
       setAddError(result.error || "Failed to add to cart.");
     } else {
+      setAddSuccess(true);
+      setTimeout(() => setAddSuccess(false), 1800);
       if (goToCheckout) {
         window.location.href = "/checkout";
       } else {
@@ -143,19 +162,25 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
       {/* 2. Main Product Hero (Gallery + Purchase Panel) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
         {/* Left: Gallery (7 Cols) */}
-        <div className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4">
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: LUXURY_EASE }}
+          className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4"
+        >
           {/* Thumbnails */}
           {product.images && product.images.length > 1 && (
-            <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto sm:w-24 shrink-0">
+            <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto sm:w-24 shrink-0 pb-2 sm:pb-0">
               {product.images.map((img) => (
                 <button
                   key={img.id}
                   onClick={() => setSelectedImage(img.url)}
-                  className={`relative w-20 h-24 shrink-0 rounded-sm overflow-hidden border transition-all ${
+                  className={`relative w-20 h-24 shrink-0 rounded-sm overflow-hidden border transition-all duration-200 ${
                     selectedImage === img.url
-                      ? "border-noir-900 ring-1 ring-noir-900 shadow-xs"
-                      : "border-canvas-border hover:border-noir-400 opacity-80 hover:opacity-100"
+                      ? "border-noir-900 ring-2 ring-noir-900 ring-offset-1 shadow-xs scale-102"
+                      : "border-canvas-border hover:border-noir-400 opacity-75 hover:opacity-100 hover:scale-102"
                   }`}
+                  aria-label={`Select product image view`}
                 >
                   <Image src={img.url} alt={img.alt_text || product.name} fill className="object-cover" sizes="80px" />
                 </button>
@@ -163,43 +188,69 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
             </div>
           )}
 
-          {/* Main Visual with Zoom toggle */}
+          {/* Main Visual with Smooth Zoom & Coordinates tracking */}
           <div
             className="relative aspect-[3/4] flex-1 bg-canvas-subtle rounded-sm overflow-hidden border border-canvas-border group cursor-zoom-in"
             onClick={() => setIsZoomed(!isZoomed)}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => isZoomed && setIsZoomed(false)}
           >
-            <Image
-              src={selectedImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=80"}
-              alt={product.name}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 55vw"
-              className={`object-cover object-center transition-transform duration-500 ${
-                isZoomed ? "scale-150" : "scale-100 group-hover:scale-105"
-              }`}
-            />
-            <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm p-1.5 rounded text-noir-700 pointer-events-none text-[10px] flex items-center gap-1 shadow-xs">
-              <ZoomIn className="w-3.5 h-3.5" />
-              <span>{isZoomed ? "Tap to zoom out" : "Tap to zoom in"}</span>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedImage}
+                initial={{ opacity: 0.85 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0.9 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="w-full h-full relative"
+              >
+                <Image
+                  src={selectedImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=80"}
+                  alt={product.name}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 55vw"
+                  style={{
+                    transformOrigin: isZoomed ? `${mousePos.x}% ${mousePos.y}%` : "center center",
+                  }}
+                  className={`object-cover object-center transition-transform duration-300 ease-out ${
+                    isZoomed ? "scale-175" : "scale-100 group-hover:scale-103"
+                  }`}
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="absolute top-3 right-3 bg-white/85 backdrop-blur-sm px-2 py-1 rounded text-noir-700 pointer-events-none text-[10px] font-medium flex items-center gap-1 shadow-xs border border-canvas-border">
+              <ZoomIn className="w-3.5 h-3.5 text-gold-600" />
+              <span>{isZoomed ? "Click to reset" : "Click to magnify"}</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right: Selection & Purchasing (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6">
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: LUXURY_EASE, delay: 0.08 }}
+          className="lg:col-span-5 space-y-6"
+        >
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-gold-600">
                 {product.brand}
               </span>
               <button
-                onClick={() => toggleWishlist(product)}
-                className={`p-2 rounded-full border border-canvas-border transition-colors ${
-                  wishlisted ? "bg-rose-50 text-rose-600 border-rose-200" : "text-noir-600 hover:text-rose-600"
-                }`}
-                aria-label="Wishlist"
+                type="button"
+                onClick={handleToggleWishlist}
+                className={`p-2 rounded-full border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 ${
+                  wishlisted
+                    ? "bg-rose-50 text-rose-600 border-rose-200"
+                    : "border-canvas-border text-noir-600 hover:text-rose-600 hover:bg-white"
+                } ${isWishlistBouncing ? "animate-heartbeat" : ""}`}
+                aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
               >
-                <Heart className={`w-4 h-4 ${wishlisted ? "fill-rose-600" : ""}`} />
+                <Heart className={`w-4 h-4 transition-transform ${wishlisted ? "fill-rose-600 text-rose-600 scale-110" : ""}`} />
               </button>
             </div>
 
@@ -254,13 +305,14 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                   Color: <strong className="text-noir-900">{selectedVariant.color}</strong>
                 </span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {Array.from(new Set(variants.map((v) => v.color).filter(Boolean))).map((colorName) => {
                   const variantForColor = variants.find((v) => v.color === colorName)!;
                   const isSelected = selectedVariant.color === colorName;
                   return (
                     <button
                       key={colorName}
+                      type="button"
                       onClick={() => {
                         const matched =
                           variants.find((v) => v.color === colorName && v.size === selectedVariant.size) ||
@@ -277,9 +329,9 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                           setSelectedImage(variantImg);
                         }
                       }}
-                      className={`h-9 px-3 rounded-sm border text-xs font-medium flex items-center gap-2 transition-all ${
+                      className={`h-9 px-3 rounded-sm border text-xs font-medium flex items-center gap-2 transition-all duration-150 active:scale-95 ${
                         isSelected
-                          ? "border-noir-900 bg-noir-900 text-white shadow-xs"
+                          ? "border-noir-900 bg-noir-900 text-white shadow-xs scale-102"
                           : "border-canvas-border bg-white text-noir-800 hover:border-noir-400"
                       }`}
                     >
@@ -321,11 +373,12 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                   return (
                     <button
                       key={variant.id}
+                      type="button"
                       onClick={() => setSelectedVariant(variant)}
                       disabled={vOutOfStock}
-                      className={`h-11 rounded-sm border text-xs font-bold transition-all relative flex flex-col items-center justify-center ${
+                      className={`h-11 rounded-sm border text-xs font-bold transition-all duration-150 relative flex flex-col items-center justify-center active:scale-95 ${
                         isSelected
-                          ? "border-noir-900 bg-noir-900 text-white shadow-xs"
+                          ? "border-noir-900 bg-noir-900 text-white shadow-xs scale-102"
                           : vOutOfStock
                           ? "border-canvas-border bg-canvas-subtle text-noir-300 cursor-not-allowed line-through"
                           : "border-canvas-border bg-white text-noir-800 hover:border-noir-900"
@@ -369,39 +422,47 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
           )}
 
           {/* Size Guide Modal / Drawer */}
-          {showSizeGuide && (
-            <div className="p-4 bg-canvas-subtle border border-canvas-border rounded-sm text-xs space-y-3">
-              <div className="flex justify-between items-center font-bold text-noir-900">
-                <span>Standard Indian Apparel Measurements (Inches)</span>
-                <button onClick={() => setShowSizeGuide(false)} className="text-noir-500 hover:text-noir-900">
-                  ✕
-                </button>
-              </div>
-              <table className="w-full text-center border-collapse">
-                <thead>
-                  <tr className="border-b border-canvas-border text-[11px] text-noir-500">
-                    <th className="py-1">Size</th>
-                    <th className="py-1">Chest / Bust</th>
-                    <th className="py-1">Waist</th>
-                    <th className="py-1">Length</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-canvas-border font-medium">
-                  <tr><td className="py-1">XS</td><td>34"</td><td>28"</td><td>27"</td></tr>
-                  <tr><td className="py-1">S</td><td>36"</td><td>30"</td><td>28"</td></tr>
-                  <tr><td className="py-1">M</td><td>38"</td><td>32"</td><td>29"</td></tr>
-                  <tr><td className="py-1">L</td><td>40"</td><td>34"</td><td>30"</td></tr>
-                  <tr><td className="py-1">XL</td><td>42"</td><td>36"</td><td>31"</td></tr>
-                  <tr><td className="py-1">XXL</td><td>44"</td><td>38"</td><td>32"</td></tr>
-                </tbody>
-              </table>
-              <div className="text-right">
-                <Link href="/size-guide" className="text-gold-700 font-bold hover:underline text-[11px]">
-                  View Full Sizing Guide →
-                </Link>
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {showSizeGuide && (
+              <motion.div
+                variants={accordionVariant}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                className="p-4 bg-canvas-subtle border border-canvas-border rounded-sm text-xs space-y-3"
+              >
+                <div className="flex justify-between items-center font-bold text-noir-900">
+                  <span>Standard Indian Apparel Measurements (Inches)</span>
+                  <button onClick={() => setShowSizeGuide(false)} className="text-noir-500 hover:text-noir-900 p-1">
+                    ✕
+                  </button>
+                </div>
+                <table className="w-full text-center border-collapse">
+                  <thead>
+                    <tr className="border-b border-canvas-border text-[11px] text-noir-500">
+                      <th className="py-1">Size</th>
+                      <th className="py-1">Chest / Bust</th>
+                      <th className="py-1">Waist</th>
+                      <th className="py-1">Length</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-canvas-border font-medium">
+                    <tr><td className="py-1">XS</td><td>34"</td><td>28"</td><td>27"</td></tr>
+                    <tr><td className="py-1">S</td><td>36"</td><td>30"</td><td>28"</td></tr>
+                    <tr><td className="py-1">M</td><td>38"</td><td>32"</td><td>29"</td></tr>
+                    <tr><td className="py-1">L</td><td>40"</td><td>34"</td><td>30"</td></tr>
+                    <tr><td className="py-1">XL</td><td>42"</td><td>36"</td><td>31"</td></tr>
+                    <tr><td className="py-1">XXL</td><td>44"</td><td>38"</td><td>32"</td></tr>
+                  </tbody>
+                </table>
+                <div className="text-right">
+                  <Link href="/size-guide" className="text-gold-700 font-bold hover:underline text-[11px]">
+                    View Full Sizing Guide →
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Quantity Selector */}
           {!product.is_affiliate && (
@@ -411,17 +472,19 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-1.5 hover:bg-canvas-subtle text-noir-700 transition-colors"
+                  className="p-1.5 hover:bg-canvas-subtle text-noir-700 transition-transform active:scale-90"
                   disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="px-3 font-bold text-noir-900">{quantity}</span>
+                <span className="px-3 font-bold text-noir-900 min-w-[28px] text-center">{quantity}</span>
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
-                  className="p-1.5 hover:bg-canvas-subtle text-noir-700 transition-colors"
+                  className="p-1.5 hover:bg-canvas-subtle text-noir-700 transition-transform active:scale-90"
                   disabled={quantity >= availableStock}
+                  aria-label="Increase quantity"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -430,12 +493,19 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
           )}
 
           {/* Add to Cart Error */}
-          {addError && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{addError}</span>
-            </div>
-          )}
+          <AnimatePresence>
+            {addError && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-sm flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{addError}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* PURCHASING BUTTONS OR AFFILIATE REDIRECT */}
           {product.is_affiliate ? (
@@ -444,7 +514,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                 href={product.affiliate_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-gold-600 hover:bg-gold-500 text-noir-900 py-4 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-colors shadow-subtle"
+                className="w-full bg-gold-600 hover:bg-gold-500 active:scale-[0.99] text-noir-900 py-4 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-all shadow-subtle"
               >
                 <span>Purchase on {product.affiliate_source_name || "Partner Store"}</span>
                 <ExternalLink className="w-4 h-4" />
@@ -461,17 +531,35 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                   type="button"
                   onClick={() => handleAddToCart(false)}
                   disabled={isOutOfStock || isAdding}
-                  className="bg-noir-900 hover:bg-gold-600 text-white py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-colors disabled:opacity-50 shadow-subtle"
+                  className={`py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-subtle ${
+                    addSuccess
+                      ? "bg-emerald-700 text-white"
+                      : "bg-noir-900 hover:bg-gold-600 text-white hover:text-noir-900"
+                  }`}
                 >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>{isAdding ? "Reserving..." : "Add to Bag"}</span>
+                  {isAdding ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Reserving...</span>
+                    </>
+                  ) : addSuccess ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Added to Bag!</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-4 h-4" />
+                      <span>Add to Bag</span>
+                    </>
+                  )}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleAddToCart(true)}
                   disabled={isOutOfStock || isAdding}
-                  className="bg-gold-600 hover:bg-gold-500 text-noir-900 py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-colors disabled:opacity-50 shadow-subtle"
+                  className="bg-gold-600 hover:bg-gold-500 active:scale-[0.98] text-noir-900 py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-all duration-200 disabled:opacity-50 shadow-subtle"
                 >
                   <span>Buy Now</span>
                 </button>
@@ -488,65 +576,95 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
             <PincodeChecker />
           </div>
 
-          {/* ACCORDIONS */}
+          {/* ACCORDIONS with Smooth Animation */}
           <div className="border-t border-canvas-border pt-4 divide-y divide-canvas-border text-xs">
             {/* 1. Artisanal Details */}
             <div className="py-3">
               <button
+                type="button"
                 onClick={() => toggleAccordion("fabric")}
-                className="w-full flex justify-between items-center font-bold text-noir-900 uppercase tracking-wider py-1"
+                className="w-full flex justify-between items-center font-bold text-noir-900 uppercase tracking-wider py-1 hover:text-gold-700 transition-colors"
+                aria-expanded={activeAccordion === "fabric"}
               >
                 <span>Fabric, Craft & Origin</span>
-                {activeAccordion === "fabric" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {activeAccordion === "fabric" ? <ChevronUp className="w-4 h-4 transition-transform" /> : <ChevronDown className="w-4 h-4 transition-transform" />}
               </button>
-              {activeAccordion === "fabric" && (
-                <div className="pt-2 text-noir-600 space-y-2 leading-relaxed">
-                  <p><strong>Description:</strong> {product.description}</p>
-                  <p><strong>Fabric & Care:</strong> {product.fabric_care}</p>
-                  <p><strong>Artisanal Origin:</strong> {product.origin}</p>
-                </div>
-              )}
+              <AnimatePresence>
+                {activeAccordion === "fabric" && (
+                  <motion.div
+                    variants={accordionVariant}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    className="pt-2 text-noir-600 space-y-2 leading-relaxed"
+                  >
+                    <p><strong>Description:</strong> {product.description}</p>
+                    <p><strong>Fabric & Care:</strong> {product.fabric_care}</p>
+                    <p><strong>Artisanal Origin:</strong> {product.origin}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* 2. Shipping & Delivery */}
             <div className="py-3">
               <button
+                type="button"
                 onClick={() => toggleAccordion("shipping")}
-                className="w-full flex justify-between items-center font-bold text-noir-900 uppercase tracking-wider py-1"
+                className="w-full flex justify-between items-center font-bold text-noir-900 uppercase tracking-wider py-1 hover:text-gold-700 transition-colors"
+                aria-expanded={activeAccordion === "shipping"}
               >
                 <span>Delhivery Shipping & Logistics</span>
-                {activeAccordion === "shipping" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {activeAccordion === "shipping" ? <ChevronUp className="w-4 h-4 transition-transform" /> : <ChevronDown className="w-4 h-4 transition-transform" />}
               </button>
-              {activeAccordion === "shipping" && (
-                <div className="pt-2 text-noir-600 space-y-1.5 leading-relaxed">
-                  <p>• Dispatched from our central fulfillment hub in Royal Opera House, Mumbai.</p>
-                  <p>• Free Delhivery Express courier on all orders above ₹2,999; flat ₹150 otherwise.</p>
-                  <p>• Transit time: 2–4 business days across 19,000+ Indian postal PIN codes.</p>
-                  <p>• Live SMS & WhatsApp tracking dispatched once waybill is manifested.</p>
-                </div>
-              )}
+              <AnimatePresence>
+                {activeAccordion === "shipping" && (
+                  <motion.div
+                    variants={accordionVariant}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    className="pt-2 text-noir-600 space-y-1.5 leading-relaxed"
+                  >
+                    <p>• Dispatched from our central fulfillment hub in Royal Opera House, Mumbai.</p>
+                    <p>• Free Delhivery Express courier on all orders above ₹2,999; flat ₹150 otherwise.</p>
+                    <p>• Transit time: 2–4 business days across 19,000+ Indian postal PIN codes.</p>
+                    <p>• Live SMS & WhatsApp tracking dispatched once waybill is manifested.</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* 3. Returns & Exchange */}
             <div className="py-3">
               <button
+                type="button"
                 onClick={() => toggleAccordion("returns")}
-                className="w-full flex justify-between items-center font-bold text-noir-900 uppercase tracking-wider py-1"
+                className="w-full flex justify-between items-center font-bold text-noir-900 uppercase tracking-wider py-1 hover:text-gold-700 transition-colors"
+                aria-expanded={activeAccordion === "returns"}
               >
                 <span>7-Day Return & Inspection Sign-Off</span>
-                {activeAccordion === "returns" ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {activeAccordion === "returns" ? <ChevronUp className="w-4 h-4 transition-transform" /> : <ChevronDown className="w-4 h-4 transition-transform" />}
               </button>
-              {activeAccordion === "returns" && (
-                <div className="pt-2 text-noir-600 space-y-1.5 leading-relaxed">
-                  <p>• Hassle-free 7-day return window from the date of courier delivery.</p>
-                  <p>• Reverse courier pickup scheduled via Delhivery directly at your doorstep.</p>
-                  <p>• Items must have original LUMIÈRE security tags attached and remain unworn.</p>
-                  <p>• Refunds initiated immediately upon physical warehouse inspection sign-off.</p>
-                </div>
-              )}
+              <AnimatePresence>
+                {activeAccordion === "returns" && (
+                  <motion.div
+                    variants={accordionVariant}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    className="pt-2 text-noir-600 space-y-1.5 leading-relaxed"
+                  >
+                    <p>• Hassle-free 7-day return window from the date of courier delivery.</p>
+                    <p>• Reverse courier pickup scheduled via Delhivery directly at your doorstep.</p>
+                    <p>• Items must have original LUMIÈRE security tags attached and remain unworn.</p>
+                    <p>• Refunds initiated immediately upon physical warehouse inspection sign-off.</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* 3. Related Designs / Curated Pairings */}
@@ -568,8 +686,8 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((rel) => (
-              <ProductCard key={rel.id} product={rel} />
+            {relatedProducts.map((rel, idx) => (
+              <ProductCard key={rel.id} product={rel} index={idx} />
             ))}
           </div>
         </section>
@@ -592,16 +710,18 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
 
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={() => handleAddToCart(false)}
               disabled={isOutOfStock || isAdding}
-              className="bg-noir-900 hover:bg-gold-600 text-white text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm transition-colors disabled:opacity-50"
+              className="bg-noir-900 hover:bg-gold-600 text-white text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm transition-all active:scale-95 disabled:opacity-50"
             >
               Add to Bag
             </button>
             <button
+              type="button"
               onClick={() => handleAddToCart(true)}
               disabled={isOutOfStock || isAdding}
-              className="bg-gold-600 hover:bg-gold-500 text-noir-900 text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm transition-colors disabled:opacity-50"
+              className="bg-gold-600 hover:bg-gold-500 text-noir-900 text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-sm transition-all active:scale-95 disabled:opacity-50"
             >
               Buy Now
             </button>
@@ -611,3 +731,5 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
     </div>
   );
 }
+
+export default ProductDetailClient;

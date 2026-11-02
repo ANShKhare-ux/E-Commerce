@@ -374,7 +374,9 @@ export function Header() {
     };
   }, []);
 
-  // Click outside listener for profile flyout
+  const megaMenuContainerRef = useRef<HTMLDivElement>(null);
+
+  // Click outside listener for profile flyout & mega menu
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -382,6 +384,12 @@ export function Header() {
         !profileContainerRef.current.contains(e.target as Node)
       ) {
         setProfileDropdownOpen(false);
+      }
+      if (
+        megaMenuContainerRef.current &&
+        !megaMenuContainerRef.current.contains(e.target as Node)
+      ) {
+        setActiveMegaMenu(null);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -402,15 +410,19 @@ export function Header() {
     }
   };
 
-  // Keyboard shortcut '/' to focus search input
+  // Keyboard shortcut '/' to open search dialog and Escape to close menus
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
+      if (e.key === "Escape") {
+        setActiveMegaMenu(null);
+        setProfileDropdownOpen(false);
+        setSearchDialogOpen(false);
+      } else if (
         e.key === "/" &&
         !["INPUT", "TEXTAREA"].includes((e.target as HTMLElement)?.tagName)
       ) {
         e.preventDefault();
-        searchInputRef.current?.focus();
+        setSearchDialogOpen(true);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -430,7 +442,7 @@ export function Header() {
   const handleNavMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
       setActiveMegaMenu(null);
-    }, 120);
+    }, 200);
   };
 
   const handleProfileMouseEnter = () => {
@@ -447,6 +459,7 @@ export function Header() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setSearchDialogOpen(false);
       router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
       setSearchDialogOpen(true);
@@ -526,20 +539,30 @@ export function Header() {
             {/* Center-Right Section: Wide Search Bar */}
             <div className="flex-1 max-w-[320px] md:max-w-[420px] lg:max-w-[480px] xl:max-w-[540px] mx-3 sm:mx-6 lg:mx-8">
               <form onSubmit={handleSearchSubmit} className="relative w-full">
-                <div className="flex items-center w-full h-10 px-3.5 bg-[#f5f5f6] hover:bg-[#ededef] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#C59B48] focus-within:border-[#C59B48] border border-transparent rounded transition-all">
+                <div
+                  onClick={() => setSearchDialogOpen(true)}
+                  className="flex items-center w-full h-10 px-3.5 bg-[#f5f5f6] hover:bg-[#ededef] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#C59B48] focus-within:border-[#C59B48] border border-transparent rounded transition-all cursor-text"
+                >
                   <Search className="w-4 h-4 text-[#696e79] flex-shrink-0 mr-2.5" />
                   <input
                     ref={searchInputRef}
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setSearchDialogOpen(true);
+                    }}
+                    onFocus={() => setSearchDialogOpen(true)}
                     placeholder="Search for products, brands and more"
-                    className="w-full bg-transparent text-[13px] text-[#282c3f] placeholder-[#696e79] focus:outline-none"
+                    className="w-full bg-transparent text-[13px] text-[#282c3f] placeholder-[#696e79] focus:outline-none cursor-text"
                   />
                   {searchQuery && (
                     <button
                       type="button"
-                      onClick={() => setSearchQuery("")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSearchQuery("");
+                      }}
                       className="text-[#696e79] hover:text-[#282c3f] p-1 flex-shrink-0"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -785,6 +808,7 @@ export function Header() {
         <AnimatePresence>
           {currentMegaMenu && (
             <motion.div
+              ref={megaMenuContainerRef}
               key={currentMegaMenu.id}
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -867,14 +891,21 @@ export function Header() {
             >
             {/* Mobile Search Input */}
             <form onSubmit={handleSearchSubmit} className="relative w-full">
-              <div className="flex items-center w-full h-10 px-3 bg-[#f5f5f6] border border-transparent rounded">
+              <div
+                onClick={() => setSearchDialogOpen(true)}
+                className="flex items-center w-full h-10 px-3 bg-[#f5f5f6] border border-transparent rounded cursor-text"
+              >
                 <Search className="w-4 h-4 text-[#696e79] mr-2" />
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSearchDialogOpen(true);
+                  }}
+                  onFocus={() => setSearchDialogOpen(true)}
                   placeholder="Search for products, brands and more"
-                  className="w-full bg-transparent text-xs text-[#282c3f] placeholder-[#696e79] focus:outline-none"
+                  className="w-full bg-transparent text-xs text-[#282c3f] placeholder-[#696e79] focus:outline-none cursor-text"
                 />
               </div>
             </form>
@@ -1000,6 +1031,7 @@ export function Header() {
         <SearchDialog
           isOpen={searchDialogOpen}
           onClose={() => setSearchDialogOpen(false)}
+          initialQuery={searchQuery}
         />
       )}
     </>

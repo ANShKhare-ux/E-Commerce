@@ -55,6 +55,22 @@ const config: Config = {
       borderRadius: {
         luxury: "0.25rem",
       },
+      keyframes: {
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        heartbeat: {
+          "0%, 100%": { transform: "scale(1)" },
+          "25%": { transform: "scale(1.2)" },
+          "50%": { transform: "scale(0.95)" },
+          "75%": { transform: "scale(1.1)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 1.8s infinite",
+        heartbeat: "heartbeat 0.4s ease-in-out",
+      },
     },
   },
   plugins: [],
