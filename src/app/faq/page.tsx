@@ -45,7 +45,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: "payments",
     q: "What payment methods are supported on LUMIÈRE?",
-    a: "We support instant online payments via Unified Payments Interface (PhonePe, Google Pay, Paytm, BHIM UPI), Credit/Debit Cards (Visa, MasterCard, RuPay, Amex) with mandatory RBI 2FA OTP verification, NetBanking across 50+ Indian banks, and Cash on Delivery (COD) for eligible PIN codes up to ₹15,000.",
+    a: "We support instant online payments via Unified Payments Interface (PhonePe, Paytm, BHIM UPI), Credit/Debit Cards (Visa, MasterCard, RuPay, Amex) with mandatory RBI 2FA OTP verification, NetBanking across 50+ Indian banks, and Cash on Delivery (COD) for eligible PIN codes up to ₹15,000.",
   },
   {
     category: "payments",

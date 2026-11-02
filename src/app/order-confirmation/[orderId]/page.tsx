@@ -78,8 +78,6 @@ export default async function OrderConfirmationPage({ params }: OrderConfirmatio
               <span className="font-bold uppercase text-noir-900">
                 {order.payment_method === "cod"
                   ? "Cash on Delivery (COD)"
-                  : order.payment_method === "gpay"
-                  ? "Google Pay (GPay UPI)"
                   : "PhonePe UPI"}
               </span>
             </div>

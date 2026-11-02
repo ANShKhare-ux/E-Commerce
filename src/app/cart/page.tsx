@@ -723,7 +723,7 @@ export default function CartPage() {
                   </li>
                   <li className="flex items-start gap-1.5">
                     <span className="text-[#C59B48]">•</span>
-                    <span>Secured by PhonePe, Google Pay & Cash on Delivery (COD)</span>
+                    <span>Secured by PhonePe & Cash on Delivery (COD)</span>
                   </li>
                 </ul>
               </div>

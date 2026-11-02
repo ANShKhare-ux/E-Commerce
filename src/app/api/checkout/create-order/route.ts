@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required checkout fields." }, { status: 400 });
     }
 
-    if (!["phonepe", "gpay", "upi", "cod"].includes(paymentMethod)) {
-      return NextResponse.json({ error: "Invalid payment method. Choose PhonePe, Google Pay (GPay), or Cash on Delivery." }, { status: 400 });
+    if (!["phonepe", "upi", "cod"].includes(paymentMethod)) {
+      return NextResponse.json({ error: "Invalid payment method. Choose PhonePe or Cash on Delivery." }, { status: 400 });
     }
 
     // Sanitize & Validate Indian phone number (10 digits)
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
 
     const order = orderResult.order;
 
-    // 2. If prepaid (PhonePe or GPay), initialize gateway order
+    // 2. If prepaid (PhonePe), initialize gateway order
     let gatewayOrder = null;
     if (paymentMethod !== "cod") {
       gatewayOrder = await PaymentService.createGatewayOrder({

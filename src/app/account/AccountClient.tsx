@@ -512,8 +512,6 @@ export function AccountClient({
                           <span className="font-semibold uppercase text-noir-800 text-[11px]">
                             {order.payment_method === "cod"
                               ? "COD"
-                              : order.payment_method === "gpay"
-                              ? "GPay UPI"
                               : "PhonePe UPI"}
                           </span>
                           <span className={`block text-[10px] font-bold ${order.payment_status === "captured" ? "text-emerald-700" : "text-amber-700"}`}>

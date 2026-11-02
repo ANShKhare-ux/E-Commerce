@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     const verification = PaymentService.verifyPayment({
       orderId,
-      paymentMethod: paymentMethod as "phonepe" | "gpay" | "upi",
+      paymentMethod: paymentMethod as "phonepe" | "upi",
       gatewayTransactionId,
       gatewayOrderId,
       signature,
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Payment cryptographically verified and recorded via ${paymentMethod === "gpay" ? "Google Pay (GPay)" : "PhonePe"}.`,
+      message: "Payment cryptographically verified and recorded via PhonePe.",
       order,
     });
   } catch (error: any) {

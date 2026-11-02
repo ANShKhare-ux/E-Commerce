@@ -110,7 +110,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p>
             All electronic payment transactions—including credit cards, debit cards, netbanking, and UPI transfers—are processed
-            through RBI-authorized, PCI-DSS Level 1 compliant payment gateways (PhonePe Standard Checkout and Google Pay / NPCI UPI).
+            through RBI-authorized, PCI-DSS Level 1 compliant payment gateways (PhonePe Standard Checkout and NPCI UPI).
           </p>
           <ul className="list-disc pl-5 space-y-1.5 text-noir-600">
             <li>We do not store your 16-digit card number, CVV/CVC, expiration dates, or bank account login passwords.</li>

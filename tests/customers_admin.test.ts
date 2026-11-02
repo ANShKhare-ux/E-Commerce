@@ -59,7 +59,7 @@ describe("LUMIÈRE Admin Customer Management & LTV Aggregation", () => {
         state: "Maharashtra",
         pincode: "400026",
       },
-      paymentMethod: "gpay",
+      paymentMethod: "phonepe",
       items: [{ variantId: variant2!.id, quantity: 1 }],
     });
 

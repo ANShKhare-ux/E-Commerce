@@ -57,15 +57,12 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_secret_key
 ADMIN_EMAIL=your.real.email@example.com
 
 # -----------------------------------------------------------------------------
-# INDIAN PAYMENT GATEWAYS (PhonePe & Google Pay / GPay UPI)
+# INDIAN PAYMENT GATEWAY (PhonePe Standard Checkout & UPI)
 # -----------------------------------------------------------------------------
 PHONEPE_MERCHANT_ID=MERCHANTUAT
 PHONEPE_SALT_KEY=sample_salt_key_placeholder
 PHONEPE_SALT_INDEX=1
 PHONEPE_ENV=UAT
-GPAY_MERCHANT_ID=your_gpay_merchant_id
-GPAY_MERCHANT_UPI_VPA=lumiere@okhdfcbank
-GPAY_SECRET_KEY=your_gpay_secret_key
 ```
 
 ---

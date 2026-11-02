@@ -39,7 +39,7 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("Maharashtra");
   const [pincode, setPincode] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"phonepe" | "gpay" | "cod">("phonepe");
+  const [paymentMethod, setPaymentMethod] = useState<"phonepe" | "cod">("phonepe");
 
   // Saved Addresses State (Faster Authenticated Checkout)
   interface SavedAddressItem {
@@ -291,7 +291,7 @@ export default function CheckoutPage() {
         return;
       }
 
-      // 3. If PhonePe or Google Pay (GPay), verify payment cryptographically with server
+      // 3. If PhonePe, verify payment cryptographically with server
       const verifyRes = await fetch("/api/checkout/verify-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -579,38 +579,6 @@ export default function CheckoutPage() {
                   </div>
                 </label>
 
-                {/* Google Pay (GPay) Option */}
-                <label
-                  className={`flex items-start gap-3 p-4 border rounded-sm cursor-pointer transition-colors ${
-                    paymentMethod === "gpay"
-                      ? "border-noir-900 bg-canvas-subtle"
-                      : "border-canvas-border hover:border-noir-400"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="payment_method"
-                    checked={paymentMethod === "gpay"}
-                    onChange={() => setPaymentMethod("gpay")}
-                    className="mt-1"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-noir-900 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-noir-900 text-white flex items-center justify-center text-[10px] font-bold">
-                          G
-                        </span>
-                        <span>Google Pay (GPay UPI)</span>
-                      </span>
-                      <span className="text-[10px] uppercase font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                        Instant
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-noir-500 mt-1">
-                      Pay instantly via Google Pay UPI Intent, GPay QR code, or your UPI ID.
-                    </p>
-                  </div>
-                </label>
 
                 {/* COD Option */}
                 <label

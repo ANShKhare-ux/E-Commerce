@@ -89,7 +89,7 @@ export default function PaymentPolicyPage() {
               <span>Unified Payments Interface (UPI)</span>
             </h3>
             <p className="text-xs text-noir-600">
-              Instant mobile payment via PhonePe, Google Pay (GPay), Paytm, BHIM, and any bank VPA handle. Direct app intent invocation on mobile devices.
+              Instant mobile payment via PhonePe, Paytm, BHIM, and any bank VPA handle. Direct app intent invocation on mobile devices.
             </p>
           </div>
 

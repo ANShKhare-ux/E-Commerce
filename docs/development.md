@@ -53,7 +53,7 @@ Edit `.env.local` to configure your environment:
 - `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Credentials from your Supabase project dashboard.
 - `SUPABASE_SERVICE_ROLE_KEY`: Server-only secret key for administrative automation.
 - `CRON_SECRET`: Secret token used in `Authorization: Bearer <CRON_SECRET>` for cron API routes.
-- Optional service keys (`RAZORPAY_*`, `DELHIVERY_*`, `RESEND_*`): When left blank or containing placeholder values, the application automatically engages sandbox simulation mode.
+- Optional service keys (`PHONEPE_*`, `DELHIVERY_*`, `RESEND_*`): When left blank or containing placeholder values, the application automatically engages sandbox simulation mode.
 
 ---
 
@@ -124,7 +124,7 @@ npx.cmd vitest run tests/inventory.test.ts
 | [`tests/checkout.test.ts`](file:///d:/Ansh/Ecommmerceee/tests/checkout.test.ts) | Atomic sale deductions, Cash on Delivery (COD) pending states, cancellation stock restoration, two-stage return inspection restock. |
 | [`tests/concurrency_webhooks.test.ts`](file:///d:/Ansh/Ecommmerceee/tests/concurrency_webhooks.test.ts) | Oversell prevention under concurrent checkouts, order idempotency keys, duplicate webhook deduplication. |
 | [`tests/security_auth.test.ts`](file:///d:/Ansh/Ecommmerceee/tests/security_auth.test.ts) | Prevention of client-side price tampering, customer data isolation, admin RBAC enforcement. |
-| [`tests/payments.test.ts`](file:///d:/Ansh/Ecommmerceee/tests/payments.test.ts) | INR to paise conversion, authentic HMAC-SHA256 signature verification, rejection of tampered signatures. |
+| [`tests/payments.test.ts`](file:///d:/Ansh/Ecommmerceee/tests/payments.test.ts) | INR to paise conversion, authentic PhonePe X-VERIFY checksum validation, rejection of unsupported/tampered payment methods. |
 | [`tests/delhivery.test.ts`](file:///d:/Ansh/Ecommmerceee/tests/delhivery.test.ts) | Indian 6-digit PIN validation, metro transit SLA calculation, AWB tracking parsing. |
 | [`tests/affiliate.test.ts`](file:///d:/Ansh/Ecommmerceee/tests/affiliate.test.ts) | Inbound review queue staging, approval/rejection mutations, out-of-stock feed sync. |
 | [`tests/email.test.ts`](file:///d:/Ansh/Ecommmerceee/tests/email.test.ts) | Transactional email generation, order confirmation and dispatch templates, resilient outbox queuing. |

@@ -139,7 +139,7 @@ export default function CancellationPolicyPage() {
             </thead>
             <tbody className="divide-y divide-[#eaeaec] text-noir-700">
               <tr>
-                <td className="p-3 font-medium text-noir-900">UPI (PhonePe, GPay, Paytm)</td>
+                <td className="p-3 font-medium text-noir-900">UPI (PhonePe, Paytm)</td>
                 <td className="p-3">Direct VPA reversal via NPCI</td>
                 <td className="p-3 font-semibold text-emerald-700">Instant to 24 Hours</td>
               </tr>
