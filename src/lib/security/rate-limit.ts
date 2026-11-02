@@ -13,7 +13,7 @@ const rateLimitStore = new Map<string, RateLimitRecord>();
 
 // Cleanup stale entries every 5 minutes to prevent memory leaks
 if (typeof setInterval !== "undefined") {
-  setInterval(() => {
+  const timer = setInterval(() => {
     const now = Date.now();
     for (const [key, record] of rateLimitStore.entries()) {
       if (now > record.resetTime) {
@@ -21,12 +21,19 @@ if (typeof setInterval !== "undefined") {
       }
     }
   }, 5 * 60 * 1000);
+  if (timer && typeof timer === "object" && "unref" in timer) {
+    (timer as { unref: () => void }).unref();
+  }
 }
 
 export interface RateLimitOptions {
   windowMs?: number; // Time window in milliseconds (default: 60,000 = 1 minute)
   maxRequests?: number; // Max requests allowed per window (default: 60)
   keyPrefix?: string; // Optional namespace prefix
+}
+
+export function _resetRateLimitStore(): void {
+  rateLimitStore.clear();
 }
 
 export function checkRateLimit(
@@ -40,7 +47,8 @@ export function checkRateLimit(
 } {
   const windowMs = options.windowMs || 60 * 1000;
   const maxRequests = options.maxRequests || 60;
-  const key = `${options.keyPrefix || "rl"}:${identifier}`;
+  const safeId = typeof identifier === "string" && identifier.trim() ? identifier.trim() : "anonymous";
+  const key = `${options.keyPrefix || "rl"}:${safeId}`;
 
   const now = Date.now();
   const record = rateLimitStore.get(key);

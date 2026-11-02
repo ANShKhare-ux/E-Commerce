@@ -426,3 +426,44 @@ Refer to `.env.example` for all required environment variables:
   - Inventory (`src/app/admin/inventory/InventoryClient.tsx`): Added "Export Stock CSV" button with physical, reserved, and available stock levels and health classifications.
 - **Test Suite & Build Verification**:
   - Added `tests/customers_admin.test.ts` (74 passing tests across 13 test suites). Clean Next.js compilation across 65 routes.
+
+---
+
+## 22. End-to-End Audit, Security Hardening, Motion & Privacy Architecture
+
+- **Comprehensive Security Hardening & Rate Limiting**:
+  - Implemented zero-dependency schema validation engine (`src/lib/security/validator.ts`) covering checkout orders, payment verification, inventory reservations, and newsletter subscriptions.
+  - Sanitization utility (`src/lib/security/sanitize.ts`) seamlessly accepts string and numeric phone/pincode inputs without dropping data.
+  - Enforced strict integer quantity checks preventing fractional order allocations, case-insensitive payment method normalization, and aggregated SKU quantity limit enforcement.
+  - Enforced sliding-window rate limiting with safe IP resolution (`x-forwarded-for`, `x-real-ip`) and test store reset (`_resetRateLimitStore`).
+  - Added Content Security Policy (CSP) and `X-Permitted-Cross-Domain-Policies` headers in `next.config.mjs` with scoped origins for PhonePe (production and UAT), Delhivery, Google Accounts, Supabase, and Unsplash.
+  - Unref'd rate limiter background interval to eliminate Node process leak risk.
+- **Resilient Error Boundaries & Structured Logger**:
+  - Added `src/app/error.tsx` (route segment error boundary) and `src/app/global-error.tsx` (root error boundary) with atelier error UI, diagnostic tracing, and reset recovery.
+  - Added `src/lib/logger.ts` structured logger with automatic redaction of sensitive credentials, URL query parameter tokens, custom error properties, and circular reference prevention (`WeakSet`).
+  - Wired `logger` directly into all sensitive API route handlers (`/api/checkout/create-order`, `/api/checkout/verify-payment`, `/api/newsletter/subscribe`, `/api/inventory/reserve`, and `/api/delhivery/check-pincode`).
+- **Authentication & Login / Sign-Up Overhaul**:
+  - Rebuilt `/login` and `/signup` with real-time field validation, accessible error announcements (`role="alert"`, `aria-invalid`, `aria-describedby`), and WCAG AA focus rings.
+  - Added interactive 4-segment password strength meter with criteria checklist (8+ chars, upper/lower, numbers, special characters) and dual show/hide password toggles.
+  - Aligned password length requirements across form submission and field validation.
+  - GDPR & DPDP Act 2023 compliance: unbundled affirmative opt-in consent (`agreedToTerms` defaults to `false`).
+- **Haute Couture Intro Entrance Animation**:
+  - Built `src/components/IntroEntranceAnimation.tsx` featuring prominent centered monogram draw-in and Didone wordmark shimmer, seamlessly morphing into the navbar logo.
+  - Dynamically calculates exact navbar logo coordinates via `getBoundingClientRect()` targeting `id="main-brand-logo"` in `Header.tsx`, ensuring pixel-accurate morphing across mobile, desktop, and ultrawide viewports.
+  - Guarded with exception-safe `sessionStorage` wrappers (`safeCheckIntroCompleted`, `safeMarkIntroCompleted`) ensuring zero crashes in browser private/incognito modes.
+  - Supports keyboard accessibility: `Escape` key dismisses intro animation immediately.
+  - Fully respects `prefers-reduced-motion` media query.
+- **Global Privacy Policy (`/privacy`) & Canonical Routing**:
+  - Implemented `/privacy` structured across 7 canonical sections: Data Collection, Usage, Cookies & Tracking, Third-Party Disclosure, Data Security & Retention, User Rights (GDPR Articles 15–22, CCPA/CPRA, DPDP Act 2023), and Grievance Redressal / Contact.
+  - Integrated into global footer, legal sidebar navigation, and auth forms.
+  - Added permanent 308 redirect from `/privacy-policy` to `/privacy` in `next.config.mjs` and updated `/privacy-policy/page.tsx`.
+- **Technical SEO & Core Web Vitals**:
+  - Root `layout.tsx` metadata enriched with `metadataBase`, dynamic title template (`%s | LUMIÈRE Atelier`), Open Graph image assets, and Twitter Card metadata (`summary_large_image`).
+  - Product detail pages dynamically inject canonical alternates and Twitter cards.
+  - `sitemap.xml` updated to include canonical `/privacy` (omitting redirected `/privacy-policy`).
+  - `robots.ts` updated to disallow crawling of private `/account/` and `/checkout/` routes.
+- **Test Suite & Build Verification**:
+  - Added `tests/security_validator.test.ts` (22 unit/security tests) and `tests/intro_animation_and_privacy.test.tsx` (4 tests).
+  - All 15 test suites and 103 tests pass cleanly (`npm.cmd test`).
+  - Next.js production build (`npm.cmd run build`) compiles all 66 routes with zero errors.
+

@@ -490,6 +490,7 @@ export function Header() {
               {/* Brand Logo: Production Master Horizontal Lockup */}
               <Link
                 href="/"
+                id="main-brand-logo"
                 className="flex items-center flex-shrink-0 mr-4 sm:mr-8 xl:mr-10 group"
                 aria-label="LUMIÈRE Atelier Home"
               >

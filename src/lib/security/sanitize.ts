@@ -5,9 +5,10 @@
 // =============================================================================
 
 export function sanitizeText(input: unknown): string {
-  if (typeof input !== "string") return "";
+  if (input === null || input === undefined) return "";
+  const str = typeof input === "string" ? input : String(input);
 
-  return input
+  return str
     .replace(/[<>]/g, "") // Strip dangerous HTML tags
     .replace(/javascript:/gi, "") // Neutralize javascript protocol
     .replace(/on\w+=/gi, "") // Neutralize inline event handlers (onerror=, onload=)
@@ -15,8 +16,9 @@ export function sanitizeText(input: unknown): string {
 }
 
 export function sanitizeIndianPhone(phone: unknown): string {
-  if (typeof phone !== "string") return "";
-  const cleaned = phone.replace(/[^0-9]/g, "");
+  if (phone === null || phone === undefined) return "";
+  const str = typeof phone === "string" ? phone : String(phone);
+  const cleaned = str.replace(/[^0-9]/g, "");
   // Return last 10 digits if country code (+91 or 91) was included
   if (cleaned.length > 10) {
     return cleaned.slice(-10);
@@ -25,7 +27,8 @@ export function sanitizeIndianPhone(phone: unknown): string {
 }
 
 export function sanitizePincode(pincode: unknown): string {
-  if (typeof pincode !== "string") return "";
-  return pincode.replace(/[^0-9]/g, "").slice(0, 6);
+  if (pincode === null || pincode === undefined) return "";
+  const str = typeof pincode === "string" ? pincode : String(pincode);
+  return str.replace(/[^0-9]/g, "").slice(0, 6);
 }
 

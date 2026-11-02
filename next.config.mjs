@@ -56,6 +56,26 @@ const nextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' data: https://fonts.gstatic.com",
+              "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://mercury-uat.phonepe.com https://mercury.phonepe.com https://*.googleusercontent.com",
+              "connect-src 'self' https://*.supabase.co https://api.phonepe.com https://api-preprod.phonepe.com https://mercury-uat.phonepe.com https://mercury.phonepe.com https://track.delhivery.com https://staging-express.delhivery.com https://express.delhivery.com",
+              "frame-src 'self' https://mercury-uat.phonepe.com https://mercury.phonepe.com",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self' https://accounts.google.com",
+              "frame-ancestors 'none'",
+            ].join("; "),
+          },
+          {
+            key: "X-Permitted-Cross-Domain-Policies",
+            value: "none",
+          },
         ],
       },
       ...(process.env.NODE_ENV === "production"
@@ -79,6 +99,15 @@ const nextConfig = {
             value: "no-store, no-cache, must-revalidate",
           },
         ],
+      },
+    ];
+  },
+  async redirects() {
+    return [
+      {
+        source: "/privacy-policy",
+        destination: "/privacy",
+        permanent: true,
       },
     ];
   },

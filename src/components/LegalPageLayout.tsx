@@ -60,7 +60,7 @@ export function LegalPageLayout({
 
   const legalPolicyLinks: PolicyLink[] = [
     { label: "Terms & Conditions", href: "/terms", icon: FileText },
-    { label: "Privacy Policy", href: "/privacy-policy", icon: Lock },
+    { label: "Privacy Policy", href: "/privacy", icon: Lock },
     { label: "Cookie Policy", href: "/cookie-policy", icon: Cookie },
     { label: "Store Disclaimer", href: "/disclaimer", icon: AlertCircle },
     { label: "Intellectual Property", href: "/intellectual-property", icon: Award },
@@ -73,7 +73,8 @@ export function LegalPageLayout({
     { label: "Accessibility Statement", href: "/accessibility", icon: Eye },
   ];
 
-  const isCurrent = (href: string) => pathname === href;
+  const isCurrent = (href: string) =>
+    pathname === href || (href === "/privacy" && pathname === "/privacy-policy");
 
   return (
     <div className="bg-[#fcfbf9] min-h-screen py-8 sm:py-12">

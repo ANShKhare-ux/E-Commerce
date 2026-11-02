@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { PaymentService } from "@/lib/services/payments";
 import { checkRateLimit } from "@/lib/security/rate-limit";
-import { sanitizeText, sanitizeIndianPhone, sanitizePincode } from "@/lib/security/sanitize";
+import { validateCheckoutOrderInput } from "@/lib/security/validator";
+import { sanitizeText } from "@/lib/security/sanitize";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || req.headers.get("x-real-ip") || "127.0.0.1";
     const rl = checkRateLimit(ip, { windowMs: 60 * 1000, maxRequests: 30, keyPrefix: "checkout" });
     if (!rl.success) {
       return NextResponse.json(
@@ -16,55 +18,31 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    const validation = validateCheckoutOrderInput(body);
+    if (!validation.success || !validation.data) {
+      return NextResponse.json(
+        { error: validation.errorMessage || "Invalid checkout payload." },
+        { status: 400 }
+      );
+    }
+
     const {
       customerName,
       customerEmail,
       customerPhone,
-      shippingAddress,
+      shippingAddress: sanitizedAddress,
       paymentMethod,
       items,
       reservationIds,
       idempotencyKey,
       couponCode,
-    } = body;
-
-    // Validation
-    if (!customerName || !customerEmail || !customerPhone || !shippingAddress || !paymentMethod || !items?.length) {
-      return NextResponse.json({ error: "Missing required checkout fields." }, { status: 400 });
-    }
-
-    if (!["phonepe", "upi", "cod"].includes(paymentMethod)) {
-      return NextResponse.json({ error: "Invalid payment method. Choose PhonePe or Cash on Delivery." }, { status: 400 });
-    }
-
-    // Sanitize & Validate Indian phone number (10 digits)
-    const cleanPhone = sanitizeIndianPhone(customerPhone);
-    if (cleanPhone.length < 10) {
-      return NextResponse.json({ error: "Please enter a valid 10-digit Indian phone number." }, { status: 400 });
-    }
-
-    // Sanitize & Validate 6-digit Indian Postal Code
-    const cleanPincode = sanitizePincode(shippingAddress.pincode);
-    if (!/^[1-9][0-9]{5}$/.test(cleanPincode)) {
-      return NextResponse.json({ error: "Please enter a valid 6-digit Indian PIN code." }, { status: 400 });
-    }
-
-    const sanitizedAddress = {
-      full_name: sanitizeText(shippingAddress.full_name || customerName),
-      email: customerEmail.trim().toLowerCase(),
-      phone: cleanPhone,
-      address_line1: sanitizeText(shippingAddress.address_line1),
-      address_line2: shippingAddress.address_line2 ? sanitizeText(shippingAddress.address_line2) : undefined,
-      city: sanitizeText(shippingAddress.city),
-      state: sanitizeText(shippingAddress.state),
-      pincode: cleanPincode,
-    };
+    } = validation.data;
 
     // 1. Create order and atomically finalize inventory deduction
     const orderResult = await db.orders.create({
       customerName: sanitizeText(customerName),
       customerEmail: customerEmail.trim().toLowerCase(),
-      customerPhone: cleanPhone,
+      customerPhone: customerPhone,
       shippingAddress: sanitizedAddress,
       paymentMethod,
       items,
@@ -97,7 +75,7 @@ export async function POST(req: NextRequest) {
       gatewayOrder,
     });
   } catch (error: any) {
-    console.error("Order placement error:", error);
+    logger.error("Order placement error", error);
     return NextResponse.json({ error: error.message || "Failed to process order" }, { status: 500 });
   }
 }

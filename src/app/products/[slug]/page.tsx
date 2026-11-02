@@ -20,10 +20,20 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   return {
     title: `${product.name} | LUMIÈRE India`,
     description: product.description.slice(0, 160),
+    alternates: {
+      canonical: `/products/${product.slug}`,
+    },
     openGraph: {
       title: `${product.name} | LUMIÈRE Atelier`,
       description: product.description.slice(0, 160),
-      images: primaryImage ? [{ url: primaryImage }] : [],
+      images: primaryImage ? [{ url: primaryImage, alt: product.name }] : [],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | LUMIÈRE Atelier`,
+      description: product.description.slice(0, 160),
+      images: primaryImage ? [primaryImage] : [],
     },
   };
 }

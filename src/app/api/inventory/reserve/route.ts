@@ -1,27 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { checkRateLimit } from "@/lib/security/rate-limit";
+import { validateReservationInput } from "@/lib/security/validator";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || req.headers.get("x-real-ip") || "127.0.0.1";
+    const rl = checkRateLimit(ip, { windowMs: 60 * 1000, maxRequests: 60, keyPrefix: "reserve" });
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many reservation requests. Please wait a moment." },
+        { status: 429, headers: { "Retry-After": "60" } }
+      );
+    }
+
     const body = await req.json();
-    const { sessionId, variantId, quantity } = body;
+    const validation = validateReservationInput(body);
 
-    if (!sessionId || !variantId || quantity === undefined) {
+    if (!validation.success || !validation.data) {
       return NextResponse.json(
-        { error: "sessionId, variantId, and quantity are required" },
+        { error: validation.errorMessage || "Invalid reservation parameters." },
         { status: 400 }
       );
     }
 
-    const qty = parseInt(quantity, 10);
-    if (isNaN(qty) || qty <= 0 || qty > 10) {
-      return NextResponse.json(
-        { error: "Quantity must be a valid integer between 1 and 10." },
-        { status: 400 }
-      );
-    }
-
-    const result = await db.inventory.reserveStock(sessionId, variantId, qty, 15);
+    const { sessionId, variantId, quantity } = validation.data;
+    const result = await db.inventory.reserveStock(sessionId, variantId, quantity, 15);
 
     if (!result.success) {
       return NextResponse.json(result, { status: 409 });
@@ -29,6 +34,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (error: any) {
+    logger.error("Inventory reservation failure", error);
     return NextResponse.json({ error: error.message || "Failed to reserve stock" }, { status: 500 });
   }
 }
