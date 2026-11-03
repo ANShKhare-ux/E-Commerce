@@ -34,3 +34,62 @@ html {
     scroll-behavior: auto !important;
   }
 }
+
+/* =============================================================================
+   LUMIÈRE BESPOKE LUXURY TEXTURES & ANIMATIONS
+   ============================================================================= */
+
+/* 1. Woven Zari Silk & Micro-Textile Texture for the LUMIÈRE Brand Wordmark */
+.lumiere-woven-texture {
+  background-color: #0d0d0d;
+  background-image:
+    /* Layer 1: Micro-Warp Silk Thread Weave (fine diagonal lines) */
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.4) 0px, rgba(255, 255, 255, 0.4) 1px, transparent 1px, transparent 4px),
+    /* Layer 2: Micro-Weft Cross Thread Weave (counter-diagonal lines) */
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.4) 0px, rgba(0, 0, 0, 0.4) 1px, transparent 1px, transparent 4px),
+    /* Layer 3: Organic Silk Specular Luster Highlight */
+    radial-gradient(ellipse at 50% 50%, rgba(255, 245, 220, 0.75) 0%, rgba(197, 155, 72, 0.35) 55%, transparent 100%),
+    /* Layer 4: Luxury Zari Gold Metallic Gradient Base */
+    linear-gradient(135deg, #f5eedb 0%, #c59b48 25%, #fef3c7 45%, #a67c33 70%, #dfc58e 100%);
+  background-size: 8px 8px, 8px 8px, 150% 150%, 200% 200%;
+}
+
+@keyframes luxurySilkShimmer {
+  0% {
+    background-position: 0 0, 0 0, 0% 50%, 0% 50%;
+  }
+  50% {
+    background-position: 4px 4px, -4px 4px, 100% 50%, 100% 50%;
+  }
+  100% {
+    background-position: 0 0, 0 0, 0% 50%, 0% 50%;
+  }
+}
+
+.animate-silk-shimmer {
+  animation: luxurySilkShimmer 7s ease-in-out infinite;
+}
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .lumiere-text-clipped {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+@supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+  .lumiere-text-clipped {
+    display: none !important;
+  }
+}
+
+/* Touch device ambient sheen fallback */
+@media (hover: none) and (pointer: coarse) {
+  .lumiere-touch-ambient {
+    opacity: 0.75 !important;
+    animation: luxurySilkShimmer 10s ease-in-out infinite !important;
+  }
+}
+

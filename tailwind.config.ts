@@ -66,10 +66,16 @@ const config: Config = {
           "50%": { transform: "scale(0.95)" },
           "75%": { transform: "scale(1.1)" },
         },
+        silkShimmer: {
+          "0%": { backgroundPosition: "0 0, 0 0, 0% 50%, 0% 50%" },
+          "50%": { backgroundPosition: "4px 4px, -4px 4px, 100% 50%, 100% 50%" },
+          "100%": { backgroundPosition: "0 0, 0 0, 0% 50%, 0% 50%" },
+        },
       },
       animation: {
         shimmer: "shimmer 1.8s infinite",
         heartbeat: "heartbeat 0.4s ease-in-out",
+        "silk-shimmer": "silkShimmer 7s ease-in-out infinite",
       },
     },
   },

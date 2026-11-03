@@ -4,11 +4,14 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useCart } from "@/context/CartContext";
+import { LUXURY_EASE } from "@/lib/motion";
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Clock, Truck } from "lucide-react";
 
 export function CartDrawer() {
   const pathname = usePathname();
+  const shouldReduceMotion = useReducedMotion();
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal, reservationExpiresAt, totalCount } = useCart();
   const [timeLeft, setTimeLeft] = useState<string>("");
   const [couponInput, setCouponInput] = useState("");
@@ -90,18 +93,47 @@ export function CartDrawer() {
     return () => clearInterval(interval);
   }, [reservationExpiresAt]);
 
-  if (pathname?.startsWith("/admin") || pathname === "/cart" || !isOpen) return null;
+  // Handle ESC key press to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, setIsOpen]);
+
+  if (pathname?.startsWith("/admin") || pathname === "/cart") return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-300"
-        onClick={() => setIsOpen(false)}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="cart-drawer-root"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 overflow-hidden"
+        >
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-xs"
+            onClick={() => setIsOpen(false)}
+          />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-canvas-border">
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10 pointer-events-none">
+            <motion.div
+              initial={shouldReduceMotion ? false : { x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.35, ease: LUXURY_EASE }}
+              className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-canvas-border pointer-events-auto"
+            >
           {/* Header */}
           <div className="px-6 py-5 border-b border-canvas-border flex items-center justify-between bg-canvas-light">
             <div>
@@ -342,8 +374,11 @@ export function CartDrawer() {
               </p>
             </div>
           )}
-        </div>
-      </div>
-    </div>
+            </motion.div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
+

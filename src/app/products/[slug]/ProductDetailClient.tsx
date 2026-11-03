@@ -10,6 +10,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import { PincodeChecker } from "@/components/PincodeChecker";
 import { ProductCard } from "@/components/ProductCard";
 import { RecentlyViewed, isValidRecentlyViewedProduct } from "@/components/RecentlyViewed";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { accordionVariant, LUXURY_EASE } from "@/lib/motion";
 import {
   Heart,
@@ -198,10 +199,10 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
             <AnimatePresence mode="wait">
               <motion.div
                 key={selectedImage}
-                initial={{ opacity: 0.85 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0.9 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+                initial={{ opacity: 0.2, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0.2, scale: 0.98 }}
+                transition={{ duration: 0.3, ease: LUXURY_EASE }}
                 className="w-full h-full relative"
               >
                 <Image
@@ -254,9 +255,14 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
               </button>
             </div>
 
-            <h1 className="font-serif text-2xl sm:text-3xl text-noir-900 font-medium leading-snug">
+            <motion.h1
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: LUXURY_EASE }}
+              className="font-serif text-2xl sm:text-3xl text-noir-900 font-medium leading-snug"
+            >
               {product.name}
-            </h1>
+            </motion.h1>
 
             {/* Rating */}
             {product.rating > 0 && (
@@ -278,7 +284,12 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
           </div>
 
           {/* Pricing Row */}
-          <div className="border-y border-canvas-border py-4 flex items-baseline gap-3">
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: LUXURY_EASE, delay: 0.06 }}
+            className="border-y border-canvas-border py-4 flex items-baseline gap-3"
+          >
             <span className="font-sans text-2xl sm:text-3xl font-bold text-noir-900">
               ₹{currentPrice.toLocaleString("en-IN")}
             </span>
@@ -295,7 +306,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
             <span className="text-[11px] text-noir-500 font-light ml-auto">
               Inclusive of 12% GST
             </span>
-          </div>
+          </motion.div>
 
           {/* COLOR SELECTOR */}
           {variants.length > 0 && selectedVariant && (
@@ -478,7 +489,20 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="px-3 font-bold text-noir-900 min-w-[28px] text-center">{quantity}</span>
+                <div className="overflow-hidden flex items-center justify-center min-w-[32px]">
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    <motion.span
+                      key={quantity}
+                      initial={shouldReduceMotion ? false : { opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={{ duration: 0.15 }}
+                      className="px-2 font-bold text-noir-900 text-center inline-block"
+                    >
+                      {quantity}
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
@@ -527,42 +551,69 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
           ) : (
             <div className="space-y-3 pt-2">
               <div className="grid grid-cols-2 gap-3">
-                <button
+                <motion.button
                   type="button"
                   onClick={() => handleAddToCart(false)}
                   disabled={isOutOfStock || isAdding}
-                  className={`py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-all duration-200 active:scale-[0.98] disabled:opacity-50 shadow-subtle ${
+                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.01 }}
+                  className={`py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-colors duration-200 disabled:opacity-50 shadow-subtle ${
                     addSuccess
                       ? "bg-emerald-700 text-white"
                       : "bg-noir-900 hover:bg-gold-600 text-white hover:text-noir-900"
                   }`}
                 >
-                  {isAdding ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Reserving...</span>
-                    </>
-                  ) : addSuccess ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Added to Bag!</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Add to Bag</span>
-                    </>
-                  )}
-                </button>
+                  <AnimatePresence mode="wait" initial={false}>
+                    {isAdding ? (
+                      <motion.div
+                        key="adding"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.15 }}
+                        className="flex items-center gap-2"
+                      >
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Reserving...</span>
+                      </motion.div>
+                    ) : addSuccess ? (
+                      <motion.div
+                        key="success"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.15 }}
+                        className="flex items-center gap-2"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>Added to Bag!</span>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="idle"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="flex items-center gap-2"
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        <span>Add to Bag</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
 
-                <button
+                <motion.button
                   type="button"
                   onClick={() => handleAddToCart(true)}
                   disabled={isOutOfStock || isAdding}
-                  className="bg-gold-600 hover:bg-gold-500 active:scale-[0.98] text-noir-900 py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-all duration-200 disabled:opacity-50 shadow-subtle"
+                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.01 }}
+                  className="bg-gold-600 hover:bg-gold-500 text-noir-900 py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-luxury transition-colors duration-200 disabled:opacity-50 shadow-subtle"
                 >
                   <span>Buy Now</span>
-                </button>
+                </motion.button>
               </div>
 
               <p className="text-[11px] text-center text-noir-500 font-light">
@@ -669,7 +720,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
 
       {/* 3. Related Designs / Curated Pairings */}
       {relatedProducts.length > 0 && (
-        <section className="space-y-6 pt-6 border-t border-canvas-border">
+        <ScrollReveal variant="fade-up" className="space-y-6 pt-6 border-t border-canvas-border">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-gold-600 block mb-0.5">
@@ -690,11 +741,13 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
               <ProductCard key={rel.id} product={rel} index={idx} />
             ))}
           </div>
-        </section>
+        </ScrollReveal>
       )}
 
       {/* 4. Recently Viewed Products */}
-      <RecentlyViewed excludeId={product.id} />
+      <ScrollReveal variant="fade-up" delay={0.08}>
+        <RecentlyViewed excludeId={product.id} />
+      </ScrollReveal>
 
       {/* 5. Sticky Bottom Action Bar for Mobile Devices */}
       {!product.is_affiliate && (

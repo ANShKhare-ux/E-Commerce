@@ -2,6 +2,7 @@ import React from "react";
 import { db } from "@/lib/db";
 import { ProductCard } from "@/components/ProductCard";
 import { CollectionFilters } from "@/components/CollectionFilters";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import Link from "next/link";
 import { Sparkles, ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
@@ -59,7 +60,7 @@ export default async function ProductsCatalogPage({ searchParams }: ProductsPage
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Header Banner */}
-      <div className="border-b border-canvas-border pb-6">
+      <ScrollReveal variant="fade-up" className="border-b border-canvas-border pb-6">
         <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold-600 block mb-1">
           LUMIÈRE Catalog
         </span>
@@ -75,7 +76,7 @@ export default async function ProductsCatalogPage({ searchParams }: ProductsPage
         <p className="text-xs text-noir-500 font-light mt-1 max-w-2xl">
           Indigenous Indian handloom craftsmanship, heavyweight streetwear drops, and verified external fashion discoveries.
         </p>
-      </div>
+      </ScrollReveal>
 
       {/* Main Filter & Grid Layout */}
       <CollectionFilters totalCount={products.length}>
@@ -100,8 +101,8 @@ export default async function ProductsCatalogPage({ searchParams }: ProductsPage
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.map((product, idx) => (
+              <ProductCard key={product.id} product={product} index={idx} />
             ))}
           </div>
         )}

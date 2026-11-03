@@ -9,6 +9,7 @@ import { CartDrawer } from "@/components/CartDrawer";
 import { WelcomeAnnouncementModal } from "@/components/WelcomeAnnouncementModal";
 import { PageTransition } from "@/components/PageTransition";
 import { IntroEntranceAnimation } from "@/components/IntroEntranceAnimation";
+import { ScrollProgress } from "@/components/ScrollProgress";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -95,6 +96,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
       <body className="font-sans bg-canvas-light text-noir-900 min-h-screen flex flex-col selection:bg-gold-500 selection:text-white antialiased">
+        <ScrollProgress />
         <IntroEntranceAnimation />
         <CartProvider>
           <WishlistProvider>

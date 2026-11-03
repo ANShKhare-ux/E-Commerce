@@ -4,6 +4,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { CURATED_OUTFITS } from "@/data/products";
 import { ProductCard } from "@/components/ProductCard";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { Sparkles, ArrowRight } from "lucide-react";
 
 export default async function OutfitsPage() {
@@ -11,7 +12,7 @@ export default async function OutfitsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
-      <div className="border-b border-canvas-border pb-6 max-w-2xl">
+      <ScrollReveal variant="fade-up" className="border-b border-canvas-border pb-6 max-w-2xl">
         <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold-600 block mb-1">
           Wardrobe Direction
         </span>
@@ -21,10 +22,10 @@ export default async function OutfitsPage() {
         <p className="text-xs text-noir-500 font-light mt-1">
           Hand-picked ensemble styling by LUMIÈRE creative directors. Harmonizing handcrafted Indian silks with contemporary accessories and streetwear layering.
         </p>
-      </div>
+      </ScrollReveal>
 
       {CURATED_OUTFITS.length === 0 ? (
-        <div className="text-center py-20 bg-white border border-canvas-border rounded-sm space-y-3">
+        <ScrollReveal variant="fade-up" className="text-center py-20 bg-white border border-canvas-border rounded-sm space-y-3">
           <Sparkles className="w-8 h-8 text-gold-600 mx-auto" />
           <h3 className="font-serif text-lg font-medium text-noir-900">
             Styling Combinations in Curation
@@ -32,25 +33,26 @@ export default async function OutfitsPage() {
           <p className="text-xs text-noir-500 max-w-md mx-auto leading-relaxed">
             Curated ensembles will be published as soon as our upcoming physical collections and verified affiliate pieces are launched.
           </p>
-        </div>
+        </ScrollReveal>
       ) : (
         <div className="space-y-20">
           {CURATED_OUTFITS.map((outfit, index) => {
             const outfitProducts = allProducts.filter((p) => outfit.product_ids.includes(p.id));
 
             return (
-              <div
+              <ScrollReveal
                 key={outfit.id}
+                variant="fade-up"
                 className="bg-white border border-canvas-border rounded-sm overflow-hidden p-6 sm:p-8 space-y-8 shadow-card"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  <div className="lg:col-span-5 relative h-80 sm:h-96 rounded-sm overflow-hidden bg-canvas-subtle">
+                  <div className="lg:col-span-5 relative h-80 sm:h-96 rounded-sm overflow-hidden bg-canvas-subtle group">
                     <Image
                       src={outfit.hero_image}
                       alt={outfit.title}
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"
-                      className="object-cover"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute top-3 left-3 bg-noir-900 text-gold-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm">
                       {outfit.occasion}
@@ -92,13 +94,13 @@ export default async function OutfitsPage() {
                       Pieces in This Curated Look ({outfitProducts.length})
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                      {outfitProducts.map((p) => (
-                        <ProductCard key={p.id} product={p} />
+                      {outfitProducts.map((p, idx) => (
+                        <ProductCard key={p.id} product={p} index={idx} />
                       ))}
                     </div>
                   </div>
                 )}
-              </div>
+              </ScrollReveal>
             );
           })}
         </div>

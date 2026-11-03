@@ -467,3 +467,48 @@ Refer to `.env.example` for all required environment variables:
   - All 15 test suites and 103 tests pass cleanly (`npm.cmd test`).
   - Next.js production build (`npm.cmd run build`) compiles all 66 routes with zero errors.
 
+---
+
+## 23. Luxury Visual Redesign, Real Scroll Animations & LUMIÈRE Woven Texture Architecture
+
+- **Real Scroll-Based Animations (`src/components/ScrollReveal.tsx` & `src/components/ScrollProgress.tsx`)**:
+  - **Scroll Progress Indicator (`ScrollProgress.tsx`)**: Fixed ultra-thin (2px) gold gradient bar mounted in `layout.tsx` at `z-[60]` with Framer Motion `useScroll()` and spring physics (`stiffness: 150, damping: 25`), smooth and non-intrusive above the sticky navbar.
+  - **ScrollReveal Component (`ScrollReveal.tsx`)**: Client component utilizing `whileInView`, `viewport={{ once: true, margin: "-50px" }}`, and luxury bezier easing (`[0.22, 1, 0.36, 1]`) with variants: `fade-up`, `fade-in`, `scale-up`, `slide-left`, `slide-right`, and `stagger`. Fully motion-reduced accessible via `useReducedMotion()`.
+  - **Homepage Section Reveals**: Wrapped all 12 major storefront sections in `src/app/page.tsx` with `ScrollReveal` and bespoke `HeroSection.tsx` featuring cinematic slow-scale and staggered typography entrance.
+- **Product Card Redesign & Interactions (`src/components/ProductCard.tsx`)**:
+  - **Card Proportions & Surfaces**: Refined `aspect-[3/4]` card canvas with subtle border (`border-canvas-border/80 hover:border-gold-500/40`) and elevation transition (`hover:-translate-y-1.5 hover:shadow-[0_16px_36px_rgba(13,13,13,0.08)]`).
+  - **Staggered Viewport Entrance**: Cards animate smoothly when scrolled into view using `whileInView={{ opacity: 1, y: 0, scale: 1 }}` and staggered delay `Math.min((index % 4) * 0.07, 0.25)`.
+  - **Image Presentation**: Primary and secondary hover image transitions with subtle 105% optical zoom and subtle top/bottom depth vignettes.
+  - **Quick Actions & Wishlist**: Frosted glass action bar slides up on hover with Quick View modal trigger and inline Quick Add size selector with live inventory checks; wishlist heart with micro-pulse heartbeat animation.
+- **Product Detail Page Elevaton (`ProductDetailClient.tsx`)**:
+  - **Image Gallery Transitions**: Micro-magnifier with smooth coordinate tracking and thumbnail outline indicators.
+  - **Animated Typography & Pricing**: `motion.h1` staggered title entrance and animated pricing row with 12% GST note.
+  - **Interactive Selectors**: Color swatches, size buttons, and quantity adjusters enhanced with spring tap responses; Add to Bag and Buy Now buttons wired with `motion.button` whileTap/whileHover micro-interactions.
+  - **Related Products & Recently Viewed**: Wrapped in `ScrollReveal` with staggered grid cards.
+- **Footer Redesign & Special LUMIÈRE Texture Hover Effect (`src/components/Footer.tsx`)**:
+  - **Couture Minimalist Aesthetics**: Dark noir palette (`bg-noir-900 border-noir-800`), smooth viewport entrance animation, and organized into 7 luxury sections:
+    1. *Brand Identity*: Haute-couture Didone brandmark, Mumbai Central Atelier address, concierge email, helpline.
+    2. *Shop Atelier*: Men's tailoring, women's silks, streetwear, ethnic wear, horlogerie, new arrivals, archive deals.
+    3. *Customer Support*: Contact concierge, client FAQs, Delhivery shipping info, 7-day returns, order cancellations, live waybill tracking, size guide.
+    4. *About LUMIÈRE*: Artisanal story, authenticity & GI tags, lookbooks, grievance redressal, accessibility.
+    5. *Social Channels & Policies*: Bespoke SVG icons for Instagram, X (Twitter), Pinterest, and YouTube; legal policy links.
+    6. *The LUMIÈRE Gazette*: Newsletter subscription form connected to `/api/newsletter/subscribe` with real-time feedback.
+    7. *Trust Badges & Copyright*: RBI 2FA, Delhivery Express, DPDP Act 2023, GSTIN, dynamic year copyright.
+  - **Special LUMIÈRE Woven Texture Hover Effect**:
+    - Dual-layer text composition: Base layer remains crisp white for 100% legibility; absolute overlay layer features bespoke woven zari silk & micro-metallic brocade texture (`.lumiere-woven-texture`) clipped into the text letterforms (`-webkit-background-clip: text; color: transparent`).
+    - Smooth 700ms GPU-accelerated opacity fade on hover with gold drop-shadow depth (`drop-shadow-[0_2px_10px_rgba(197,155,72,0.45)]`) and subtle continuous silk shimmer (`@keyframes luxurySilkShimmer`).
+    - Touch device support: Media query (`hover: none`) provides a tasteful 35% ambient sheen without requiring mouse hovering.
+- **Verification & State**:
+  - Vitest test suite: All 16 test suites and 111 tests pass cleanly (`npm.cmd test`).
+  - TypeScript compilation: `npx.cmd tsc --noEmit` passes with 0 errors.
+  - Production build: `npm.cmd run build` compiles all 66 routes with 0 errors.
+  - Test Suite Added: `tests/luxury_animations_redesign.test.tsx` (8 new tests covering ScrollProgress, ScrollReveal variants, SectionHeading, ProductCard redesign attributes, and Footer woven texture).
+  - Bug Fixes & Refinements:
+    - Replaced Tailwind CSS `hover:-translate-y-1.5` on ProductCard with Framer Motion `whileHover={{ y: -6 }}` to resolve inline transform override.
+    - Converted direct children of `<AnimatePresence>` in QuickViewModal, CartDrawer, SearchDialog, and CollectionFilters to `<motion.div>` to prevent immediate unmount and preserve exit animations.
+    - Corrected CSS `background-image` layer order in `src/app/globals.css` so micro-warp and micro-weft weave layers sit on top of the zari gold gradient base.
+    - Added `@supports not ((background-clip: text) or (-webkit-background-clip: text))` fallback for browsers without text clipping.
+    - Eliminated React SSR HTML comment splits in ProductCard price and discount badge via template literals.
+  - Live server verification: http://localhost:3000 verified with HTTP 200 across `/`, `/products`, `/category/ethnic-wear`, `/cart`, `/privacy`, `/outfits`, and `/deals`.
+
+

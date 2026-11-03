@@ -360,7 +360,13 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
       {/* Mobile Filter Drawer with Smooth Slide Transition */}
       <AnimatePresence>
         {mobileDrawerOpen && (
-          <div className="fixed inset-0 z-50 flex lg:hidden">
+          <motion.div
+            key="mobile-filter-drawer-root"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex lg:hidden"
+          >
             <motion.div
               variants={fadeIn}
               initial="hidden"
@@ -402,7 +408,7 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
                 </button>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { ProductCard } from "@/components/ProductCard";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -97,7 +98,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </section>
 
       {/* Products Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <ScrollReveal variant="fade-up" as="section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex items-center justify-between text-xs text-noir-500 border-b border-canvas-border pb-3">
           <span>Showing {products.length} designs in {meta.title}</span>
           <Link href="/products" className="text-gold-700 font-bold hover:underline">
@@ -124,12 +125,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.map((product, idx) => (
+              <ProductCard key={product.id} product={product} index={idx} />
             ))}
           </div>
         )}
-      </section>
+      </ScrollReveal>
     </div>
   );
 }

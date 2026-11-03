@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import { Product, ProductVariant } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { LUXURY_EASE } from "@/lib/motion";
 import {
   X,
   Heart,
@@ -15,7 +17,8 @@ import {
   ExternalLink,
   ArrowRight,
   ShieldCheck,
-  Truck
+  Truck,
+  Loader2,
 } from "lucide-react";
 
 interface QuickViewModalProps {
@@ -25,6 +28,7 @@ interface QuickViewModalProps {
 }
 
 export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps) {
+  const shouldReduceMotion = useReducedMotion();
   const { addItem, setIsOpen } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
@@ -50,8 +54,18 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
     }
   }, [product, isOpen]);
 
-  if (!isOpen || !product) return null;
+  // Handle ESC key press to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
+  if (!product) return null;
 
   const wishlisted = isInWishlist(product.id);
   const availableStock = selectedVariant?.inventory?.available_stock ?? 10;
@@ -100,18 +114,29 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-xs"
       onClick={onClose}
     >
-      <div
+      <motion.div
+        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 12 }}
+        transition={{ duration: 0.28, ease: LUXURY_EASE }}
         className="relative w-full max-w-4xl bg-white border border-canvas-border rounded-sm shadow-2xl overflow-hidden max-h-[90vh] flex flex-col md:flex-row"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Quick view: ${product.name}`}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/80 hover:bg-white text-noir-700 hover:text-noir-900 border border-canvas-border transition-colors shadow-xs"
+          className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/90 hover:bg-white text-noir-700 hover:text-noir-900 border border-canvas-border transition-colors shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
           aria-label="Close Quick View"
         >
           <X className="w-5 h-5" />
@@ -138,9 +163,10 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                   onClick={() => setSelectedImage(img.url)}
                   className={`relative w-14 h-18 rounded-sm overflow-hidden shrink-0 border transition-all ${
                     selectedImage === img.url
-                      ? "border-noir-900 ring-1 ring-noir-900"
+                      ? "border-noir-900 ring-2 ring-noir-900 shadow-xs"
                       : "border-canvas-border opacity-70 hover:opacity-100"
                   }`}
+                  aria-label="Select view"
                 >
                   <Image src={img.url} alt={img.alt_text || product.name} fill sizes="56px" className="object-cover" />
                 </button>
@@ -157,13 +183,14 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 {product.brand}
               </span>
               <button
+                type="button"
                 onClick={() => toggleWishlist(product)}
                 className={`p-1.5 rounded-full border border-canvas-border transition-colors ${
-                  wishlisted ? "bg-rose-50 text-rose-600" : "text-noir-600 hover:text-rose-600"
+                  wishlisted ? "bg-rose-50 text-rose-600" : "text-noir-600 hover:text-rose-600 hover:bg-white"
                 }`}
                 aria-label="Toggle Wishlist"
               >
-                <Heart className={`w-4 h-4 ${wishlisted ? "fill-rose-600" : ""}`} />
+                <Heart className={`w-4 h-4 ${wishlisted ? "fill-rose-600 text-rose-600" : ""}`} />
               </button>
             </div>
 
@@ -182,11 +209,11 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 </span>
               )}
               {discountPercent > 0 && (
-                <span className="bg-red-700 text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded-sm">
+                <span className="bg-red-700 text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded-xs">
                   {discountPercent}% OFF
                 </span>
               )}
-              <span className="text-[10px] text-noir-400 ml-auto">Inclusive of all taxes</span>
+              <span className="text-[10px] text-noir-400 ml-auto font-light">Inclusive of 12% GST</span>
             </div>
 
             {/* Color Swatches */}
@@ -202,6 +229,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                     return (
                       <button
                         key={colorName}
+                        type="button"
                         onClick={() => {
                           const matched =
                             variants.find((v) => v.color === colorName && v.size === selectedVariant.size) ||
@@ -220,7 +248,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                         }}
                         className={`h-8 px-2.5 rounded-sm border text-xs font-medium flex items-center gap-2 transition-all ${
                           isSelected
-                            ? "border-noir-900 bg-noir-900 text-white"
+                            ? "border-noir-900 bg-noir-900 text-white shadow-xs"
                             : "border-canvas-border bg-white text-noir-800 hover:border-noir-400"
                         }`}
                       >
@@ -257,9 +285,10 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                     return (
                       <button
                         key={variant.id}
+                        type="button"
                         onClick={() => setSelectedVariant(variant)}
                         disabled={out}
-                        className={`h-10 rounded-sm border text-xs font-bold transition-all flex items-center justify-center ${
+                        className={`h-10 rounded-sm border text-xs font-bold transition-all flex items-center justify-center active:scale-95 ${
                           isSelected
                             ? "border-noir-900 bg-noir-900 text-white shadow-xs"
                             : out
@@ -310,7 +339,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 href={product.affiliate_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-gold-600 hover:bg-gold-500 text-noir-900 py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-sm transition-colors"
+                className="w-full bg-gold-600 hover:bg-gold-500 text-noir-900 py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-sm transition-colors shadow-subtle active:scale-[0.99]"
               >
                 <span>Purchase on {product.affiliate_source_name || "Partner Store"}</span>
                 <ExternalLink className="w-4 h-4" />
@@ -320,10 +349,19 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isOutOfStock || isAdding}
-                className="w-full bg-noir-900 hover:bg-gold-600 text-white py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-sm transition-colors disabled:opacity-50 shadow-subtle"
+                className="w-full bg-noir-900 hover:bg-gold-600 text-white py-3.5 px-6 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 rounded-sm transition-all duration-200 disabled:opacity-50 shadow-subtle active:scale-[0.99]"
               >
-                <ShoppingBag className="w-4 h-4" />
-                <span>{isAdding ? "Reserving..." : "Add to Bag"}</span>
+                {isAdding ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Reserving Stock...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Add to Bag</span>
+                  </>
+                )}
               </button>
             )}
 
@@ -331,16 +369,16 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
               <Link
                 href={`/products/${product.slug}`}
                 onClick={onClose}
-                className="text-xs font-bold uppercase tracking-wider text-noir-600 hover:text-gold-700 inline-flex items-center gap-1"
+                className="text-xs font-bold uppercase tracking-wider text-noir-600 hover:text-gold-700 inline-flex items-center gap-1 group"
               >
                 <span>View Full Product Details & Size Guide</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

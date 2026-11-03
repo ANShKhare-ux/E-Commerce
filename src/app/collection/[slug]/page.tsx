@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { ProductCard } from "@/components/ProductCard";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import Link from "next/link";
 import Image from "next/image";
 import { Sparkles, ArrowRight } from "lucide-react";
@@ -156,7 +157,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
       </section>
 
       {/* Curated Curator's Notes */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <ScrollReveal variant="fade-up" as="section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-canvas-subtle border-l-4 border-gold-600 p-4 sm:p-6 rounded-r-sm">
           <h3 className="text-xs font-bold uppercase tracking-widest text-noir-900 mb-1">
             Curator&apos;s Craft Note
@@ -165,20 +166,20 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
             {meta.curatedNotes}
           </p>
         </div>
-      </section>
+      </ScrollReveal>
 
       {/* Products Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <ScrollReveal variant="fade-up" as="section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex items-center justify-between text-xs text-noir-500 border-b border-canvas-border pb-3">
           <span>
             Displaying {products.length} exclusive designs in this collection
           </span>
           <Link
             href="/outfits"
-            className="text-gold-700 font-bold hover:underline flex items-center gap-1"
+            className="text-gold-700 font-bold hover:underline flex items-center gap-1 group"
           >
             <span>View Styled Outfits</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
@@ -188,12 +189,12 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.map((product, idx) => (
+              <ProductCard key={product.id} product={product} index={idx} />
             ))}
           </div>
         )}
-      </section>
+      </ScrollReveal>
     </div>
   );
 }

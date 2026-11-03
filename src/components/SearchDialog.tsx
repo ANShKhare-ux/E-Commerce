@@ -255,7 +255,11 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
   return (
     <AnimatePresence>
       {isOpen && (
-        <div
+        <motion.div
+          key="search-dialog-root"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           role="dialog"
           aria-modal="true"
           aria-label="Search Catalog"
@@ -512,7 +516,7 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
               )}
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
