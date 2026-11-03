@@ -3,36 +3,36 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { HomepageConfig } from "@/types";
-import { LUXURY_EASE } from "@/lib/motion";
+import { LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 
 interface HeroSectionProps {
   hero: HomepageConfig["hero"];
 }
 
 export function HeroSection({ hero }: HeroSectionProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.1,
+        staggerChildren: shouldReduceMotion ? 0 : 0.12,
+        delayChildren: shouldReduceMotion ? 0 : 0.1,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 24 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 24 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.6,
+        duration: shouldReduceMotion ? 0 : 0.6,
         ease: LUXURY_EASE,
       },
     },
@@ -44,7 +44,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
       <motion.div
         initial={shouldReduceMotion ? false : { scale: 1.08, opacity: 0 }}
         animate={{ scale: 1.02, opacity: 0.45 }}
-        transition={{ duration: 1.4, ease: "easeOut" }}
+        transition={{ duration: shouldReduceMotion ? 0 : 1.4, ease: "easeOut" }}
         className="absolute inset-0 w-full h-full"
       >
         <Image

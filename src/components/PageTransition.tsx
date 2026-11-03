@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { motion, MotionConfig, useReducedMotion } from "framer-motion";
+import { motion, MotionConfig } from "framer-motion";
+import { useSafeReducedMotion } from "@/lib/motion";
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -10,7 +11,7 @@ interface PageTransitionProps {
 
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

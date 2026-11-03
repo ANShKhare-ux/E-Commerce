@@ -1,4 +1,48 @@
-import { Variants, Transition } from "framer-motion";
+"use client";
+
+import { useState, useEffect } from "react";
+import { Variants, Transition, useReducedMotion } from "framer-motion";
+
+/**
+ * SSR and hydration-safe hook for prefers-reduced-motion.
+ *
+ * During SSR and the initial client hydration render, this always returns `false`.
+ * This guarantees 100% attribute parity (opacity, transform, inline styles) between
+ * server-rendered HTML and client DOM. After mount, it resolves to the user's actual
+ * reduced motion preference.
+ */
+export function useSafeReducedMotion(): boolean {
+  const [isReduced, setIsReduced] = useState(false);
+  const shouldReduce = useReducedMotion();
+
+  useEffect(() => {
+    if (shouldReduce) {
+      setIsReduced(true);
+      return;
+    }
+
+    if (typeof window === "undefined" || !window.matchMedia) return;
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setIsReduced(mediaQuery.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsReduced(event.matches);
+    };
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    } else if (typeof (mediaQuery as unknown as { addListener: (cb: (e: MediaQueryListEvent) => void) => void }).addListener === "function") {
+      (mediaQuery as unknown as { addListener: (cb: (e: MediaQueryListEvent) => void) => void }).addListener(handleChange);
+      return () => (mediaQuery as unknown as { removeListener: (cb: (e: MediaQueryListEvent) => void) => void }).removeListener(handleChange);
+    }
+  }, [shouldReduce]);
+
+  return isReduced;
+}
+
+export { useSafeReducedMotion as useReducedMotionSafe };
 
 /**
  * Luxury atelier easing curve (smooth cubic bezier deceleration)

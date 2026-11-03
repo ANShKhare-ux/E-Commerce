@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   SlidersHorizontal,
   X,
@@ -10,7 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { accordionVariant, drawerRightVariant, fadeIn } from "@/lib/motion";
+import { accordionVariant, drawerRightVariant, fadeIn, useSafeReducedMotion } from "@/lib/motion";
 
 interface CollectionFiltersProps {
   totalCount: number;
@@ -21,7 +21,7 @@ export function CollectionFilters({ totalCount, children }: CollectionFiltersPro
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
 
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 

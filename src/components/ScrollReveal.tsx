@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { motion, useReducedMotion, Variants } from "framer-motion";
-import { LUXURY_EASE } from "@/lib/motion";
+import { motion, Variants } from "framer-motion";
+import { LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 
 export type ScrollRevealVariant = "fade-up" | "fade-in" | "scale-up" | "slide-left" | "slide-right" | "stagger";
 
@@ -58,25 +58,33 @@ export function ScrollReveal({
   margin = "-50px",
   as = "div",
 }: ScrollRevealProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
 
-  if (shouldReduceMotion) {
-    const Tag = as;
-    return <Tag className={className}>{children}</Tag>;
-  }
+  const MotionComponent = (motion[as as keyof typeof motion] as React.ElementType) || motion.div;
 
-  const MotionComponent = motion[as];
+  const reducedVariant: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0,
+        delay: 0,
+        staggerChildren: 0,
+        delayChildren: 0,
+      },
+    },
+  };
 
   return (
     <MotionComponent
-      initial="hidden"
+      initial={shouldReduceMotion ? false : "hidden"}
       whileInView="visible"
       viewport={{ once: true, margin }}
-      variants={variantsMap[variant]}
+      variants={shouldReduceMotion ? reducedVariant : variantsMap[variant]}
       transition={{
-        duration,
+        duration: shouldReduceMotion ? 0 : duration,
         ease: LUXURY_EASE,
-        delay,
+        delay: shouldReduceMotion ? 0 : delay,
       }}
       className={className}
     >
@@ -124,18 +132,22 @@ export function ScrollRevealItem({
   variant = "fade-up",
   as = "div",
 }: ScrollRevealItemProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
 
-  if (shouldReduceMotion) {
-    const Tag = as;
-    return <Tag className={className}>{children}</Tag>;
-  }
+  const MotionComponent = (motion[as as keyof typeof motion] as React.ElementType) || motion.div;
 
-  const MotionComponent = motion[as];
+  const reducedItemVariant: Variants = {
+    hidden: { opacity: 0, y: 0 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0, delay: 0 },
+    },
+  };
 
   return (
     <MotionComponent
-      variants={itemVariantsMap[variant] || itemVariantsMap["fade-up"]}
+      variants={shouldReduceMotion ? reducedItemVariant : (itemVariantsMap[variant] || itemVariantsMap["fade-up"])}
       className={className}
     >
       {children}

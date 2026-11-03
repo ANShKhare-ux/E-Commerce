@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Product, ProductVariant } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { LUXURY_EASE } from "@/lib/motion";
+import { LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 import {
   X,
   Heart,
@@ -28,7 +28,7 @@ interface QuickViewModalProps {
 }
 
 export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
   const { addItem, setIsOpen } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
@@ -126,7 +126,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
         initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
-        transition={{ duration: 0.28, ease: LUXURY_EASE }}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.28, ease: LUXURY_EASE }}
         className="relative w-full max-w-4xl bg-white border border-canvas-border rounded-sm shadow-2xl overflow-hidden max-h-[90vh] flex flex-col md:flex-row"
         onClick={(e) => e.stopPropagation()}
         role="dialog"

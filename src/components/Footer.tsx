@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Mail,
   CheckCircle2,
@@ -14,11 +14,11 @@ import {
   Lock,
   Sparkles,
 } from "lucide-react";
-import { LUXURY_EASE } from "@/lib/motion";
+import { LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 
 export function Footer() {
   const pathname = usePathname();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -62,7 +62,7 @@ export function Footer() {
       initial={shouldReduceMotion ? false : { opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.65, ease: LUXURY_EASE }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.65, ease: LUXURY_EASE }}
       className="bg-noir-900 text-canvas-light border-t border-noir-800 relative z-20 overflow-hidden"
     >
       {/* Subtle Background Ambience Accent */}

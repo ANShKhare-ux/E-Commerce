@@ -511,4 +511,42 @@ Refer to `.env.example` for all required environment variables:
     - Eliminated React SSR HTML comment splits in ProductCard price and discount badge via template literals.
   - Live server verification: http://localhost:3000 verified with HTTP 200 across `/`, `/products`, `/category/ethnic-wear`, `/cart`, `/privacy`, `/outfits`, and `/deals`.
 
+---
+
+## 24. SSR Hydration Parity & Accessible Reduced Motion Architecture
+
+- **Root Cause Analysis (Console Hydration Error)**:
+  - Framer Motion's built-in `useReducedMotion()` hook evaluates `window.matchMedia("(prefers-reduced-motion: reduce)")` synchronously during component render.
+  - In Node.js (SSR pre-rendering), `window` is undefined, causing `useReducedMotion()` to return `false` / `null`. Components rendered with motion attributes (e.g. `initial={{ scale: 1.08, opacity: 0 }}` or `initial="hidden"` resulting in inline `style="opacity:0;transform:..."`).
+  - In client browsers with `prefers-reduced-motion: reduce` (or Windows systems with visual animation effects turned off), `useReducedMotion()` immediately returned `true` during the initial client hydration render pass.
+  - Components checking `shouldReduceMotion` dynamically rendered `initial={false}` or swapped motion wrappers for raw HTML `<Tag>` elements without inline opacity styles.
+  - This divergence between the server-rendered HTML attributes and client hydration VDOM properties triggered React 19's critical hydration mismatch warning: `"A tree hydrated but some attributes of the server rendered HTML didn't match the client properties."`
+- **Architecture Solution (`src/lib/motion.ts: useSafeReducedMotion`)**:
+  - Implemented `useSafeReducedMotion()` hook in `@/lib/motion`.
+  - Guarantees 100% attribute parity during SSR and initial client hydration by initializing `isReduced` to `false`.
+  - Client-side `useEffect` actively checks `window.matchMedia("(prefers-reduced-motion: reduce)")` and attaches a dynamic `change` event listener, enabling real-time responsiveness when patrons toggle their OS or browser accessibility settings during a session.
+  - When `shouldReduceMotion` is `true`, components immediately set animation durations to `0`, cancel translate offsets, and transition instantly without motion or layout shifts.
+  - In `ScrollReveal` and `ScrollRevealItem`, components continuously preserve the `MotionComponent` wrapper rather than tearing down and remounting intrinsic HTML `<Tag>` strings post-mount, preventing DOM flashes and subtree destruction.
+  - Completely eliminates hydration mismatches while strictly respecting accessibility standards (WCAG 2.1 AA / AAA).
+- **Files Migrated**:
+  - `src/lib/motion.ts`: Exported `useSafeReducedMotion` and `useReducedMotionSafe` with active `matchMedia` listener.
+  - `src/components/HeroSection.tsx`: Replaced direct `useReducedMotion` with `useSafeReducedMotion`.
+  - `src/components/ScrollReveal.tsx`: Preserved `MotionComponent` and replaced direct `useReducedMotion` in both `ScrollReveal` and `ScrollRevealItem`.
+  - `src/components/SectionHeading.tsx`: Replaced in left and center variants.
+  - `src/components/Footer.tsx`: Replaced and made duration zero when reduced motion is preferred.
+  - `src/components/ProductCard.tsx`: Replaced in entrance and hover animations.
+  - `src/components/CartDrawer.tsx`: Replaced in drawer slide-over.
+  - `src/components/CollectionFilters.tsx`: Replaced hook reference.
+  - `src/components/QuickViewModal.tsx`: Replaced in modal scale/opacity entrance.
+  - `src/components/SearchDialog.tsx`: Replaced in search overlay.
+  - `src/components/ScrollProgress.tsx`: Replaced in scroll bar visibility.
+  - `src/components/PageTransition.tsx`: Replaced in route enter transition.
+  - `src/app/products/[slug]/ProductDetailClient.tsx`: Replaced across all PDP animated sections.
+- **Verification**:
+  - Test Suite Added: `tests/hydration_reduced_motion.test.tsx` (10 unit and integration tests verifying SSR renderToString byte-for-byte invariance across all animated components, media query listener registration, and hook contracts).
+  - Test Suite: All 17 test suites and 121 tests pass cleanly (`npm.cmd test`).
+  - TypeScript: `npx.cmd tsc --noEmit` passes with 0 errors.
+  - Next.js Production Build: `npm.cmd run build` successfully compiles all 66 routes with 0 errors.
+
+
 

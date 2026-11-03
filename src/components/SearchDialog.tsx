@@ -4,9 +4,9 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Clock, ArrowRight, Sparkles, Loader2, Tag, ChevronRight } from "lucide-react";
-import { modalDialogVariant, fadeIn, LUXURY_EASE } from "@/lib/motion";
+import { modalDialogVariant, fadeIn, LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 
 interface SearchDialogProps {
   isOpen: boolean;
@@ -54,7 +54,7 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 
 export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialogProps) {
   const router = useRouter();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
   const [query, setQuery] = useState(initialQuery);
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<SuggestionProduct[]>([]);

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Product, ProductVariant } from "@/types";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -11,7 +11,7 @@ import { PincodeChecker } from "@/components/PincodeChecker";
 import { ProductCard } from "@/components/ProductCard";
 import { RecentlyViewed, isValidRecentlyViewedProduct } from "@/components/RecentlyViewed";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { accordionVariant, LUXURY_EASE } from "@/lib/motion";
+import { accordionVariant, LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 import {
   Heart,
   Star,
@@ -36,7 +36,7 @@ interface ProductDetailClientProps {
 }
 
 export function ProductDetailClient({ product, relatedProducts = [] }: ProductDetailClientProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
   const { addItem, setIsOpen } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
@@ -166,7 +166,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
         <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: LUXURY_EASE }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: LUXURY_EASE }}
           className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4"
         >
           {/* Thumbnails */}
@@ -232,7 +232,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
         <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: LUXURY_EASE, delay: 0.08 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: LUXURY_EASE, delay: shouldReduceMotion ? 0 : 0.08 }}
           className="lg:col-span-5 space-y-6"
         >
           <div>
@@ -258,7 +258,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
             <motion.h1
               initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, ease: LUXURY_EASE }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: LUXURY_EASE }}
               className="font-serif text-2xl sm:text-3xl text-noir-900 font-medium leading-snug"
             >
               {product.name}
@@ -287,7 +287,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: LUXURY_EASE, delay: 0.06 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: LUXURY_EASE, delay: shouldReduceMotion ? 0 : 0.06 }}
             className="border-y border-canvas-border py-4 flex items-baseline gap-3"
           >
             <span className="font-sans text-2xl sm:text-3xl font-bold text-noir-900">

@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Product, ProductVariant } from "@/types";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 import { QuickViewModal } from "@/components/QuickViewModal";
-import { LUXURY_EASE } from "@/lib/motion";
+import { LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 import {
   Heart,
   Star,
@@ -29,7 +29,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index = 0, className = "" }: ProductCardProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addItem, setIsOpen } = useCart();
   const wishlisted = isInWishlist(product.id);
@@ -138,7 +138,7 @@ export function ProductCard({ product, index = 0, className = "" }: ProductCardP
         }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{
-          duration: 0.5,
+          duration: shouldReduceMotion ? 0 : 0.5,
           ease: LUXURY_EASE,
           delay: shouldReduceMotion ? 0 : Math.min((index % 4) * 0.07, 0.25),
         }}

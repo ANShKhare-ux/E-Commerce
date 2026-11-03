@@ -4,14 +4,14 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
-import { LUXURY_EASE } from "@/lib/motion";
+import { LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Clock, Truck } from "lucide-react";
 
 export function CartDrawer() {
   const pathname = usePathname();
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal, reservationExpiresAt, totalCount } = useCart();
   const [timeLeft, setTimeLeft] = useState<string>("");
   const [couponInput, setCouponInput] = useState("");
@@ -131,7 +131,7 @@ export function CartDrawer() {
               initial={shouldReduceMotion ? false : { x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ duration: 0.35, ease: LUXURY_EASE }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: LUXURY_EASE }}
               className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-canvas-border pointer-events-auto"
             >
           {/* Header */}

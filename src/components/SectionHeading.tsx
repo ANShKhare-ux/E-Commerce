@@ -2,9 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { LUXURY_EASE } from "@/lib/motion";
+import { LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 
 interface SectionHeadingProps {
   badge?: string;
@@ -31,25 +31,25 @@ export function SectionHeading({
   badgeColorClass = "text-gold-600",
   linkColorClass = "text-noir-700 hover:text-gold-600",
 }: SectionHeadingProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.08,
+        staggerChildren: shouldReduceMotion ? 0 : 0.08,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.55,
+        duration: shouldReduceMotion ? 0 : 0.55,
         ease: LUXURY_EASE,
       },
     },

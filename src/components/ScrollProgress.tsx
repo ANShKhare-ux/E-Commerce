@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion, useScroll, useSpring, useReducedMotion } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
+import { useSafeReducedMotion } from "@/lib/motion";
 
 /**
  * ScrollProgress Component
@@ -10,7 +11,7 @@ import { motion, useScroll, useSpring, useReducedMotion } from "framer-motion";
  */
 export function ScrollProgress() {
   const [mounted, setMounted] = useState(false);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useSafeReducedMotion();
   const { scrollYProgress } = useScroll();
 
   // Smooth luxury spring damping to prevent jagged scroll rendering
