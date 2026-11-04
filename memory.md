@@ -39,6 +39,7 @@
 | **Security & RBAC** | Implemented & Verified | Server-side identity validation against `ADMIN_EMAIL` and Supabase profile roles; client price manipulation blocked; admin route authorization checks enforced on `/api/admin/homepage` and `/api/admin/promotions`. Verified via `tests/security_auth.test.ts`. |
 | **Database Migrations** | Implemented (SQL files present) | `supabase/migrations/001_initial_schema.sql` (27 tables, RLS), `002_seed_data.sql` (categories & collections), and `003_auth_triggers_and_roles.sql` (`handle_new_user()` trigger on `auth.users`, role escalation prevention, wishlist unique constraints). |
 | **Build, SSR & Local Latency Optimization** | Implemented & Verified | Removed `Clear-Site-Data: "cache"` header from `next.config.mjs` that was aggressively clearing the browser disk and memory cache on every local request; tuned `_next/static` cache headers; removed artificial 200ms `mode="wait"` blocking exit delays from `PageTransition.tsx`; added `useReducedMotion()` support; optimized `Header.tsx` by lifting 220-line category taxonomy to top-level module constant; converted sequential homepage database queries to concurrent `Promise.all`; added preconnect hints for Unsplash image CDN in `layout.tsx`; lazy-loaded secondary product card images with targeted GPU-composited CSS transforms; all 64 routes compiled cleanly in Next.js production build with 70/70 Vitest tests passing. |
+| **Next.js & Remotion Bundler Externalization** | Implemented & Verified | Configured `serverExternalPackages: ["remotion", "@remotion/player"]` in `next.config.mjs`. Fixes Next.js Webpack runtime failure where server SSR attempted to split Remotion into `./vendor-chunks/remotion.js` resulting in `Cannot find module './vendor-chunks/remotion.js'` on startup/on-demand compilation. Production and dev builds compile cleanly with zero chunk errors. |
 
 ---
 
@@ -626,8 +627,45 @@ Refer to `.env.example` for all required environment variables:
      - **Search Dialog Elevation (`src/components/SearchDialog.tsx`)**: Elevated search modal with `modalDialogVariant` (320ms enter / 240ms exit), staggered pill and suggestion entrance animations, and active/hover micro-interactions.
      - **Timing Harmonization (`src/lib/motion.ts`)**: Harmonized dropdown and modal durations to 280–320ms with cubic-bezier deceleration curves.
 - **Verification**:
-  - `npm.cmd test`: All 18 test files (144 tests) pass cleanly across all suites.
+  - `npm.cmd test`: All 18 test files (147 tests) pass cleanly across all suites.
   - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
   - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled.
-=======
->>>>>>> 5d5880a65d63bc835c81778754538b9859f7784c
+
+---
+
+## 27. Product Intro Entrance Animation & Zero-FOUC Human Atelier Experience (GSAP & Remotion)
+
+- **Context & Objective**:
+  - Implement a luxury product & atelier entrance animation for visitors entering the LUMIÈRE platform.
+  - Strict Operational Constraints:
+    1. Zero-FOUC (Flash of Unstyled/Underlying Content): The intro MUST be the absolute first thing visible when entering the website; the underlying storefront (header, hero, banners, catalog) must NEVER flash or be visible before the intro begins.
+    2. Zero Replay: The intro must ONLY play on first entry. It must NEVER replay when refreshing the website (F5, browser reload, hard reload) or when navigating between pages within the storefront.
+    3. Human Craftsmanship (Anti-AI Slop): Replace generic Framer Motion opacity/scale transitions with a bespoke, human haute atelier experience built with **GSAP** and **Remotion**.
+- **Root Cause Analysis of Prior Visibility & Aesthetic Issues**:
+  1. *Premature Curtain Deletion & Post-Hydration Flash*: In earlier attempts, `removeStaticCurtain()` was called synchronously on frame 0 of React hydration before the re-render painted the animated overlay. For that frame, the viewport was completely uncovered, exposing the storefront before the React overlay mounted. Furthermore, before GSAP initialized, elements lacked initial hidden styling, causing letters to render at opacity 1 for 40ms before snapping.
+  2. *AI-Generic Slop & Tropes*: The earlier attempt added a fake "CALIBRE MMXXVI • 100% CALIBRATED" ticker with a pulsing `animate-ping` dot, which resembled a generic AI loading template rather than an authentic luxury fashion house.
+- **Architectural Solution & Hardening**:
+  - **Zero-FOUC Immediate Execution Shield (`src/app/layout.tsx` <head>)**:
+    - Synchronous `<script id="lumiere-intro-shield">` in `<head>` executes before First Contentful Paint, checking `sessionStorage`, `localStorage`, and in-memory flags.
+    - Synchronous critical inline `<style id="lumiere-intro-critical-css">` in `<head>` applies `display: none !important; opacity: 0 !important; visibility: hidden !important;` immediately if dismissed, guaranteeing zero FOUC on refresh or return even before external stylesheets load.
+    - Added `suppressHydrationWarning` to `<html lang="en" suppressHydrationWarning>` in `src/app/layout.tsx` to silence React hydration warnings caused by the pre-paint head script modifying `<html>` classes.
+    - `<noscript>` fallback prevents any intro blockage if JavaScript is disabled.
+  - **Frame-0 Luxury Atelier Presentation Curtain (`src/app/layout.tsx` <body>)**:
+    - `#lumiere-intro-curtain` (`fixed inset-0 z-[99998] bg-[#08080a]`) renders in static server HTML with the authentic 24k gold Sovereign Monogram and Didone wordmark. First-time visitors immediately see the luxury brand identity from frame 0—no blank black screens, no storefront flash.
+  - **Human Atelier GSAP & Remotion Choreography (`src/components/IntroEntranceAnimation.tsx`)**:
+    - **Initial State Defensiveness**: All animated elements are styled with inline CSS (`strokeDashoffset: 560`, `opacity: 0`, `filter: blur(6px)`, `scaleX: 0`) in JSX, eliminating any 40ms unstyled flash before GSAP starts.
+    - **Remotion Physical Spring Dynamics**: Uses Remotion's `spring` and `interpolate` with `{ extrapolateRight: "clamp" }` for organic physical spring dampening on the diamond star bloom and Didone typography tracking expansion (`0.32em` to `0.44em`).
+    - **Prologue — Golden Zari Thread Embroidery**: GSAP draws the Sovereign "L" stroke (`strokeDashoffset: 560` -> `0`), fills with 24k gold (`#C59B48`), and the Remotion-spring-damped diamond gemstone materializes with celestial resonance.
+    - **Act 1 — Editorial Typographic Awakening**: Didone wordmark (`L U M I È R E`) awakens character-by-character with staggered optical blur dissolve (`blur(6px)` -> `blur(0px)`).
+    - **Act 2 — Atelier Provenance & Hairline**: An expanding 1px gold hairline extends outward from center, revealing understated provenance (*"Hand-Loomed Chanderi • Bespoke Tailoring • Luxury Curations"*). Pure luxury without fake timers or AI tickers.
+    - **Act 3 — The Parting Silk Curtains & Header Logo Elevation**: Dual noir silk curtains part smoothly offscreen (`xPercent: -102` and `102` with GSAP `power4.inOut`), seamlessly revealing the live storefront while the sovereign emblem elevates toward `#main-brand-logo`.
+  - **Defensive Storage & Lifecycle Guards**:
+    - Immediate multi-storage synchronization (`safeMarkIntroCompleted()`) on initial mount protects against rapid repeated refreshes (Ctrl+F5) or instant tab reloads.
+    - Route transition interceptor dismisses intro cleanly within 350ms if navigation occurs mid-prologue.
+    - Escape key and discrete Skip button provide accessible immediate bypass.
+    - Strict respect for `prefers-reduced-motion: reduce`.
+- **Verification**:
+  - `npm.cmd test`: All 18 test files (152 tests) pass cleanly across all suites.
+  - `npx.cmd tsc --noEmit`: 0 TypeScript errors.
+  - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled.
+

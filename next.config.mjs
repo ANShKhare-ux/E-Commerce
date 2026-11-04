@@ -19,6 +19,7 @@ const nextConfig = {
       },
     ],
   },
+  serverExternalPackages: ["remotion", "@remotion/player"],
   experimental: {
     optimizePackageImports: [
       "lucide-react",

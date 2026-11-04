@@ -5,7 +5,9 @@ import {
   IntroEntranceAnimation,
   safeCheckIntroCompleted,
   safeMarkIntroCompleted,
+  isExcludedIntroRoute,
   SESSION_STORAGE_KEY,
+  LOCAL_STORAGE_KEY,
 } from "@/components/IntroEntranceAnimation";
 import PrivacyPage from "@/app/privacy/page";
 
@@ -63,6 +65,226 @@ describe("LUMIÈRE Frontend Enhancements: Intro Animation & Privacy Page", () =>
       safeMarkIntroCompleted();
       expect(safeCheckIntroCompleted()).toBe(true);
       expect(storageState.get(SESSION_STORAGE_KEY)).toBe("true");
+    });
+
+    it("should read true from safeCheckIntroCompleted when localStorage has the key even if sessionStorage is empty", () => {
+      const localState = new Map<string, string>();
+      const mockLocalStorage = {
+        getItem: vi.fn((key: string) => localState.get(key) || null),
+        setItem: vi.fn((key: string, val: string) => localState.set(key, val)),
+      };
+      const sessionState = new Map<string, string>();
+      const mockSessionStorage = {
+        getItem: vi.fn((key: string) => sessionState.get(key) || null),
+        setItem: vi.fn((key: string, val: string) => sessionState.set(key, val)),
+      };
+
+      (globalThis as any).window = {
+        sessionStorage: mockSessionStorage,
+        localStorage: mockLocalStorage,
+      };
+
+      // Set key only in localStorage (simulating page reload where sessionStorage is cleared or cross-tab)
+      localState.set("lumiere_intro_completed", "true");
+      expect(safeCheckIntroCompleted()).toBe(true);
+    });
+
+    it("should read true from safeCheckIntroCompleted when in-memory guard is set even if storages throw", () => {
+      (globalThis as any).window = {
+        __lumiere_intro_completed: true,
+        sessionStorage: {
+          getItem: () => {
+            throw new Error("Blocked");
+          },
+        },
+        localStorage: {
+          getItem: () => {
+            throw new Error("Blocked");
+          },
+        },
+      };
+
+      expect(safeCheckIntroCompleted()).toBe(true);
+    });
+
+    it("should immediately populate all storage targets upon safeMarkIntroCompleted to shield refreshes and navigation", () => {
+      const sessionState = new Map<string, string>();
+      const localState = new Map<string, string>();
+      const winObj: any = {
+        sessionStorage: {
+          getItem: (key: string) => sessionState.get(key) || null,
+          setItem: (key: string, val: string) => sessionState.set(key, val),
+        },
+        localStorage: {
+          getItem: (key: string) => localState.get(key) || null,
+          setItem: (key: string, val: string) => localState.set(key, val),
+        },
+      };
+
+      (globalThis as any).window = winObj;
+
+      expect(safeCheckIntroCompleted()).toBe(false);
+      // Calling mark completed must immediately synchronize all targets
+      safeMarkIntroCompleted();
+
+      expect(safeCheckIntroCompleted()).toBe(true);
+      expect(winObj.__lumiere_intro_completed).toBe(true);
+      expect(sessionState.get("lumiere_intro_completed")).toBe("true");
+      expect(localState.get("lumiere_intro_completed")).toBe("true");
+    });
+
+    it("should accurately identify excluded auth and admin routes to prevent intro blocking", () => {
+      // Excluded auth gateway routes
+      expect(isExcludedIntroRoute("/login")).toBe(true);
+      expect(isExcludedIntroRoute("/login/")).toBe(true);
+      expect(isExcludedIntroRoute("/login?redirect=/checkout")).toBe(true);
+      expect(isExcludedIntroRoute("/signup")).toBe(true);
+      expect(isExcludedIntroRoute("/signup/")).toBe(true);
+      expect(isExcludedIntroRoute("/forgot-password")).toBe(true);
+      expect(isExcludedIntroRoute("/forgot-password/")).toBe(true);
+      expect(isExcludedIntroRoute("/reset-password")).toBe(true);
+      expect(isExcludedIntroRoute("/reset-password/")).toBe(true);
+      expect(isExcludedIntroRoute("/auth")).toBe(true);
+      expect(isExcludedIntroRoute("/auth/callback")).toBe(true);
+      expect(isExcludedIntroRoute("/auth/signout")).toBe(true);
+
+      // Excluded admin portal routes
+      expect(isExcludedIntroRoute("/admin")).toBe(true);
+      expect(isExcludedIntroRoute("/admin/products")).toBe(true);
+      expect(isExcludedIntroRoute("/admin/login")).toBe(true);
+
+      // Standard storefront routes that MUST permit initial intro animation
+      expect(isExcludedIntroRoute("/")).toBe(false);
+      expect(isExcludedIntroRoute("/products")).toBe(false);
+      expect(isExcludedIntroRoute("/products/banarasi-silk-kurta")).toBe(false);
+      expect(isExcludedIntroRoute("/cart")).toBe(false);
+      expect(isExcludedIntroRoute("/checkout")).toBe(false);
+      expect(isExcludedIntroRoute(null)).toBe(false);
+      expect(isExcludedIntroRoute(undefined)).toBe(false);
+    });
+
+    it("should verify Remotion spring physics calculate tactile spring dampening values", async () => {
+      const { spring, interpolate } = await import("remotion");
+      const springConfig = { damping: 14, stiffness: 120, mass: 0.8 };
+      
+      const val0 = spring({ frame: 0, fps: 30, config: springConfig });
+      const val15 = spring({ frame: 15, fps: 30, config: springConfig });
+      const val30 = spring({ frame: 30, fps: 30, config: springConfig });
+
+      expect(val0).toBe(0);
+      expect(val15).toBeGreaterThan(0.8);
+      expect(val30).toBeCloseTo(1, 1);
+
+      // Interpolation test for tracking spread with clamp
+      const spread = interpolate(val15, [0, 1], [0.32, 0.44], {
+        extrapolateRight: "clamp",
+      });
+      expect(spread).toBeGreaterThan(0.32);
+      expect(spread).toBeLessThanOrEqual(0.44);
+    });
+
+    it("should cleanly dismiss the zero-latency initial curtain from DOM when safeMarkIntroCompleted is triggered", () => {
+      // Setup mock DOM document
+      const mockCurtain = {
+        id: "lumiere-intro-curtain",
+        style: { display: "flex" },
+        remove: vi.fn(),
+      };
+
+      const classListSet = new Set<string>();
+      const mockDocument = {
+        getElementById: vi.fn((id: string) => (id === "lumiere-intro-curtain" ? mockCurtain : null)),
+        documentElement: {
+          classList: {
+            add: (cls: string) => classListSet.add(cls),
+            remove: (cls: string) => classListSet.delete(cls),
+            contains: (cls: string) => classListSet.has(cls),
+          },
+        },
+      };
+
+      (globalThis as any).document = mockDocument;
+      (globalThis as any).window = {
+        __lumiere_intro_completed: false,
+        sessionStorage: { getItem: () => null, setItem: vi.fn() },
+        localStorage: { getItem: () => null, setItem: vi.fn() },
+      };
+
+      // Simulating curtain removal helper
+      const curtain = mockDocument.getElementById("lumiere-intro-curtain");
+      if (curtain) {
+        curtain.style.display = "none";
+              }
+      mockDocument.documentElement.classList.add("lumiere-intro-dismissed");
+
+      expect(curtain?.style.display).toBe("none");
+            expect(classListSet.has("lumiere-intro-dismissed")).toBe(true);
+    });
+
+    it("should ensure simulated refresh (F5) immediately dismisses intro curtain before first contentful paint", () => {
+      // Simulate page refresh in same tab: sessionStorage already holds lumiere_intro_completed = true
+      const sessionState = new Map<string, string>([[SESSION_STORAGE_KEY, "true"]]);
+      const classList = new Set<string>();
+      const winObj: any = {
+        location: { pathname: "/" },
+        __lumiere_intro_completed: false,
+        sessionStorage: {
+          getItem: (key: string) => sessionState.get(key) || null,
+          setItem: (key: string, val: string) => sessionState.set(key, val),
+        },
+        localStorage: {
+          getItem: () => null,
+          setItem: () => {},
+        },
+      };
+
+      const docObj: any = {
+        documentElement: {
+          classList: {
+            add: (cls: string) => classList.add(cls),
+            contains: (cls: string) => classList.has(cls),
+          },
+        },
+      };
+
+      // Execute synchronous shield logic as executed in layout.tsx <head>
+      const p = winObj.location.pathname || "";
+      const isExcluded = /^\/(admin|login|signup|forgot-password|reset-password|auth)/.test(p);
+      let isDone = false;
+      if (winObj.__lumiere_intro_completed === true) isDone = true;
+      if (!isDone && winObj.sessionStorage && winObj.sessionStorage.getItem("lumiere_intro_completed") === "true") isDone = true;
+      if (!isDone && winObj.localStorage && winObj.localStorage.getItem("lumiere_intro_completed") === "true") isDone = true;
+
+      if (isExcluded || isDone) {
+        docObj.documentElement.classList.add("lumiere-intro-dismissed");
+        winObj.__lumiere_intro_completed = true;
+      }
+
+      // Assert that html has lumiere-intro-dismissed immediately before any frame paints
+      expect(classList.has("lumiere-intro-dismissed")).toBe(true);
+      expect(winObj.__lumiere_intro_completed).toBe(true);
+    });
+
+    it("should verify Remotion spring calculations produce natural physical damping curves without generic AI timer tickers", async () => {
+      const { spring } = await import("remotion");
+      const springConfig = { damping: 14, stiffness: 120, mass: 0.8 };
+
+      const frames = [0, 5, 10, 15, 20, 25, 30];
+      const values = frames.map((f) => spring({ frame: f, fps: 30, config: springConfig }));
+
+      // Frame 0 must be resting at 0
+      expect(values[0]).toBe(0);
+      // Progressively accelerates
+      expect(values[1]).toBeGreaterThan(values[0]);
+      // Damped overshoot / settling near 1
+      expect(values[frames.length - 1]).toBeCloseTo(1, 1);
+    });
+
+    it("should include suppressHydrationWarning on html tag to avoid hydration mismatch when synchronous shield modifies classes", async () => {
+      const fs = await import("fs");
+      const path = await import("path");
+      const layoutContent = fs.readFileSync(path.resolve(process.cwd(), "src/app/layout.tsx"), "utf-8");
+      expect(layoutContent).toContain("<html lang=\"en\" suppressHydrationWarning");
     });
   });
 

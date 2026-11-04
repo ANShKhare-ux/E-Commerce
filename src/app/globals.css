@@ -154,3 +154,19 @@ html {
   }
 }
 
+/* =============================================================================
+   LUMIÈRE ZERO-FOUC INTRO DISPLAY CONTROLLER
+   ============================================================================= */
+html.lumiere-intro-dismissed #lumiere-intro-curtain,
+html.lumiere-intro-dismissed #lumiere-intro-overlay {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+html:not(.lumiere-intro-dismissed) #lumiere-intro-curtain {
+  display: flex;
+}
+
+
