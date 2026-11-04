@@ -585,6 +585,7 @@ Refer to `.env.example` for all required environment variables:
   - `npm.cmd test`: All 18 test suites (139 tests) pass cleanly.
   - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
   - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled.
+<<<<<<< HEAD
 
 ---
 
@@ -628,3 +629,5 @@ Refer to `.env.example` for all required environment variables:
   - `npm.cmd test`: All 18 test files (144 tests) pass cleanly across all suites.
   - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
   - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled.
+=======
+>>>>>>> 5d5880a65d63bc835c81778754538b9859f7784c
