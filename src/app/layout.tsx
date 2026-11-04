@@ -6,7 +6,6 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
-import { WelcomeAnnouncementModal } from "@/components/WelcomeAnnouncementModal";
 import { PageTransition } from "@/components/PageTransition";
 import { IntroEntranceAnimation } from "@/components/IntroEntranceAnimation";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -105,7 +104,6 @@ export default function RootLayout({
               <PageTransition>{children}</PageTransition>
             </main>
             <CartDrawer />
-            <WelcomeAnnouncementModal />
             <Footer />
           </WishlistProvider>
         </CartProvider>

@@ -295,8 +295,16 @@ export function Header() {
     return configuredAdmins.includes(email.trim().toLowerCase());
   };
 
+  const isAuthRoute =
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
+  const isSuppressedRoute = Boolean(pathname?.startsWith("/admin") || isAuthRoute);
+
   // Listen to Supabase session state
   useEffect(() => {
+    if (isSuppressedRoute) return;
     let isMounted = true;
     const supabase = createClient();
 
@@ -372,12 +380,13 @@ export function Header() {
       isMounted = false;
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [isSuppressedRoute]);
 
   const megaMenuContainerRef = useRef<HTMLDivElement>(null);
 
   // Click outside listener for profile flyout & mega menu
   useEffect(() => {
+    if (isSuppressedRoute) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (
         profileContainerRef.current &&
@@ -394,7 +403,7 @@ export function Header() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isSuppressedRoute]);
 
   const handleSignOut = async () => {
     try {
@@ -412,6 +421,7 @@ export function Header() {
 
   // Keyboard shortcut '/' to open search dialog and Escape to close menus
   useEffect(() => {
+    if (isSuppressedRoute) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setActiveMegaMenu(null);
@@ -427,9 +437,9 @@ export function Header() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [isSuppressedRoute]);
 
-  if (pathname?.startsWith("/admin")) {
+  if (isSuppressedRoute) {
     return null;
   }
 

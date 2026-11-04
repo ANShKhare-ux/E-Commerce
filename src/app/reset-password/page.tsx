@@ -26,18 +26,47 @@ export default function ResetPasswordPage() {
   const [hasValidSession, setHasValidSession] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+    const supabase = createClient();
+
     const checkSession = async () => {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setHasValidSession(true);
-      } else {
-        setErrorMsg("Your password reset link is invalid, expired, or has already been used.");
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        if (session) {
+          setHasValidSession(true);
+          setErrorMsg("");
+        } else {
+          setHasValidSession(false);
+        }
+      } catch {
+        if (isMounted) {
+          setHasValidSession(false);
+        }
+      } finally {
+        if (isMounted) {
+          setSessionChecking(false);
+        }
       }
-      setSessionChecking(false);
     };
 
     checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!isMounted) return;
+        if (event === "PASSWORD_RECOVERY" || session) {
+          setHasValidSession(true);
+          setErrorMsg("");
+          setSessionChecking(false);
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const handleReset = async (e: React.FormEvent) => {
@@ -72,8 +101,9 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push("/account");
       }, 2500);
-    } catch (err: any) {
-      setErrorMsg(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }

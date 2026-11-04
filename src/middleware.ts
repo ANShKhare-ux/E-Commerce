@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSafeRedirectUrl } from "@/lib/auth/redirect";
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -27,8 +28,7 @@ export async function middleware(request: NextRequest) {
   if (!isSupabaseConfigured) {
     // If accessing admin without active configuration, redirect to admin login
     if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/admin/login";
+      const loginUrl = new URL("/admin/login", request.nextUrl.origin);
       return NextResponse.redirect(loginUrl);
     }
     return supabaseResponse;
@@ -56,16 +56,15 @@ export async function middleware(request: NextRequest) {
   if (!hasAuthCookie) {
     // 1. Unauthenticated attempt to access protected admin routes -> redirect immediately (0ms network cost)
     if (isProtectedAdmin) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/admin/login";
+      const loginUrl = new URL("/admin/login", request.nextUrl.origin);
       return NextResponse.redirect(loginUrl);
     }
 
     // 2. Unauthenticated attempt to access customer account -> redirect to login immediately (0ms network cost)
     if (isProtectedAccount) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/login";
-      loginUrl.searchParams.set("redirect", pathname);
+      const fullPath = pathname + request.nextUrl.search;
+      const loginUrl = new URL("/login", request.nextUrl.origin);
+      loginUrl.searchParams.set("redirect", fullPath);
       return NextResponse.redirect(loginUrl);
     }
 
@@ -105,35 +104,41 @@ export async function middleware(request: NextRequest) {
   // 1. Protected Admin Control Room Routes (/admin/*)
   if (isProtectedAdmin) {
     if (!user) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/admin/login";
-      return NextResponse.redirect(loginUrl);
+      const loginUrl = new URL("/admin/login", request.nextUrl.origin);
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value);
+      });
+      return redirectResponse;
     }
   }
 
   // 2. Protected Customer Account Routes (/account/*)
   if (isProtectedAccount) {
     if (!user) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/login";
-      loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
+      const fullPath = pathname + request.nextUrl.search;
+      const loginUrl = new URL("/login", request.nextUrl.origin);
+      loginUrl.searchParams.set("redirect", fullPath);
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value);
+      });
+      return redirectResponse;
     }
   }
 
   // 3. Guest-Only Authentication Pages (/login, /signup)
   if (user && isGuestAuthPage) {
-    const redirectParam = request.nextUrl.searchParams.get("redirect");
-    const targetUrl = request.nextUrl.clone();
-    targetUrl.search = "";
-
-    // Validate safe relative redirect
-    if (redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")) {
-      targetUrl.pathname = redirectParam;
-    } else {
-      targetUrl.pathname = "/account";
-    }
-    return NextResponse.redirect(targetUrl);
+    const rawRedirect =
+      request.nextUrl.searchParams.get("redirect") ||
+      request.nextUrl.searchParams.get("next");
+    const safeDestination = getSafeRedirectUrl(rawRedirect, "/account");
+    const targetUrl = new URL(safeDestination, request.nextUrl.origin);
+    const redirectResponse = NextResponse.redirect(targetUrl);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value);
+    });
+    return redirectResponse;
   }
 
   return supabaseResponse;

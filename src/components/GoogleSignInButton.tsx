@@ -2,6 +2,11 @@
 
 import React, { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+// Canonical import and re-export of getSafeRedirectUrl for backward compatibility with auth callers.
+// All imports are maintained at the top of the file to prevent duplicate declaration parse errors.
+import { getSafeRedirectUrl } from "@/lib/auth/redirect";
+
+export { getSafeRedirectUrl };
 
 export function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -41,10 +46,6 @@ export interface GoogleSignInButtonProps {
   text?: string;
   supabaseClient?: any;
 }
-
-import { getSafeRedirectUrl } from "@/lib/auth/redirect";
-
-export { getSafeRedirectUrl };
 
 export async function triggerGoogleOAuth(
   supabase: any,

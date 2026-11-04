@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useMemo } from "react";
+import React, { useState, useEffect, Suspense, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Check,
   X,
+  Key,
 } from "lucide-react";
 import { getSafeRedirectUrl } from "@/lib/auth/redirect";
 
@@ -81,6 +82,12 @@ function SignupForm() {
   const rawRedirect = searchParams.get("redirect") || searchParams.get("next") || "/account";
   const redirectUrl = getSafeRedirectUrl(rawRedirect);
   const urlError = searchParams.get("error_description") || searchParams.get("error");
+  const isSupabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder-project") &&
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) &&
+    !(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)?.includes("placeholder")
+  );
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -93,6 +100,29 @@ function SignupForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(urlError || "");
   const [registeredSuccess, setRegisteredSuccess] = useState(false);
+
+  // Sync url error changes
+  useEffect(() => {
+    if (urlError) setErrorMsg(urlError);
+  }, [urlError]);
+
+  // If already authenticated on client, seamlessly forward to destination
+  useEffect(() => {
+    let isMounted = true;
+    try {
+      const supabase = createClient();
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (isMounted && session?.user) {
+          router.replace(redirectUrl);
+        }
+      });
+    } catch {
+      // non-blocking
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [redirectUrl, router]);
 
   // Field touched state for real-time validation
   const [touched, setTouched] = useState({
@@ -170,6 +200,13 @@ function SignupForm() {
 
     if (!agreedToTerms) {
       setErrorMsg("Please accept the Terms of Service and Privacy Policy to proceed.");
+      return;
+    }
+
+    if (!isSupabaseConfigured) {
+      setErrorMsg(
+        "Supabase authentication is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local to enable live registration."
+      );
       return;
     }
 
@@ -269,6 +306,19 @@ function SignupForm() {
           Join LUMIÈRE for curated Indian luxury, concierge fulfillment, and private drops.
         </p>
       </div>
+
+      {/* Supabase Connection Notice if keys not set */}
+      {!isSupabaseConfigured && (
+        <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-sm text-xs text-amber-800 space-y-1">
+          <div className="flex items-center gap-1.5 font-semibold text-amber-900">
+            <Key className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>Development Mode: Supabase Connection Pending</span>
+          </div>
+          <p className="text-[11px] text-amber-700 leading-relaxed font-light">
+            Live registration requires your <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> in <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">.env.local</code>.
+          </p>
+        </div>
+      )}
 
       {/* Global Error Alert */}
       {errorMsg && (

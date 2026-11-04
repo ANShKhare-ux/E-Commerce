@@ -283,13 +283,9 @@ Refer to `.env.example` for all required environment variables:
   - Sticky price breakdown (MRP, discounts, Delhivery courier fee, 12% GST inclusive) and direct "Proceed to Checkout" action to `/checkout`.
   - Drawer integration: `CartDrawer` suppresses on `/cart` and provides "View Full Bag" navigation link.
 
-- **Announcement Bar Elimination & Welcome Modal**:
+- **Announcement Bar & Promotional Pop-Up Modal Elimination**:
   - Top fixed announcement bar completely removed from the header so the navbar sticks directly flush to `top-0`.
-  - Replaced by `WelcomeAnnouncementModal` (`src/components/WelcomeAnnouncementModal.tsx`), mounted in `layout.tsx`.
-  - **Intelligent Frequency & Navigation Guard**:
-    * Displays strictly **once** when a user first enters the website (`localStorage` + `sessionStorage` guard).
-    * Guaranteed **never to show** when navigating to the main page (`/`) from within the website itself (via internal session flag `lumiere_session_active` and `document.referrer` origin validation).
-    * Features 1-click coupon code copy (`FIRSTBUY` for ₹300 off), complimentary Delhivery express shipping notification, and direct collection discovery CTA (layered at `z-[9999]`).
+  - The promotional offer pop-up modal (`WelcomeAnnouncementModal.tsx` / `FIRSTBUY`) was completely removed from the codebase and from `src/app/layout.tsx` per store owner request, providing an unobstructed browsing experience.
 
 ---
 
@@ -331,7 +327,7 @@ Refer to `.env.example` for all required environment variables:
   - Lifted 220-line category taxonomy tree in `Header.tsx` to `NAV_CATEGORIES` module constant.
   - Added `preconnect` link to `https://images.unsplash.com` in `layout.tsx` for fast TLS/TCP negotiation.
   - Configured `loading="lazy"` on secondary product hover images and switched card transitions to targeted GPU-composited CSS transforms (`transition-[opacity,transform] duration-500`).
-  - Added single-run guard on `WelcomeAnnouncementModal.tsx` local storage key cleanup.
+  - Completely excised promotional offer pop-up modal (`WelcomeAnnouncementModal.tsx`) from the component tree.
 
 
 ---
@@ -548,5 +544,44 @@ Refer to `.env.example` for all required environment variables:
   - TypeScript: `npx.cmd tsc --noEmit` passes with 0 errors.
   - Next.js Production Build: `npm.cmd run build` successfully compiles all 66 routes with 0 errors.
 
+---
 
+## 20. Customer Auth Frontend Loading & Layout Shielding Architecture
 
+- **Context & Diagnosis**:
+  - Patrons and developers observed frontend loading issues on authentication pages (`/login`, `/signup`, `/forgot-password`, `/reset-password`).
+  - **Issue 1 (Webpack Runtime Crash)**: In `next.config.mjs`, `framer-motion` was listed under `experimental.optimizePackageImports`. In Next.js 15, `framer-motion` is not an isolated barrel package; its SWC transform corrupted client module chunk loading, producing `TypeError: __webpack_modules__[moduleId] is not a function` during dev server page rendering.
+  - **Issue 2 (Middleware Redirect Loops & Loss of Session Cookies)**: In `src/middleware.ts`, guest-only auth page redirects used a naive startsWith("/") check that triggered infinite redirect loops if `redirect=/login` or `redirect=/signup`. Redirects also instantiated new responses without preserving session cookies updated during token refresh.
+  - **Issue 3 (Intro Splash & Modal Blocking)**: Direct visitors to `/login` or `/signup` had their screen obstructed by a 2-second full-screen dark splash intro (`IntroEntranceAnimation`) which attempted to calculate offsets to a non-existent logo.
+  - **Issue 4 (Layout Clutter on Standalone Auth Portals)**: All auth pages were implemented with standalone atelier cards (`min-h-screen bg-canvas-subtle flex flex-col items-center justify-center p-4`) with their own brand header and "Return to Storefront" navigation. However, storefront `Header.tsx`, `Footer.tsx`, `ScrollProgress.tsx`, and `CartDrawer.tsx` were previously only suppressed for `/admin`, causing duplicate headers, off-screen scrolling, and layout clutter.
+  - **Issue 5 (Search Parameter & Recovery Event Handling)**: In-flight error and message search parameters were not synced to component state if parameters changed post-mount, and `ResetPasswordPage` lacked an active `onAuthStateChange` listener to handle `PASSWORD_RECOVERY` events.
+- **Architectural Solution & Hardening**:
+  1. *Webpack Optimization Hardening*: Pruned `experimental.optimizePackageImports` in `next.config.mjs` to keep only verified barrel packages (`lucide-react`).
+  2. *Middleware Redirect Shielding & Search Preservation*: Imported `getSafeRedirectUrl` in `src/middleware.ts` to strictly sanitize redirect destinations back to `/account` if an auth loop is attempted. Preserved all refreshed session cookies across redirects, and packaged full `pathname + search` cleanly into `?redirect=` to prevent leaking parameters onto `/login`.
+  3. *Password Recovery Restoration & Path Defense*: Corrected `getSafeRedirectUrl` in `src/lib/auth/redirect.ts`. The legitimate destination for email password recovery callbacks (`/reset-password`) is preserved and allowed, preventing the callback route from redirecting password reset patrons to `/account`. Fixed loop defense to parse path components, catching `/login/`, `/login#`, and nested auth paths.
+  4. *ScrollProgress & Intro Reactivity*: Converted `ScrollProgress` and `IntroEntranceAnimation` to reactive `usePathname()` hooks, fixing route transition bugs where the progress bar remained visible on auth routes or failed to appear after returning to the storefront.
+  5. *Header Background Effect Suppression*: Suppressed `Header.tsx` session checks, Supabase database queries, and document keyboard listeners (`/` key search shortcut) on auth routes, saving client resources and preventing focus theft.
+  6. *Unconfigured Supabase Safe Mode*: Guarded form submissions on `/login`, `/signup`, `/forgot-password`, and `/admin/login` against unconfigured Supabase keys, providing instant and actionable developer feedback instead of triggering hanging network requests to placeholder domains.
+  7. *Reverse Proxy Host Consistency*: Standardized `/auth/signout` to respect `x-forwarded-host` in production, matching `/auth/callback`.
+- **Verification**:
+  - Test Suite Added: `tests/auth_pages.test.tsx` (18 unit tests verifying layout shielding, redirect validation, and component suppression).
+  - All 18 Vitest test suites (139 tests) pass cleanly (`npm.cmd test`).
+  - TypeScript type-checking (`npx.cmd tsc --noEmit`) passes with 0 errors.
+  - Production build (`npm.cmd run build`) passes cleanly with all 66 static and dynamic routes compiled.
+
+---
+
+## 25. Promotional Offer Pop-Up Removal & Canonical Auth Redirect Architecture
+
+- **Context & Objectives**:
+  - The store owner requested complete removal of the promotional welcome/offer modal ("EXCLUSIVE MEMBER PRIVILEGE / Welcome to LUMIÈRE / FIRSTBUY / Save ₹300 on your first purchase above ₹1,499").
+  - A recurring build error was encountered across feature branches: `Module parse failed: Identifier 'getSafeRedirectUrl' has already been declared (52:9)` inside `src/components/GoogleSignInButton.tsx`.
+- **Root Cause & Permanent Resolution**:
+  - **Duplicate Declaration Root Cause**: In `origin/main` commit `764d021`, `import { getSafeRedirectUrl } from "@/lib/auth/redirect";` and its re-export were positioned in the middle of `src/components/GoogleSignInButton.tsx` (around line 46, after `GoogleSignInButtonProps`). Whenever automated refactoring, auto-import formatting, or code modifications imported `getSafeRedirectUrl` at the top of the file without deleting the mid-file duplicate, Webpack/Babel failed during parsing with a duplicate declaration error.
+  - **Permanent Fix**: Cleanly hoisted the canonical import and export to the module header alongside other top-level imports in `src/components/GoogleSignInButton.tsx`, eliminating any mid-file or appended duplicate statements.
+  - **Redirect Sanitizer Hardening**: Configured `getSafeRedirectUrl` in `src/lib/auth/redirect.ts` to parse pathname components cleanly, blocking loops to `/login`, `/signup`, `/forgot-password`, and `/auth/*` while preserving `/reset-password` for password recovery token exchanges.
+  - **Promotional Modal Deletion**: Permanently excised `src/components/WelcomeAnnouncementModal.tsx` and removed all invocations and imports from `src/app/layout.tsx`.
+- **Verification**:
+  - `npm.cmd test`: All 18 test suites (139 tests) pass cleanly.
+  - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
+  - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled.

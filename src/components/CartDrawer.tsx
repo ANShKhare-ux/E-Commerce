@@ -104,7 +104,15 @@ export function CartDrawer() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, setIsOpen]);
 
-  if (pathname?.startsWith("/admin") || pathname === "/cart") return null;
+  const isExcluded =
+    pathname?.startsWith("/admin") ||
+    pathname === "/cart" ||
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
+
+  if (isExcluded) return null;
 
   return (
     <AnimatePresence>

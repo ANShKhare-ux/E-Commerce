@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { useSafeReducedMotion } from "@/lib/motion";
 
@@ -10,6 +11,7 @@ import { useSafeReducedMotion } from "@/lib/motion";
  * Positioned above the sticky navigation bar without obstructing interaction.
  */
 export function ScrollProgress() {
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const shouldReduceMotion = useSafeReducedMotion();
   const { scrollYProgress } = useScroll();
@@ -25,7 +27,14 @@ export function ScrollProgress() {
     setMounted(true);
   }, []);
 
-  if (!mounted || shouldReduceMotion) {
+  const isExcluded =
+    pathname?.startsWith("/admin") ||
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
+
+  if (!mounted || shouldReduceMotion || isExcluded) {
     return null;
   }
 

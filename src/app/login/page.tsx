@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
-import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle, CheckCircle2, Key } from "lucide-react";
 import { getSafeRedirectUrl } from "@/lib/auth/redirect";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
@@ -18,6 +18,13 @@ function LoginForm() {
   const urlError = searchParams.get("error_description") || searchParams.get("error");
   const urlMessage = searchParams.get("message");
 
+  const isSupabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder-project") &&
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) &&
+    !(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)?.includes("placeholder")
+  );
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +32,33 @@ function LoginForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(urlError || "");
   const [successMsg, setSuccessMsg] = useState(urlMessage || "");
+
+  // Sync incoming URL errors or success notices
+  useEffect(() => {
+    if (urlError) setErrorMsg(urlError);
+  }, [urlError]);
+
+  useEffect(() => {
+    if (urlMessage) setSuccessMsg(urlMessage);
+  }, [urlMessage]);
+
+  // If already authenticated on client, seamlessly forward to destination
+  useEffect(() => {
+    let isMounted = true;
+    try {
+      const supabase = createClient();
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (isMounted && session?.user) {
+          router.replace(redirectUrl);
+        }
+      });
+    } catch {
+      // non-blocking
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [redirectUrl, router]);
 
   // Field-level touched & validation state for real-time validation
   const [touched, setTouched] = useState({ email: false, password: false });
@@ -69,6 +103,14 @@ function LoginForm() {
     if (loading || googleLoading) return;
     setErrorMsg("");
     setSuccessMsg("");
+
+    if (!isSupabaseConfigured) {
+      setErrorMsg(
+        "Supabase authentication is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local to enable live sign-in."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -115,6 +157,19 @@ function LoginForm() {
           Access your wardrobe dashboard, order tracking, and private drops.
         </p>
       </div>
+
+      {/* Supabase Connection Notice if keys not set */}
+      {!isSupabaseConfigured && (
+        <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-sm text-xs text-amber-800 space-y-1">
+          <div className="flex items-center gap-1.5 font-semibold text-amber-900">
+            <Key className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>Development Mode: Supabase Connection Pending</span>
+          </div>
+          <p className="text-[11px] text-amber-700 leading-relaxed font-light">
+            Live authentication requires your <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> in <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">.env.local</code>.
+          </p>
+        </div>
+      )}
 
       {/* Global Alerts */}
       {errorMsg && (
