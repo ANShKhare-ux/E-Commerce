@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 
 export default async function AdminDashboardPage() {
-  const orders = await db.orders.getAll();
-  const lowStock = await db.inventory.getLowStock();
-  const queue = await db.affiliate.getQueue();
+  const [orders, lowStock, queue] = await Promise.all([
+    db.orders.getAll(),
+    db.inventory.getLowStock(),
+    db.affiliate.getQueue(),
+  ]);
   const pendingAffiliates = queue.filter((i) => i.review_status === "pending");
 
   const totalRevenue = orders.reduce((sum, o) => sum + (o.payment_status === "captured" ? o.total_amount : 0), 0);

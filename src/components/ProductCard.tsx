@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,7 +28,7 @@ interface ProductCardProps {
   className?: string;
 }
 
-export function ProductCard({ product, index = 0, className = "" }: ProductCardProps) {
+export const ProductCard = React.memo(function ProductCard({ product, index = 0, className = "" }: ProductCardProps) {
   const shouldReduceMotion = useSafeReducedMotion();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { addItem, setIsOpen } = useCart();
@@ -42,7 +42,7 @@ export function ProductCard({ product, index = 0, className = "" }: ProductCardP
   const [isWishlistBouncing, setIsWishlistBouncing] = useState(false);
 
   // Variant and Image selection
-  const variants = product.variants || [];
+  const variants = useMemo(() => product.variants || [], [product.variants]);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(variants[0]);
   const primaryImage = product.images?.find((img) => img.is_primary) || product.images?.[0];
   const [activeImage, setActiveImage] = useState<string>(primaryImage?.url || "");
@@ -50,82 +50,109 @@ export function ProductCard({ product, index = 0, className = "" }: ProductCardP
     product.images?.find((img) => !img.is_primary && img.url !== activeImage) ||
     (activeImage !== primaryImage?.url ? primaryImage : undefined);
 
+  // Synchronize internal state when product prop updates
+  useEffect(() => {
+    setSelectedVariant(product.variants?.[0]);
+    const prim = product.images?.find((img) => img.is_primary) || product.images?.[0];
+    setActiveImage(prim?.url || "");
+  }, [product.id, product.variants, product.images]);
+
   // Prices and Discounts
-  const currentPrice = selectedVariant?.price ?? (product.discount_price ?? product.base_price);
-  const originalPrice = selectedVariant?.compare_at_price ?? (product.discount_price ? product.base_price : undefined);
-  const discountPercent = originalPrice
-    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
-    : 0;
+  const currentPrice = useMemo(
+    () => selectedVariant?.price ?? (product.discount_price ?? product.base_price),
+    [selectedVariant?.price, product.discount_price, product.base_price]
+  );
+  const originalPrice = useMemo(
+    () => selectedVariant?.compare_at_price ?? (product.discount_price ? product.base_price : undefined),
+    [selectedVariant?.compare_at_price, product.discount_price, product.base_price]
+  );
+  const discountPercent = useMemo(
+    () => (originalPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0),
+    [originalPrice, currentPrice]
+  );
 
   // Stock calculation
-  const totalStock = variants.reduce((acc, v) => {
-    return acc + (v.inventory?.available_stock ?? 10);
-  }, 0);
+  const totalStock = useMemo(
+    () => variants.reduce((acc, v) => acc + (v.inventory?.available_stock ?? 10), 0),
+    [variants]
+  );
 
   const isLowStock = !product.is_affiliate && totalStock > 0 && totalStock <= 4;
   const isAllOutOfStock = !product.is_affiliate && variants.length > 0 && totalStock <= 0;
 
   // Unique colors
-  const uniqueColors = Array.from(new Set(variants.map((v) => v.color).filter(Boolean)));
+  const uniqueColors = useMemo(
+    () => Array.from(new Set(variants.map((v) => v.color).filter(Boolean))),
+    [variants]
+  );
 
-  const handleColorSelect = (colorName: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const matched = variants.find((v) => v.color === colorName);
-    if (matched) {
-      setSelectedVariant(matched);
-      const variantImg =
-        matched.image_url ||
-        product.images?.find(
-          (img) =>
-            img.color?.toLowerCase() === colorName.toLowerCase() ||
-            img.alt_text?.toLowerCase().includes(colorName.toLowerCase())
-        )?.url;
-      if (variantImg) {
-        setActiveImage(variantImg);
+  const handleColorSelect = useCallback(
+    (colorName: string, e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const matched = variants.find((v) => v.color === colorName);
+      if (matched) {
+        setSelectedVariant(matched);
+        const variantImg =
+          matched.image_url ||
+          product.images?.find(
+            (img) =>
+              img.color?.toLowerCase() === colorName.toLowerCase() ||
+              img.alt_text?.toLowerCase().includes(colorName.toLowerCase())
+          )?.url;
+        if (variantImg) {
+          setActiveImage(variantImg);
+        }
       }
-    }
-  };
+    },
+    [variants, product.images]
+  );
 
-  const handleToggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsWishlistBouncing(true);
-    toggleWishlist(product);
-    setTimeout(() => setIsWishlistBouncing(false), 450);
-  };
+  const handleToggleWishlist = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsWishlistBouncing(true);
+      toggleWishlist(product);
+      setTimeout(() => setIsWishlistBouncing(false), 450);
+    },
+    [toggleWishlist, product]
+  );
 
-  const handleQuickAddSize = async (variant: ProductVariant, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleQuickAddSize = useCallback(
+    async (variant: ProductVariant, e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    const stock = variant.inventory?.available_stock ?? 10;
-    if (stock <= 0) return;
+      const stock = variant.inventory?.available_stock ?? 10;
+      if (stock <= 0) return;
 
-    setAddingVariantId(variant.id);
-    const res = await addItem({
-      variant_id: variant.id,
-      product_id: product.id,
-      product_name: product.name,
-      product_slug: product.slug,
-      product_image: activeImage || primaryImage?.url || "",
-      sku: variant.sku,
-      color: variant.color,
-      size: variant.size,
-      unit_price: variant.price,
-      quantity: 1,
-    });
+      setAddingVariantId(variant.id);
+      const res = await addItem({
+        variant_id: variant.id,
+        product_id: product.id,
+        product_name: product.name,
+        product_slug: product.slug,
+        product_image: activeImage || primaryImage?.url || "",
+        sku: variant.sku,
+        color: variant.color,
+        size: variant.size,
+        unit_price: variant.price,
+        quantity: 1,
+      });
 
-    setAddingVariantId(null);
-    if (res.success) {
-      setAddedVariantId(variant.id);
-      setTimeout(() => {
-        setAddedVariantId(null);
-        setIsOpen(true);
-        setQuickAddOpen(false);
-      }, 400);
-    }
-  };
+      setAddingVariantId(null);
+      if (res.success) {
+        setAddedVariantId(variant.id);
+        setTimeout(() => {
+          setAddedVariantId(null);
+          setIsOpen(true);
+          setQuickAddOpen(false);
+        }, 400);
+      }
+    },
+    [addItem, setIsOpen, product, activeImage, primaryImage?.url]
+  );
 
   return (
     <>
@@ -156,7 +183,7 @@ export function ProductCard({ product, index = 0, className = "" }: ProductCardP
               src={activeImage || primaryImage?.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"}
               alt={product.name}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className={`object-cover object-center transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 secondaryImage && secondaryImage.url !== activeImage
                   ? "group-hover:opacity-0 group-hover:scale-105"
@@ -171,7 +198,7 @@ export function ProductCard({ product, index = 0, className = "" }: ProductCardP
                 alt={`${product.name} alternate view`}
                 fill
                 loading="lazy"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover object-center absolute inset-0 opacity-0 group-hover:opacity-100 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
               />
             )}
@@ -438,6 +465,6 @@ export function ProductCard({ product, index = 0, className = "" }: ProductCardP
       </AnimatePresence>
     </>
   );
-}
+});
 
 export default ProductCard;

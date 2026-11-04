@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
@@ -46,6 +46,17 @@ interface NavCategory {
     image: string;
     href: string;
   };
+}
+
+// Module-level admin checker to prevent re-instantiating on every render
+function checkIsAdmin(email?: string, role?: string) {
+  if (role === "admin" || role === "super_admin") return true;
+  if (!email) return false;
+  const configuredAdmins = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return configuredAdmins.includes(email.trim().toLowerCase());
 }
 
 // Navigation data aligned with website taxonomy (module-level constant to prevent re-allocating on every render):
@@ -260,7 +271,7 @@ const NAV_CATEGORIES: NavCategory[] = [
     },
   ];
 
-export function Header() {
+export const Header = React.memo(function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { totalCount } = useCart();
@@ -284,17 +295,6 @@ export function Header() {
     role?: string;
     isAdmin?: boolean;
   } | null>(null);
-
-  // Check admin status against configured ADMIN_EMAIL or database role
-  const checkIsAdmin = (email?: string, role?: string) => {
-    if (role === "admin" || role === "super_admin") return true;
-    if (!email) return false;
-    const configuredAdmins = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "")
-      .split(",")
-      .map((e) => e.trim().toLowerCase())
-      .filter(Boolean);
-    return configuredAdmins.includes(email.trim().toLowerCase());
-  };
 
   const isAuthRoute =
     pathname === "/login" ||
@@ -406,7 +406,7 @@ export function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isSuppressedRoute]);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     try {
       const supabase = createClient();
       await supabase.auth.signOut();
@@ -418,7 +418,7 @@ export function Header() {
       setProfileDropdownOpen(false);
       router.push("/");
     }
-  };
+  }, [router]);
 
   // Keyboard shortcut '/' to open search dialog and Escape to close menus
   useEffect(() => {
@@ -440,45 +440,51 @@ export function Header() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSuppressedRoute]);
 
-  if (isSuppressedRoute) {
-    return null;
-  }
-
   // Hover handlers with micro-debouncing to prevent flickering
-  const handleNavMouseEnter = (catId: string) => {
+  const handleNavMouseEnter = useCallback((catId: string) => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     setActiveMegaMenu(catId);
-  };
+  }, []);
 
-  const handleNavMouseLeave = () => {
+  const handleNavMouseLeave = useCallback(() => {
     hoverTimeoutRef.current = setTimeout(() => {
       setActiveMegaMenu(null);
     }, 200);
-  };
+  }, []);
 
-  const handleProfileMouseEnter = () => {
+  const handleProfileMouseEnter = useCallback(() => {
     if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
     setProfileDropdownOpen(true);
-  };
+  }, []);
 
-  const handleProfileMouseLeave = () => {
+  const handleProfileMouseLeave = useCallback(() => {
     profileTimeoutRef.current = setTimeout(() => {
       setProfileDropdownOpen(false);
     }, 250);
-  };
+  }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setSearchDialogOpen(false);
-      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      setSearchDialogOpen(true);
-    }
-  };
+  const handleSearchSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        setSearchDialogOpen(false);
+        router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      } else {
+        setSearchDialogOpen(true);
+      }
+    },
+    [searchQuery, router]
+  );
 
   const categories = NAV_CATEGORIES;
-  const currentMegaMenu = NAV_CATEGORIES.find((cat) => cat.id === activeMegaMenu);
+  const currentMegaMenu = useMemo(
+    () => NAV_CATEGORIES.find((cat) => cat.id === activeMegaMenu),
+    [activeMegaMenu]
+  );
+
+  if (isSuppressedRoute) {
+    return null;
+  }
 
   return (
     <>
@@ -892,6 +898,7 @@ export function Header() {
                       src={currentMegaMenu.featuredCampaign.image}
                       alt={currentMegaMenu.featuredCampaign.title}
                       fill
+                      loading="lazy"
                       sizes="400px"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
                     />
@@ -1073,4 +1080,4 @@ export function Header() {
       )}
     </>
   );
-}
+});

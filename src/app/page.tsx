@@ -129,6 +129,7 @@ export default async function HomePage() {
                     src={tile.image}
                     alt={tile.title}
                     fill
+                    loading="lazy"
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
                     className="object-cover object-center group-hover:scale-108 transition-transform duration-700 opacity-80"
                   />
@@ -193,6 +194,7 @@ export default async function HomePage() {
                   src={camp.image_url}
                   alt={camp.title}
                   fill
+                  loading="lazy"
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-65"
                 />
@@ -303,6 +305,7 @@ export default async function HomePage() {
                           src={outfit.hero_image}
                           alt={outfit.title}
                           fill
+                          loading="lazy"
                           sizes="(max-width: 768px) 100vw, 33vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-700"
                         />
@@ -417,6 +420,7 @@ export default async function HomePage() {
               src="https://images.unsplash.com/photo-1597983073493-88cd35cf93b0?auto=format&fit=crop&w=800&q=80"
               alt="LUMIÈRE Master Artisan Handloom"
               fill
+              loading="lazy"
               sizes="(max-width: 1024px) 100vw, 40vw"
               className="object-cover group-hover:scale-105 transition-transform duration-700"
             />

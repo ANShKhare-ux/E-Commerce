@@ -24,8 +24,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/admin/login");
   }
 
-  const lowStock = await db.inventory.getLowStock();
-  const queue = await db.affiliate.getQueue();
+  const [lowStock, queue] = await Promise.all([
+    db.inventory.getLowStock(),
+    db.affiliate.getQueue(),
+  ]);
   const pendingAffiliates = queue.filter((i) => i.review_status === "pending");
 
   return (

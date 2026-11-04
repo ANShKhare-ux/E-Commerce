@@ -668,4 +668,45 @@ Refer to `.env.example` for all required environment variables:
   - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
   - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled.
 
+---
+
+## 28. Comprehensive Performance Optimization Architecture
+
+- **Context & Objective**:
+  - Optimize storefront and administrative performance across compiler settings, database query concurrency, hot client component memoization, media asset delivery, and session middleware latency.
+  - Maintain 100% functionality of all business logic (3-pool inventory accounting, Delhivery PIN checks, PhonePe payment verification, Supabase SSR auth, two-stage return inspection, coupon validation).
+- **Architecture & Optimizations Implemented**:
+  1. **Next.js & Webpack Compiler Optimizations (`next.config.mjs`)**:
+     - Configured `experimental.optimizePackageImports` for `framer-motion` and `lucide-react` to minimize bundle chunk sizes.
+     - Silenced Webpack 5 `PackFileCacheStrategy` big string serialization performance warnings via `config.infrastructureLogging = { level: "error" }`.
+     - Injected long-term immutable caching headers (`public, max-age=31536000, immutable`) for `/_next/static/:path*` and `/brand/:path*`.
+     - Fixed media caching path pattern with escaped dot `/:path*\\.(svg|png|jpg|jpeg|webp|avif|ico|webmanifest)` to prevent false-positive matches on pages or slugs ending in extension names (e.g., `/mexico`, `/category/calico`).
+  2. **Database Query Concurrency & Allocation Optimization**:
+     - Optimized `db.products.getAll` in `src/lib/db/index.ts`: implemented single-pass combined predicate filtering with normalized parameters outside the loop (eliminating up to 10 intermediate array allocations and repeated string conversions).
+     - Swapped `new Date()` object instantiation in quicksort with `Date.parse()` for allocation-free sorting.
+     - Deferred variant cloning and inventory mapping until after filtering, sorting, and slicing by `limit`.
+     - Added `limit: 5` to PDP related products fetch (`src/app/products/[slug]/page.tsx`) to avoid querying all items in the category.
+     - Replaced sequential async query waterfalls with parallel `Promise.all()` across critical routes (`src/app/category/[slug]/page.tsx`, `src/app/admin/layout.tsx`, `src/app/admin/page.tsx`, `src/app/admin/inventory/page.tsx`, `src/app/admin/audit-logs/page.tsx`, `src/app/account/page.tsx`).
+  3. **Hot Client Component & Context Memoization**:
+     - `src/context/WishlistContext.tsx`: wrapped `toggleWishlist` and `isInWishlist` in `useCallback` and memoized provider `contextValue` with `useMemo`.
+     - `src/context/CartContext.tsx`: wrapped `addItem`, `removeItem`, `updateQuantity`, `clearCart` in `useCallback`, memoized `totalCount` and `subtotal`, and memoized provider `contextValue` with `useMemo`. This stops tree-wide cascade re-renders of all `ProductCard` and navigation components on cart/wishlist state changes.
+     - `src/components/ProductCard.tsx`: wrapped in `React.memo`; wrapped price calculations, discount percentages, total stock, and unique color lists in `useMemo`; wrapped `handleColorSelect`, `handleToggleWishlist`, and `handleQuickAddSize` in `useCallback`; added synchronization effect for `selectedVariant` and `activeImage` when `product` prop changes.
+     - `src/components/CartDrawer.tsx`: wrapped in `React.memo`; wrapped subtotal, free shipping progress, discount calculations in `useMemo`; wrapped `validateCoupon` and `removeCoupon` in `useCallback`; fixed 1-second countdown interval to ONLY execute when drawer is actively open; cleared applied coupon when subtotal reaches zero.
+     - `src/components/Header.tsx`: wrapped in `React.memo`; extracted `checkIsAdmin` outside component scope; wrapped `handleSignOut`, hover handlers, search submission in `useCallback`; memoized active mega menu selection with `useMemo`; added `loading="lazy"` to mega menu campaign banners.
+     - `src/app/products/[slug]/ProductDetailClient.tsx`: wrapped in `React.memo`; memoized variants, stock checks, pricing, and discount calculations; wrapped `handleAddToCart`, `handleToggleWishlist`, and `toggleAccordion` in `useCallback`; throttled magnifier coordinate updates using `requestAnimationFrame` and added unmount cleanup; synchronized variant selection on `product` prop changes.
+     - `src/components/CollectionFilters.tsx`: wrapped `toggleSection`, `updateFilter`, and `clearAllFilters` in `useCallback`.
+     - `src/components/SearchDialog.tsx`: wrapped `SearchDialog` and inner `HighlightMatch` in `React.memo`.
+  4. **Asset & Image Delivery**:
+     - Fixed `sizes` on `ProductCard` from `(max-width: 640px) 100vw` to `(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw`, eliminating mobile bandwidth waste on 2-column grids.
+     - Added explicit `loading="lazy"` to below-the-fold elements in `src/app/page.tsx` (category tiles, campaigns, outfit cards, artisanal weaving story) and `src/app/outfits/page.tsx`.
+     - Added `sizes="100vw"` on `src/app/about/page.tsx` hero image.
+  5. **Middleware & Auth Latency (`src/middleware.ts`)**:
+     - Fast-pathed public storefront requests (`/`, `/products`, `/category/*`, `/cart`, etc.) to return `NextResponse.next()` immediately without allocating `new Headers(request.headers)` or setting redundant admin headers.
+     - Expanded `config.matcher` regex to exclude `robots.txt`, `sitemap.xml`, `brand/`, and `.avif` assets from invoking middleware at the edge layer.
+     - Maintained instant 0ms redirects for unauthenticated access to protected `/admin` and `/account` routes via fast-path auth cookie checks.
+- **Verification**:
+  - `npm.cmd test`: All 18 test files (155 tests) pass cleanly across all suites.
+  - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
+  - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled in 8.1s with zero warnings.
+
 

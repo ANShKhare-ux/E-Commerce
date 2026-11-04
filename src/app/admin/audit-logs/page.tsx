@@ -5,9 +5,11 @@ import { ClipboardList, Clock, Mail, CheckCircle2, AlertCircle } from "lucide-re
 export const dynamic = "force-dynamic";
 
 export default async function AdminAuditLogsPage() {
-  const auditLogs = await db.audit.getLogs();
-  const jobs = await db.audit.getJobs();
-  const emails = await db.audit.getEmailOutbox();
+  const [auditLogs, jobs, emails] = await Promise.all([
+    db.audit.getLogs(),
+    db.audit.getJobs(),
+    db.audit.getEmailOutbox(),
+  ]);
 
   return (
     <div className="space-y-8">

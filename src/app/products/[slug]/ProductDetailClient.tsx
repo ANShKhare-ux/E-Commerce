@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,13 +35,16 @@ interface ProductDetailClientProps {
   relatedProducts?: Product[];
 }
 
-export function ProductDetailClient({ product, relatedProducts = [] }: ProductDetailClientProps) {
+export const ProductDetailClient = React.memo(function ProductDetailClient({
+  product,
+  relatedProducts = [],
+}: ProductDetailClientProps) {
   const shouldReduceMotion = useSafeReducedMotion();
   const { addItem, setIsOpen } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   // Active selections
-  const variants = product.variants || [];
+  const variants = useMemo(() => product.variants || [], [product.variants]);
   const [selectedImage, setSelectedImage] = useState(
     product.images?.find((img) => img.is_primary)?.url || product.images?.[0]?.url || ""
   );
@@ -59,14 +62,24 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
   const [activeAccordion, setActiveAccordion] = useState<string | null>("fabric");
 
   const wishlisted = isInWishlist(product.id);
-  const availableStock = selectedVariant?.inventory?.available_stock ?? 10;
+  const availableStock = useMemo(
+    () => selectedVariant?.inventory?.available_stock ?? 10,
+    [selectedVariant]
+  );
   const isOutOfStock = availableStock <= 0;
 
-  const currentPrice = selectedVariant?.price ?? product.base_price;
-  const originalPrice = selectedVariant?.compare_at_price;
-  const discountPercent = originalPrice
-    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
-    : 0;
+  const currentPrice = useMemo(
+    () => selectedVariant?.price ?? product.base_price,
+    [selectedVariant?.price, product.base_price]
+  );
+  const originalPrice = useMemo(
+    () => selectedVariant?.compare_at_price,
+    [selectedVariant?.compare_at_price]
+  );
+  const discountPercent = useMemo(
+    () => (originalPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0),
+    [originalPrice, currentPrice]
+  );
 
   // Persist to recently viewed in localStorage on mount
   useEffect(() => {
@@ -88,64 +101,88 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
     }
   }, [product]);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isZoomed) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMousePos({ x, y });
-  };
+  // Synchronize internal state when product prop updates
+  useEffect(() => {
+    setSelectedVariant(product.variants?.[0]);
+    const prim = product.images?.find((img) => img.is_primary)?.url || product.images?.[0]?.url || "";
+    setSelectedImage(prim);
+  }, [product.id, product.variants, product.images]);
 
-  const handleToggleWishlist = () => {
+  // Clean up any pending animation frame on unmount
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  const rafRef = useRef<number | null>(null);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!isZoomed) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        setMousePos({ x, y });
+      });
+    },
+    [isZoomed]
+  );
+
+  const handleToggleWishlist = useCallback(() => {
     setIsWishlistBouncing(true);
     toggleWishlist(product);
     setTimeout(() => setIsWishlistBouncing(false), 450);
-  };
+  }, [toggleWishlist, product]);
 
-  const handleAddToCart = async (goToCheckout = false) => {
-    setAddError(null);
-    if (!selectedVariant) {
-      setAddError("Please select a size.");
-      return;
-    }
-
-    if (isOutOfStock) {
-      setAddError("Selected size is currently out of stock.");
-      return;
-    }
-
-    setIsAdding(true);
-    const result = await addItem({
-      variant_id: selectedVariant.id,
-      product_id: product.id,
-      product_name: product.name,
-      product_slug: product.slug,
-      product_image: selectedImage,
-      sku: selectedVariant.sku,
-      color: selectedVariant.color,
-      size: selectedVariant.size,
-      unit_price: selectedVariant.price,
-      quantity,
-    });
-
-    setIsAdding(false);
-
-    if (!result.success) {
-      setAddError(result.error || "Failed to add to cart.");
-    } else {
-      setAddSuccess(true);
-      setTimeout(() => setAddSuccess(false), 1800);
-      if (goToCheckout) {
-        window.location.href = "/checkout";
-      } else {
-        setIsOpen(true);
+  const handleAddToCart = useCallback(
+    async (goToCheckout = false) => {
+      setAddError(null);
+      if (!selectedVariant) {
+        setAddError("Please select a size.");
+        return;
       }
-    }
-  };
 
-  const toggleAccordion = (key: string) => {
-    setActiveAccordion(activeAccordion === key ? null : key);
-  };
+      if (isOutOfStock) {
+        setAddError("Selected size is currently out of stock.");
+        return;
+      }
+
+      setIsAdding(true);
+      const result = await addItem({
+        variant_id: selectedVariant.id,
+        product_id: product.id,
+        product_name: product.name,
+        product_slug: product.slug,
+        product_image: selectedImage,
+        sku: selectedVariant.sku,
+        color: selectedVariant.color,
+        size: selectedVariant.size,
+        unit_price: selectedVariant.price,
+        quantity,
+      });
+
+      setIsAdding(false);
+
+      if (!result.success) {
+        setAddError(result.error || "Failed to add to cart.");
+      } else {
+        setAddSuccess(true);
+        setTimeout(() => setAddSuccess(false), 1800);
+        if (goToCheckout) {
+          window.location.href = "/checkout";
+        } else {
+          setIsOpen(true);
+        }
+      }
+    },
+    [selectedVariant, isOutOfStock, addItem, product, selectedImage, quantity, setIsOpen]
+  );
+
+  const toggleAccordion = useCallback((key: string) => {
+    setActiveAccordion((prev) => (prev === key ? null : key));
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-28 sm:pb-16 space-y-16">
@@ -783,6 +820,6 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
       )}
     </div>
   );
-}
+});
 
 export default ProductDetailClient;

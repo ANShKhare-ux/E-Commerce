@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import { CartItem } from "@/types";
 
 interface CartContextType {
@@ -57,90 +57,110 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items]);
 
-  const addItem = async (newItem: CartItem): Promise<{ success: boolean; error?: string }> => {
-    try {
-      // 1. Attempt atomic reservation with backend
-      const res = await fetch("/api/inventory/reserve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          variantId: newItem.variant_id,
-          quantity: newItem.quantity,
-        }),
-      });
+  const addItem = useCallback(
+    async (newItem: CartItem): Promise<{ success: boolean; error?: string }> => {
+      try {
+        // 1. Attempt atomic reservation with backend
+        const res = await fetch("/api/inventory/reserve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            variantId: newItem.variant_id,
+            quantity: newItem.quantity,
+          }),
+        });
 
-      const data = await res.json();
-      if (!res.ok) {
-        return { success: false, error: data.error || "Item is currently out of stock." };
+        const data = await res.json();
+        if (!res.ok) {
+          return { success: false, error: data.error || "Item is currently out of stock." };
+        }
+
+        setReservationId(data.reservationId);
+        setReservationExpiresAt(data.expiresAt);
+
+        // 2. Add or update item in cart
+        setItems((prev) => {
+          const existingIndex = prev.findIndex((i) => i.variant_id === newItem.variant_id);
+          if (existingIndex > -1) {
+            const updated = [...prev];
+            updated[existingIndex] = {
+              ...updated[existingIndex],
+              quantity: updated[existingIndex].quantity + newItem.quantity,
+            };
+            return updated;
+          }
+          return [...prev, newItem];
+        });
+
+        setIsOpen(true);
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, error: "Network error checking variant availability." };
+      }
+    },
+    [sessionId]
+  );
+
+  const removeItem = useCallback((variantId: string) => {
+    setItems((prev) => prev.filter((i) => i.variant_id !== variantId));
+  }, []);
+
+  const updateQuantity = useCallback(
+    async (variantId: string, quantity: number): Promise<{ success: boolean; error?: string }> => {
+      if (quantity <= 0) {
+        setItems((prev) => prev.filter((i) => i.variant_id !== variantId));
+        return { success: true };
       }
 
-      setReservationId(data.reservationId);
-      setReservationExpiresAt(data.expiresAt);
-
-      // 2. Add or update item in cart
-      setItems(prev => {
-        const existingIndex = prev.findIndex(i => i.variant_id === newItem.variant_id);
-        if (existingIndex > -1) {
-          const updated = [...prev];
-          updated[existingIndex] = {
-            ...updated[existingIndex],
-            quantity: updated[existingIndex].quantity + newItem.quantity,
-          };
-          return updated;
-        }
-        return [...prev, newItem];
-      });
-
-      setIsOpen(true);
+      setItems((prev) =>
+        prev.map((item) => (item.variant_id === variantId ? { ...item, quantity } : item))
+      );
       return { success: true };
-    } catch (err: any) {
-      return { success: false, error: "Network error checking variant availability." };
-    }
-  };
+    },
+    []
+  );
 
-  const removeItem = (variantId: string) => {
-    setItems(prev => prev.filter(i => i.variant_id !== variantId));
-  };
-
-  const updateQuantity = async (variantId: string, quantity: number): Promise<{ success: boolean; error?: string }> => {
-    if (quantity <= 0) {
-      removeItem(variantId);
-      return { success: true };
-    }
-
-    setItems(prev =>
-      prev.map(item => (item.variant_id === variantId ? { ...item, quantity } : item))
-    );
-    return { success: true };
-  };
-
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setItems([]);
     if (typeof window !== "undefined") {
       localStorage.removeItem("lumiere_cart");
     }
-  };
+  }, []);
 
-  const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+  const totalCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
+  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0), [items]);
+
+  const contextValue = useMemo<CartContextType>(
+    () => ({
+      items,
+      isOpen,
+      setIsOpen,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart,
+      totalCount,
+      subtotal,
+      reservationId,
+      reservationExpiresAt,
+    }),
+    [
+      items,
+      isOpen,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart,
+      totalCount,
+      subtotal,
+      reservationId,
+      reservationExpiresAt,
+    ]
+  );
 
   return (
-    <CartContext.Provider
-      value={{
-        items,
-        isOpen,
-        setIsOpen,
-        addItem,
-        removeItem,
-        updateQuantity,
-        clearCart,
-        totalCount,
-        subtotal,
-        reservationId,
-        reservationExpiresAt,
-      }}
-    >
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );

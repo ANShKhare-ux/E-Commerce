@@ -22,6 +22,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: [
       "lucide-react",
+      "framer-motion",
     ],
   },
   async headers() {
@@ -75,19 +76,33 @@ const nextConfig = {
           },
         ],
       },
-      ...(process.env.NODE_ENV === "production"
-        ? [
-            {
-              source: "/_next/static/:path*",
-              headers: [
-                {
-                  key: "Cache-Control",
-                  value: "public, max-age=31536000, immutable",
-                },
-              ],
-            },
-          ]
-        : []),
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/brand/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/:path*\\.(svg|png|jpg|jpeg|webp|avif|ico|webmanifest)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
       {
         source: "/api/:path*",
         headers: [
@@ -98,6 +113,14 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  webpack(config) {
+    // Silence big string serialization cache warnings from PackFileCacheStrategy
+    config.infrastructureLogging = {
+      ...config.infrastructureLogging,
+      level: "error",
+    };
+    return config;
   },
   async redirects() {
     return [

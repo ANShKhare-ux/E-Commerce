@@ -66,10 +66,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const isGenderSlug = slug === "mens-clothing" || slug === "womens-clothing" || slug === "unisex";
   const genderFilter = slug === "mens-clothing" ? "men" : slug === "womens-clothing" ? "women" : slug === "unisex" ? "unisex" : undefined;
 
-  let products = await db.products.getAll({ category: slug });
-  if (products.length === 0 && isGenderSlug && genderFilter) {
-    products = await db.products.getAll({ gender: genderFilter });
-  }
+  const [categoryProducts, genderProducts] = await Promise.all([
+    db.products.getAll({ category: slug }),
+    isGenderSlug && genderFilter ? db.products.getAll({ gender: genderFilter }) : Promise.resolve([]),
+  ]);
+  const products = categoryProducts.length > 0 ? categoryProducts : genderProducts;
 
   return (
     <div className="space-y-12 pb-16">

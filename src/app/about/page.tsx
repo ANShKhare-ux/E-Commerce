@@ -14,6 +14,7 @@ export default function AboutPage() {
           alt="Artisan loom in Chanderi"
           fill
           priority
+          sizes="100vw"
           className="object-cover opacity-40"
         />
         <div className="relative z-10 max-w-2xl text-white space-y-3">

@@ -4,15 +4,21 @@ import { getSafeRedirectUrl } from "@/lib/auth/redirect";
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-pathname", pathname);
-  requestHeaders.set("x-admin-route", pathname === "/admin/login" ? "login" : "dashboard");
 
-  let supabaseResponse = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  // Determine route classes upfront
+  const isAdmin = pathname.startsWith("/admin");
+  const isProtectedAdmin = isAdmin && pathname !== "/admin/login";
+  const isProtectedAccount = pathname.startsWith("/account");
+  const isGuestAuthPage = pathname === "/login" || pathname === "/signup";
+  const requiresAuthCheck = isProtectedAdmin || isProtectedAccount || isGuestAuthPage;
+
+  // Prepare minimal admin request headers only when navigating administrative control rooms
+  let requestHeaders: Headers | undefined;
+  if (isAdmin) {
+    requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-pathname", pathname);
+    requestHeaders.set("x-admin-route", pathname === "/admin/login" ? "login" : "dashboard");
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey =
@@ -26,24 +32,21 @@ export async function middleware(request: NextRequest) {
     !supabaseUrl.includes("placeholder-project");
 
   if (!isSupabaseConfigured) {
-    // If accessing admin without active configuration, redirect to admin login
-    if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    if (isProtectedAdmin) {
       const loginUrl = new URL("/admin/login", request.nextUrl.origin);
       return NextResponse.redirect(loginUrl);
     }
-    return supabaseResponse;
+    return requestHeaders
+      ? NextResponse.next({ request: { headers: requestHeaders } })
+      : NextResponse.next();
   }
 
-  // Determine if this route requires authentication checks or redirects
-  const isProtectedAdmin = pathname.startsWith("/admin") && pathname !== "/admin/login";
-  const isProtectedAccount = pathname.startsWith("/account");
-  const isGuestAuthPage = pathname === "/login" || pathname === "/signup";
-  const requiresAuthCheck = isProtectedAdmin || isProtectedAccount || isGuestAuthPage;
-
-  // For all public storefront routes (/, /products, /category/*, /cart, /checkout, /about, etc.),
-  // bypass remote Supabase network roundtrips completely for both guests and authenticated users.
+  // 1. FAST-PATH: For all public storefront routes (/, /products, /category/*, /cart, /checkout, /about, etc.),
+  // bypass remote Supabase network roundtrips completely for both guests and authenticated shoppers in near-0ms.
   if (!requiresAuthCheck) {
-    return supabaseResponse;
+    return requestHeaders
+      ? NextResponse.next({ request: { headers: requestHeaders } })
+      : NextResponse.next();
   }
 
   // Check if any Supabase authentication cookies are present in the request
@@ -52,7 +55,7 @@ export async function middleware(request: NextRequest) {
     (c) => c.name.startsWith("sb-") || c.name.includes("auth-token")
   );
 
-  // If no auth cookie exists, the user is guaranteed to be unauthenticated (guest)
+  // If no auth cookie exists, user is guaranteed to be unauthenticated (guest)
   if (!hasAuthCookie) {
     // 1. Unauthenticated attempt to access protected admin routes -> redirect immediately (0ms network cost)
     if (isProtectedAdmin) {
@@ -69,8 +72,13 @@ export async function middleware(request: NextRequest) {
     }
 
     // 3. For guest authentication pages (/login, /signup), allow immediate continuation
-    return supabaseResponse;
+    return NextResponse.next();
   }
+
+  // Initialize response wrapper for setting refreshed cookies
+  let supabaseResponse = requestHeaders
+    ? NextResponse.next({ request: { headers: requestHeaders } })
+    : NextResponse.next();
 
   // Auth cookie is present on a protected or guest-auth route: verify and refresh session
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
@@ -80,11 +88,9 @@ export async function middleware(request: NextRequest) {
       },
       setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        supabaseResponse = NextResponse.next({
-          request: {
-            headers: requestHeaders,
-          },
-        });
+        supabaseResponse = requestHeaders
+          ? NextResponse.next({ request: { headers: requestHeaders } })
+          : NextResponse.next();
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, options)
         );
@@ -146,6 +152,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|site\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?|ttf|eot|ico|css|js)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|site\\.webmanifest|robots\\.txt|sitemap\\.xml|brand/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|woff2?|ttf|eot|ico|css|js)$).*)",
   ],
 };

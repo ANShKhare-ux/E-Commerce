@@ -51,6 +51,8 @@ export default async function OutfitsPage() {
                       src={outfit.hero_image}
                       alt={outfit.title}
                       fill
+                      loading={index === 0 ? "eager" : "lazy"}
+                      priority={index === 0}
                       sizes="(max-width: 1024px) 100vw, 40vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />

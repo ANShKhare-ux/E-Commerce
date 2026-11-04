@@ -58,22 +58,23 @@ export default async function AccountPage() {
       );
     }
 
-    // Authenticated user exists: fetch profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, email, full_name, phone, role")
-      .eq("id", user.id)
-      .single();
+    // Authenticated user exists: fetch profile, addresses, and orders in parallel
+    const [profileRes, addressesRes, orders] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, email, full_name, phone, role")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("addresses")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("is_default", { ascending: false }),
+      db.orders.getAll({ customerEmail: user.email }),
+    ]);
 
-    // Fetch addresses
-    const { data: addresses } = await supabase
-      .from("addresses")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("is_default", { ascending: false });
-
-    // Fetch customer orders
-    const orders = await db.orders.getAll({ customerEmail: user.email });
+    const profile = profileRes.data;
+    const addresses = addressesRes.data;
 
     return (
       <AccountClient

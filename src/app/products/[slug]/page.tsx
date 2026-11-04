@@ -49,7 +49,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const primaryImage = product.images?.find((img) => img.is_primary)?.url || product.images?.[0]?.url;
   const inStock = product.variants?.some((v) => (v.inventory?.available_stock ?? 0) > 0) ?? false;
 
-  const related = (await db.products.getAll({ category: product.category_slug }))
+  const related = (await db.products.getAll({ category: product.category_slug, limit: 5 }))
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
 

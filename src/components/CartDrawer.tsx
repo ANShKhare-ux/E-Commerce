@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -9,7 +9,7 @@ import { useCart } from "@/context/CartContext";
 import { LUXURY_EASE, useSafeReducedMotion } from "@/lib/motion";
 import { X, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Clock, Truck } from "lucide-react";
 
-export function CartDrawer() {
+export const CartDrawer = React.memo(function CartDrawer() {
   const pathname = usePathname();
   const shouldReduceMotion = useSafeReducedMotion();
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal, reservationExpiresAt, totalCount } = useCart();
@@ -19,12 +19,58 @@ export function CartDrawer() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
 
-  const discountAmount = appliedCoupon?.discountAmount || 0;
   const FREE_SHIPPING_THRESHOLD = 2999;
-  const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const progressPercent = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
-  const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 150;
-  const totalAmount = Math.max(0, subtotal - discountAmount) + shippingFee;
+  const discountAmount = appliedCoupon?.discountAmount || 0;
+  const remainingForFreeShipping = useMemo(() => Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal), [subtotal]);
+  const progressPercent = useMemo(
+    () => Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100)),
+    [subtotal]
+  );
+  const shippingFee = useMemo(() => (subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 150), [subtotal]);
+  const totalAmount = useMemo(
+    () => Math.max(0, subtotal - discountAmount) + shippingFee,
+    [subtotal, discountAmount, shippingFee]
+  );
+
+  const validateCoupon = useCallback(
+    async (code: string) => {
+      if (!code.trim()) return;
+      setCouponLoading(true);
+      setCouponError(null);
+
+      try {
+        const res = await fetch("/api/coupons/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: code.trim().toUpperCase(), subtotal }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setAppliedCoupon({
+            code: data.coupon.code,
+            discountAmount: data.discountAmount,
+          });
+          localStorage.setItem("lumiere_applied_coupon", data.coupon.code);
+        } else {
+          setAppliedCoupon(null);
+          setCouponError(data.error || "Invalid coupon.");
+          localStorage.removeItem("lumiere_applied_coupon");
+        }
+      } catch {
+        setCouponError("Failed to validate coupon.");
+      } finally {
+        setCouponLoading(false);
+      }
+    },
+    [subtotal]
+  );
+
+  const removeCoupon = useCallback(() => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+    localStorage.removeItem("lumiere_applied_coupon");
+  }, []);
 
   // Sync applied coupon from localStorage
   useEffect(() => {
@@ -32,54 +78,19 @@ export function CartDrawer() {
       const savedCode = localStorage.getItem("lumiere_applied_coupon");
       if (savedCode && subtotal > 0) {
         validateCoupon(savedCode);
+      } else if (subtotal <= 0 && appliedCoupon) {
+        setAppliedCoupon(null);
       }
     } catch (e) {
       console.error(e);
     }
-  }, [subtotal]);
+  }, [subtotal, validateCoupon, appliedCoupon]);
 
-  const validateCoupon = async (code: string) => {
-    if (!code.trim()) return;
-    setCouponLoading(true);
-    setCouponError(null);
-
-    try {
-      const res = await fetch("/api/coupons/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: code.trim().toUpperCase(), subtotal }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setAppliedCoupon({
-          code: data.coupon.code,
-          discountAmount: data.discountAmount,
-        });
-        localStorage.setItem("lumiere_applied_coupon", data.coupon.code);
-      } else {
-        setAppliedCoupon(null);
-        setCouponError(data.error || "Invalid coupon.");
-        localStorage.removeItem("lumiere_applied_coupon");
-      }
-    } catch {
-      setCouponError("Failed to validate coupon.");
-    } finally {
-      setCouponLoading(false);
-    }
-  };
-
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponInput("");
-    setCouponError(null);
-    localStorage.removeItem("lumiere_applied_coupon");
-  };
-
-  // Reservation countdown timer
+  // Reservation countdown timer: only runs active interval when drawer is actually OPEN
   useEffect(() => {
-    if (!reservationExpiresAt) return;
+    if (!isOpen || !reservationExpiresAt) return;
 
-    const interval = setInterval(() => {
+    const updateTimer = () => {
       const remainingMs = new Date(reservationExpiresAt).getTime() - Date.now();
       if (remainingMs <= 0) {
         setTimeLeft("Expired");
@@ -88,10 +99,12 @@ export function CartDrawer() {
         const secs = Math.floor((remainingMs % 60000) / 1000);
         setTimeLeft(`${mins}:${secs < 10 ? "0" : ""}${secs}`);
       }
-    }, 1000);
+    };
 
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [reservationExpiresAt]);
+  }, [isOpen, reservationExpiresAt]);
 
   // Handle ESC key press to close
   useEffect(() => {
@@ -400,5 +413,5 @@ export function CartDrawer() {
       )}
     </AnimatePresence>
   );
-}
+});
 

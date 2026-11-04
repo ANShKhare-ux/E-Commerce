@@ -228,50 +228,66 @@ export const db = {
       sort?: 'featured' | 'price-asc' | 'price-desc' | 'rating' | 'newest' | 'discount';
       limit?: number;
     }): Promise<Product[]> => {
-      let list = [...dbStore.products].filter(p => p.status === 'active');
+      // Normalize filter values upfront to avoid repeated string operations in loop
+      const category = filter?.category?.toLowerCase();
+      const collection = filter?.collection?.toLowerCase();
+      const style = filter?.style?.toLowerCase();
+      const size = filter?.size?.toLowerCase();
+      const search = filter?.search?.toLowerCase().trim();
+      const minPrice = filter?.minPrice;
+      const maxPrice = filter?.maxPrice;
+      const gender = filter?.gender;
+      const badge = filter?.badge;
+      const isDeal = filter?.isDeal;
+      const isAffiliate = filter?.isAffiliate;
+      const inStock = filter?.inStock;
 
-      if (filter?.category) {
-        list = list.filter(p => p.category_slug.toLowerCase() === filter.category!.toLowerCase());
-      }
-      if (filter?.collection) {
-        list = list.filter(p => p.collection_slug?.toLowerCase() === filter.collection!.toLowerCase());
-      }
-      if (filter?.gender) {
-        list = list.filter(p => p.gender === filter.gender || p.category_slug.includes(filter.gender!));
-      }
-      if (filter?.style) {
-        list = list.filter(p => p.style?.toLowerCase() === filter.style!.toLowerCase() || p.description.toLowerCase().includes(filter.style!.toLowerCase()));
-      }
-      if (filter?.size) {
-        list = list.filter(p => p.variants.some(v => v.size.toLowerCase() === filter.size!.toLowerCase()));
-      }
-      if (filter?.badge) {
-        list = list.filter(p => p.badge === filter.badge || (filter.badge === 'bestseller' && p.is_bestseller) || (filter.badge === 'new' && p.is_new));
-      }
-      if (filter?.isDeal !== undefined) {
-        list = list.filter(p => p.is_deal === filter.isDeal);
-      }
-      if (filter?.isAffiliate !== undefined) {
-        list = list.filter(p => p.is_affiliate === filter.isAffiliate);
-      }
-      if (filter?.search) {
-        const q = filter.search.toLowerCase().trim();
-        list = list.filter(p =>
-          p.name.toLowerCase().includes(q) ||
-          p.brand.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.category_slug.toLowerCase().includes(q) ||
-          p.variants.some(v => v.sku.toLowerCase().includes(q) || v.color.toLowerCase().includes(q))
-        );
-      }
-      if (filter?.minPrice !== undefined) {
-        list = list.filter(p => (p.discount_price ?? p.base_price) >= filter.minPrice!);
-      }
-      if (filter?.maxPrice !== undefined) {
-        list = list.filter(p => (p.discount_price ?? p.base_price) <= filter.maxPrice!);
+      // Single-pass filter loop (prevents up to 10 intermediate array allocations)
+      let list = dbStore.products.filter(p => {
+        if (p.status !== 'active') return false;
+        if (category && p.category_slug.toLowerCase() !== category) return false;
+        if (collection && p.collection_slug?.toLowerCase() !== collection) return false;
+        if (gender && !(p.gender === gender || p.category_slug.includes(gender))) return false;
+        if (style && !(p.style?.toLowerCase() === style || p.description.toLowerCase().includes(style))) return false;
+        if (size && !p.variants.some(v => v.size.toLowerCase() === size)) return false;
+        if (badge && !(p.badge === badge || (badge === 'bestseller' && p.is_bestseller) || (badge === 'new' && p.is_new))) return false;
+        if (isDeal !== undefined && p.is_deal !== isDeal) return false;
+        if (isAffiliate !== undefined && p.is_affiliate !== isAffiliate) return false;
+        if (minPrice !== undefined && (p.discount_price ?? p.base_price) < minPrice) return false;
+        if (maxPrice !== undefined && (p.discount_price ?? p.base_price) > maxPrice) return false;
+        if (inStock && !p.variants.some(v => (dbStore.inventoryMap.get(v.id)?.available_stock ?? 0) > 0)) return false;
+        if (search && !(
+          p.name.toLowerCase().includes(search) ||
+          p.brand.toLowerCase().includes(search) ||
+          p.description.toLowerCase().includes(search) ||
+          p.category_slug.toLowerCase().includes(search) ||
+          p.variants.some(v => v.sku.toLowerCase().includes(search) || v.color.toLowerCase().includes(search))
+        )) return false;
+        return true;
+      });
+
+      // Sorting
+      if (filter?.sort === 'price-asc') {
+        list.sort((a, b) => (a.discount_price ?? a.base_price) - (b.discount_price ?? b.base_price));
+      } else if (filter?.sort === 'price-desc') {
+        list.sort((a, b) => (b.discount_price ?? b.base_price) - (a.discount_price ?? a.base_price));
+      } else if (filter?.sort === 'rating') {
+        list.sort((a, b) => b.rating - a.rating);
+      } else if (filter?.sort === 'newest') {
+        list.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+      } else if (filter?.sort === 'discount') {
+        list.sort((a, b) => {
+          const discA = a.discount_price ? ((a.base_price - a.discount_price) / a.base_price) : 0;
+          const discB = b.discount_price ? ((b.base_price - b.discount_price) / b.base_price) : 0;
+          return discB - discA;
+        });
       }
 
-      // Attach fresh inventory
+      if (filter?.limit && filter.limit > 0) {
+        list = list.slice(0, filter.limit);
+      }
+
+      // Attach fresh inventory only to the final sliced result (avoids massive GC allocations)
       list = list.map(p => {
         const variants = p.variants.map(v => ({
           ...v,
@@ -287,31 +303,6 @@ export const db = {
         }));
         return { ...p, variants };
       });
-
-      if (filter?.inStock) {
-        list = list.filter(p => p.variants.some(v => (v.inventory?.available_stock ?? 0) > 0));
-      }
-
-      // Sorting
-      if (filter?.sort === 'price-asc') {
-        list.sort((a, b) => (a.discount_price ?? a.base_price) - (b.discount_price ?? b.base_price));
-      } else if (filter?.sort === 'price-desc') {
-        list.sort((a, b) => (b.discount_price ?? b.base_price) - (a.discount_price ?? a.base_price));
-      } else if (filter?.sort === 'rating') {
-        list.sort((a, b) => b.rating - a.rating);
-      } else if (filter?.sort === 'newest') {
-        list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      } else if (filter?.sort === 'discount') {
-        list.sort((a, b) => {
-          const discA = a.discount_price ? ((a.base_price - a.discount_price) / a.base_price) : 0;
-          const discB = b.discount_price ? ((b.base_price - b.discount_price) / b.base_price) : 0;
-          return discB - discA;
-        });
-      }
-
-      if (filter?.limit && filter.limit > 0) {
-        list = list.slice(0, filter.limit);
-      }
 
       return list;
     },

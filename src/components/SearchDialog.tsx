@@ -28,7 +28,7 @@ interface SuggestionProduct {
 /**
  * Text highlight component for highlighting matched search queries
  */
-function HighlightMatch({ text, query }: { text: string; query: string }) {
+const HighlightMatch = React.memo(function HighlightMatch({ text, query }: { text: string; query: string }) {
   if (!query.trim()) return <>{text}</>;
 
   const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -50,9 +50,9 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
       )}
     </>
   );
-}
+});
 
-export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialogProps) {
+export const SearchDialog = React.memo(function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialogProps) {
   const router = useRouter();
   const shouldReduceMotion = useSafeReducedMotion();
   const [query, setQuery] = useState(initialQuery);
@@ -534,6 +534,6 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
       )}
     </AnimatePresence>
   );
-}
+});
 
 export default SearchDialog;
