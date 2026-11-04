@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { LUXURY_EASE } from "@/lib/motion";
@@ -27,6 +28,7 @@ export function safeMarkIntroCompleted(): void {
 }
 
 export function IntroEntranceAnimation() {
+  const pathname = usePathname();
   const [shouldAnimate, setShouldAnimate] = useState<boolean | null>(null);
   const [stage, setStage] = useState<"centered" | "morphing" | "done">("centered");
   const [targetOffset, setTargetOffset] = useState<{ x: number | string; y: number | string }>({
@@ -64,10 +66,19 @@ export function IntroEntranceAnimation() {
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // 2. Check sessionStorage safely
+    // 2. Check if route is an auth gateway or admin console where intro splash should not block the view
+    const isExcluded =
+      pathname?.startsWith("/admin") ||
+      pathname === "/login" ||
+      pathname === "/signup" ||
+      pathname === "/forgot-password" ||
+      pathname === "/reset-password";
+
+    // 3. Check sessionStorage safely
     const hasCompleted = safeCheckIntroCompleted();
 
-    if (prefersReducedMotion || hasCompleted) {
+    if (prefersReducedMotion || hasCompleted || isExcluded) {
+      if (isExcluded) safeMarkIntroCompleted();
       setShouldAnimate(false);
       return;
     }
@@ -90,7 +101,7 @@ export function IntroEntranceAnimation() {
       clearTimeout(morphTimer);
       clearTimeout(finishTimer);
     };
-  }, [calculateTargetPosition]);
+  }, [calculateTargetPosition, pathname]);
 
   // Keyboard accessibility: Escape key dismisses intro
   useEffect(() => {

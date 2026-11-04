@@ -342,13 +342,18 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
                     {categories.map((cat, idx) => {
                       const isHighlighted = selectedIndex === idx;
                       return (
-                        <button
+                        <motion.button
                           key={cat}
                           type="button"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.22, delay: idx * 0.03, ease: LUXURY_EASE }}
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.96 }}
                           onClick={() => handleSelectCategory(cat)}
-                          className={`px-3 py-1 text-xs rounded-full border transition-all flex items-center gap-1.5 ${
+                          className={`px-3 py-1 text-xs rounded-full border transition-colors duration-200 flex items-center gap-1.5 ${
                             isHighlighted
-                              ? "bg-noir-900 text-white border-noir-900 scale-102"
+                              ? "bg-noir-900 text-white border-noir-900"
                               : "bg-canvas-subtle hover:bg-noir-900 hover:text-white border-canvas-border text-noir-800"
                           }`}
                         >
@@ -356,7 +361,7 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
                           <span className="capitalize">
                             <HighlightMatch text={cat.replace(/-/g, " ")} query={query} />
                           </span>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -374,10 +379,13 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
                       const isHighlighted = selectedIndex === categories.length + idx;
                       const price = product.discount_price ?? product.base_price;
                       return (
-                        <div
+                        <motion.div
                           key={product.id}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.24, delay: Math.min(idx * 0.03, 0.2), ease: LUXURY_EASE }}
                           onClick={() => handleSelectProduct(product)}
-                          className={`py-2.5 flex items-center gap-3.5 group px-2.5 rounded-sm transition-all cursor-pointer ${
+                          className={`py-2.5 flex items-center gap-3.5 group px-2.5 rounded-sm transition-all duration-200 cursor-pointer ${
                             isHighlighted
                               ? "bg-gold-50/80 border-l-2 border-gold-600 pl-3"
                               : "hover:bg-canvas-subtle/70"
@@ -390,7 +398,7 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
                                 alt={product.name}
                                 fill
                                 sizes="48px"
-                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
                               />
                             ) : (
                               <div className="w-full h-full bg-noir-100 flex items-center justify-center text-noir-400">
@@ -403,7 +411,7 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
                             <span className="text-[9px] uppercase font-bold text-gold-600 block tracking-wider">
                               <HighlightMatch text={product.brand} query={query} />
                             </span>
-                            <h4 className="font-serif text-xs sm:text-sm font-medium text-noir-900 truncate group-hover:text-gold-700 transition-colors">
+                            <h4 className="font-serif text-xs sm:text-sm font-medium text-noir-900 truncate group-hover:text-gold-700 transition-colors duration-200">
                               <HighlightMatch text={product.name} query={query} />
                             </h4>
                             <div className="flex items-center gap-2 mt-0.5">
@@ -419,13 +427,13 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
                           </div>
 
                           <ArrowRight
-                            className={`w-4 h-4 transition-all ${
+                            className={`w-4 h-4 transition-all duration-200 ${
                               isHighlighted
                                 ? "text-noir-900 translate-x-1"
                                 : "text-noir-300 group-hover:text-noir-900 group-hover:translate-x-1"
                             }`}
                           />
-                        </div>
+                        </motion.div>
                       );
                     })}
                   </div>
@@ -473,15 +481,18 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {recentSearches.map((term) => (
-                          <button
+                          <motion.button
                             key={term}
                             type="button"
+                            whileHover={{ scale: 1.04, y: -1 }}
+                            whileTap={{ scale: 0.96 }}
+                            transition={{ duration: 0.18, ease: LUXURY_EASE }}
                             onClick={() => handleSelectRecent(term)}
-                            className="px-3 py-1 bg-canvas-subtle hover:bg-noir-900 hover:text-white border border-canvas-border text-xs text-noir-800 rounded-sm transition-colors flex items-center gap-1.5"
+                            className="px-3 py-1 bg-canvas-subtle hover:bg-noir-900 hover:text-white border border-canvas-border text-xs text-noir-800 rounded-sm transition-colors duration-200 flex items-center gap-1.5"
                           >
                             <Clock className="w-3 h-3 text-noir-400" />
                             <span>{term}</span>
-                          </button>
+                          </motion.button>
                         ))}
                       </div>
                     </div>
@@ -501,14 +512,17 @@ export function SearchDialog({ isOpen, onClose, initialQuery = "" }: SearchDialo
                         "Streetwear",
                         "Bandhgala",
                       ].map((term) => (
-                        <button
+                        <motion.button
                           key={term}
                           type="button"
+                          whileHover={{ scale: 1.04, y: -1 }}
+                          whileTap={{ scale: 0.96 }}
+                          transition={{ duration: 0.18, ease: LUXURY_EASE }}
                           onClick={() => handleSelectRecent(term)}
-                          className="px-3 py-1 bg-white hover:bg-gold-600 hover:text-noir-900 border border-canvas-border text-xs text-noir-700 rounded-sm transition-colors shadow-2xs"
+                          className="px-3 py-1 bg-white hover:bg-gold-600 hover:text-noir-900 border border-canvas-border text-xs text-noir-700 rounded-sm transition-colors duration-200 shadow-2xs"
                         >
                           {term}
-                        </button>
+                        </motion.button>
                       ))}
                     </div>
                   </div>

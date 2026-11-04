@@ -53,7 +53,7 @@ export function ScrollReveal({
   children,
   variant = "fade-up",
   delay = 0,
-  duration = 0.55,
+  duration = 0.65,
   className = "",
   margin = "-50px",
   as = "div",
@@ -99,7 +99,7 @@ const itemVariantsMap: Record<string, Variants> = {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: LUXURY_EASE },
+      transition: { duration: 0.6, ease: LUXURY_EASE },
     },
   },
   "scale-up": {
@@ -107,14 +107,14 @@ const itemVariantsMap: Record<string, Variants> = {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { duration: 0.5, ease: LUXURY_EASE },
+      transition: { duration: 0.6, ease: LUXURY_EASE },
     },
   },
   "fade-in": {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.45, ease: LUXURY_EASE },
+      transition: { duration: 0.55, ease: LUXURY_EASE },
     },
   },
 };

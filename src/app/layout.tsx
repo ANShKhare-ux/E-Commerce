@@ -6,7 +6,6 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
-import { WelcomeAnnouncementModal } from "@/components/WelcomeAnnouncementModal";
 import { PageTransition } from "@/components/PageTransition";
 import { IntroEntranceAnimation } from "@/components/IntroEntranceAnimation";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -95,17 +94,16 @@ export default function RootLayout({
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
-      <body className="font-sans bg-canvas-light text-noir-900 min-h-screen flex flex-col selection:bg-gold-500 selection:text-white antialiased">
+      <body className="font-sans bg-canvas-light text-noir-900 min-h-screen flex flex-col selection:bg-gold-500 selection:text-white antialiased overflow-x-hidden">
         <ScrollProgress />
         <IntroEntranceAnimation />
         <CartProvider>
           <WishlistProvider>
             <Header />
-            <main className="flex-1 flex flex-col">
+            <main className="flex-1 flex flex-col overflow-x-hidden">
               <PageTransition>{children}</PageTransition>
             </main>
             <CartDrawer />
-            <WelcomeAnnouncementModal />
             <Footer />
           </WishlistProvider>
         </CartProvider>

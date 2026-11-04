@@ -85,17 +85,43 @@ export const fadeInUp: Variants = {
 };
 
 /**
- * Simple opacity fade
+ * Simple opacity fade with luxury ease
  */
 export const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.25, ease: "easeOut" },
+    transition: { duration: 0.3, ease: LUXURY_EASE },
   },
   exit: {
     opacity: 0,
-    transition: { duration: 0.18, ease: "easeIn" },
+    transition: { duration: 0.2, ease: "easeIn" },
+  },
+};
+
+/**
+ * Editorial page transition (smooth fade + subtle upward glide)
+ */
+export const pageTransitionVariant: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 12,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.45,
+      ease: LUXURY_EASE,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+    transition: {
+      duration: 0.25,
+      ease: "easeInOut",
+    },
   },
 };
 
@@ -127,7 +153,7 @@ export const dropdownMenuVariant: Variants = {
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.2,
+      duration: 0.28,
       ease: LUXURY_EASE,
     },
   },
@@ -136,7 +162,7 @@ export const dropdownMenuVariant: Variants = {
     y: -6,
     scale: 0.99,
     transition: {
-      duration: 0.15,
+      duration: 0.22,
       ease: "easeIn",
     },
   },
@@ -148,25 +174,25 @@ export const dropdownMenuVariant: Variants = {
 export const modalDialogVariant: Variants = {
   hidden: {
     opacity: 0,
-    scale: 0.96,
-    y: 8,
+    scale: 0.95,
+    y: 12,
   },
   visible: {
     opacity: 1,
     scale: 1,
     y: 0,
     transition: {
-      duration: 0.28,
+      duration: 0.32,
       ease: LUXURY_EASE,
     },
   },
   exit: {
     opacity: 0,
-    scale: 0.97,
-    y: 6,
+    scale: 0.96,
+    y: 8,
     transition: {
-      duration: 0.18,
-      ease: "easeIn",
+      duration: 0.24,
+      ease: [0.32, 0, 0.67, 0],
     },
   },
 };
@@ -181,14 +207,14 @@ export const drawerRightVariant: Variants = {
   visible: {
     x: 0,
     transition: {
-      duration: 0.32,
+      duration: 0.38,
       ease: LUXURY_EASE,
     },
   },
   exit: {
     x: "100%",
     transition: {
-      duration: 0.24,
+      duration: 0.28,
       ease: [0.32, 0, 0.67, 0],
     },
   },
@@ -203,8 +229,8 @@ export const accordionVariant: Variants = {
     opacity: 0,
     overflow: "hidden",
     transition: {
-      height: { duration: 0.25, ease: LUXURY_EASE },
-      opacity: { duration: 0.15 },
+      height: { duration: 0.28, ease: LUXURY_EASE },
+      opacity: { duration: 0.18 },
     },
   },
   visible: {
@@ -212,7 +238,7 @@ export const accordionVariant: Variants = {
     opacity: 1,
     overflow: "hidden",
     transition: {
-      height: { duration: 0.3, ease: LUXURY_EASE },
+      height: { duration: 0.35, ease: LUXURY_EASE },
       opacity: { duration: 0.25, delay: 0.05 },
     },
   },
@@ -241,7 +267,7 @@ export const scrollFadeUp: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.55,
+      duration: 0.65,
       ease: LUXURY_EASE,
       delay: custom * 0.08,
     },
@@ -259,7 +285,7 @@ export const scrollScaleUp: Variants = {
     scale: 1,
     y: 0,
     transition: {
-      duration: 0.55,
+      duration: 0.65,
       ease: LUXURY_EASE,
       delay: custom * 0.08,
     },
@@ -275,7 +301,7 @@ export const scrollSlideLeft: Variants = {
     opacity: 1,
     x: 0,
     transition: {
-      duration: 0.55,
+      duration: 0.65,
       ease: LUXURY_EASE,
       delay: custom * 0.08,
     },
@@ -291,7 +317,7 @@ export const scrollSlideRight: Variants = {
     opacity: 1,
     x: 0,
     transition: {
-      duration: 0.55,
+      duration: 0.65,
       ease: LUXURY_EASE,
       delay: custom * 0.08,
     },

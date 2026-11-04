@@ -23,7 +23,13 @@ export function Footer() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
-  if (pathname?.startsWith("/admin")) {
+  const isAuthRoute =
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
+
+  if (pathname?.startsWith("/admin") || isAuthRoute) {
     return null;
   }
 

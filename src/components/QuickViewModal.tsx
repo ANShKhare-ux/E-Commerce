@@ -118,15 +118,15 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.22 }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-xs"
       onClick={onClose}
     >
       <motion.div
-        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95, y: 16 }}
+        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.94, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
-        transition={{ duration: shouldReduceMotion ? 0 : 0.28, ease: LUXURY_EASE }}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.32, ease: LUXURY_EASE }}
         className="relative w-full max-w-4xl bg-white border border-canvas-border rounded-sm shadow-2xl overflow-hidden max-h-[90vh] flex flex-col md:flex-row"
         onClick={(e) => e.stopPropagation()}
         role="dialog"

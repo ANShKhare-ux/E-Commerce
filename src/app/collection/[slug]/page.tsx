@@ -134,10 +134,10 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-45"
+          className="object-cover opacity-45 scale-102 transition-transform duration-1000"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-noir-900 via-noir-900/40 to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 text-white">
+        <ScrollReveal variant="fade-up" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 text-white">
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gold-600/30 border border-gold-400/40 backdrop-blur-md rounded-full text-gold-300 text-[10px] font-bold tracking-widest uppercase">
               <Sparkles className="w-3.5 h-3.5 text-gold-400" />
@@ -153,7 +153,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
               {meta.description}
             </p>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Curated Curator's Notes */}

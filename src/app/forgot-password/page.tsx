@@ -3,13 +3,20 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Mail, ArrowRight, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Mail, ArrowRight, AlertCircle, CheckCircle2, ArrowLeft, Key } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  const isSupabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder-project") &&
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) &&
+    !(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)?.includes("placeholder")
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,11 +27,21 @@ export default function ForgotPasswordPage() {
       return;
     }
 
+    if (!isSupabaseConfigured) {
+      setErrorMsg(
+        "Supabase authentication is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local to dispatch recovery emails."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
       const supabase = createClient();
-      const origin = window.location.origin;
+      const origin =
+        typeof window !== "undefined" && window.location?.origin
+          ? window.location.origin
+          : "";
 
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${origin}/auth/callback?next=/reset-password`,
@@ -37,8 +54,9 @@ export default function ForgotPasswordPage() {
 
       // Always show safe user-friendly confirmation without disclosing account existence
       setSubmitted(true);
-    } catch (err: any) {
-      setErrorMsg(err.message || "An unexpected error occurred. Please try again later.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred. Please try again later.";
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }
@@ -63,6 +81,19 @@ export default function ForgotPasswordPage() {
             Enter your registered email address to receive password recovery instructions.
           </p>
         </div>
+
+        {/* Supabase Connection Notice if keys not set */}
+        {!isSupabaseConfigured && (
+          <div className="bg-amber-50 border border-amber-200 p-3.5 rounded-sm text-xs text-amber-800 space-y-1">
+            <div className="flex items-center gap-1.5 font-semibold text-amber-900">
+              <Key className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span>Development Mode: Supabase Connection Pending</span>
+            </div>
+            <p className="text-[11px] text-amber-700 leading-relaxed font-light">
+              Password recovery requires your <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> in <code className="bg-amber-100/80 px-1 py-0.5 rounded text-amber-900 font-mono">.env.local</code>.
+            </p>
+          </div>
+        )}
 
         {errorMsg && (
           <div className="bg-rose-50 border border-rose-200 text-rose-800 p-3.5 rounded-sm flex items-start gap-2.5 text-xs">

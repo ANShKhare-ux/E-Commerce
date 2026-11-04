@@ -9,6 +9,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import { SearchDialog } from "@/components/SearchDialog";
 import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
+import { LUXURY_EASE } from "@/lib/motion";
 import {
   ShoppingBag,
   Heart,
@@ -295,8 +296,16 @@ export function Header() {
     return configuredAdmins.includes(email.trim().toLowerCase());
   };
 
+  const isAuthRoute =
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
+  const isSuppressedRoute = Boolean(pathname?.startsWith("/admin") || isAuthRoute);
+
   // Listen to Supabase session state
   useEffect(() => {
+    if (isSuppressedRoute) return;
     let isMounted = true;
     const supabase = createClient();
 
@@ -372,12 +381,13 @@ export function Header() {
       isMounted = false;
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [isSuppressedRoute]);
 
   const megaMenuContainerRef = useRef<HTMLDivElement>(null);
 
   // Click outside listener for profile flyout & mega menu
   useEffect(() => {
+    if (isSuppressedRoute) return;
     const handleClickOutside = (e: MouseEvent) => {
       if (
         profileContainerRef.current &&
@@ -394,7 +404,7 @@ export function Header() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isSuppressedRoute]);
 
   const handleSignOut = async () => {
     try {
@@ -412,6 +422,7 @@ export function Header() {
 
   // Keyboard shortcut '/' to open search dialog and Escape to close menus
   useEffect(() => {
+    if (isSuppressedRoute) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setActiveMegaMenu(null);
@@ -427,9 +438,9 @@ export function Header() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [isSuppressedRoute]);
 
-  if (pathname?.startsWith("/admin")) {
+  if (isSuppressedRoute) {
     return null;
   }
 
@@ -509,6 +520,15 @@ export function Header() {
               <nav className="hidden lg:flex items-center h-full">
                 {categories.map((cat) => {
                   const isActive = activeMegaMenu === cat.id;
+                  const activeColor =
+                    cat.id === "men"
+                      ? "bg-[#ee5f73]"
+                      : cat.id === "women"
+                      ? "bg-[#fb56c1]"
+                      : cat.id === "unisex"
+                      ? "bg-[#03a685]"
+                      : "bg-[#C59B48]";
+
                   return (
                     <div
                       key={cat.id}
@@ -518,10 +538,8 @@ export function Header() {
                     >
                       <Link
                         href={cat.href}
-                        className={`h-full flex items-center px-3.5 xl:px-4.5 text-[13px] xl:text-[14px] font-bold tracking-[0.3px] text-[#282c3f] uppercase transition-colors relative border-b-4 ${
-                          isActive
-                            ? `${cat.borderClass} text-black`
-                            : "border-transparent hover:text-black"
+                        className={`h-full flex items-center px-3.5 xl:px-4.5 text-[13px] xl:text-[14px] font-bold tracking-[0.3px] uppercase transition-colors relative group/nav ${
+                          isActive ? "text-black" : "text-[#282c3f] hover:text-black"
                         }`}
                       >
                         <span>{cat.label}</span>
@@ -530,6 +548,13 @@ export function Header() {
                             {cat.badge}
                           </span>
                         )}
+                        {/* Elegant Animated Underline Indicator */}
+                        <span
+                          aria-hidden="true"
+                          className={`absolute bottom-0 left-0 right-0 h-[3px] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] origin-left ${activeColor} ${
+                            isActive ? "scale-x-100" : "scale-x-0 group-hover/nav:scale-x-100"
+                          }`}
+                        />
                       </Link>
                     </div>
                   );
@@ -598,11 +623,11 @@ export function Header() {
                 <AnimatePresence>
                   {profileDropdownOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 6 }}
-                      transition={{ duration: 0.18, ease: "easeOut" }}
-                      className="absolute top-full right-0 w-72 bg-white rounded-sm shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-[#eaeaec] p-5 z-50 text-[#282c3f]"
+                      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                      transition={{ duration: 0.22, ease: LUXURY_EASE }}
+                      className="absolute top-full right-0 w-72 bg-white/98 backdrop-blur-md rounded-sm shadow-[0_12px_32px_rgba(0,0,0,0.12)] border border-[#eaeaec] p-5 z-50 text-[#282c3f]"
                       onMouseEnter={handleProfileMouseEnter}
                       onMouseLeave={handleProfileMouseLeave}
                     >
@@ -771,9 +796,9 @@ export function Header() {
                 aria-label="View Saved Wishlist"
               >
                 <div className="relative">
-                  <Heart className="w-5 h-5 text-[#282c3f] group-hover:text-[#C59B48] transition-colors stroke-[1.8]" />
+                  <Heart className="w-5 h-5 text-[#282c3f] group-hover:text-[#C59B48] transition-all duration-200 group-hover:scale-110 group-active:scale-95 stroke-[1.8]" />
                   {wishlistCount > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-[#ff3f6c] text-white rounded-full text-[10px] font-bold w-4 h-4 flex items-center justify-center shadow-sm">
+                    <span className="absolute -top-1.5 -right-2 bg-[#ff3f6c] text-white rounded-full text-[10px] font-bold w-4 h-4 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
                       {wishlistCount > 99 ? "99+" : wishlistCount}
                     </span>
                   )}
@@ -790,9 +815,9 @@ export function Header() {
                 aria-label="View Shopping Bag"
               >
                 <div className="relative">
-                  <ShoppingBag className="w-5 h-5 text-[#282c3f] group-hover:text-[#C59B48] transition-colors stroke-[1.8]" />
+                  <ShoppingBag className="w-5 h-5 text-[#282c3f] group-hover:text-[#C59B48] transition-all duration-200 group-hover:scale-110 group-active:scale-95 stroke-[1.8]" />
                   {totalCount > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-[#ff3f6c] text-white rounded-full text-[10px] font-bold w-4 h-4 flex items-center justify-center shadow-sm">
+                    <span className="absolute -top-1.5 -right-2 bg-[#ff3f6c] text-white rounded-full text-[10px] font-bold w-4 h-4 flex items-center justify-center shadow-sm transition-transform duration-200 group-hover:scale-110">
                       {totalCount > 99 ? "99+" : totalCount}
                     </span>
                   )}
@@ -811,11 +836,11 @@ export function Header() {
             <motion.div
               ref={megaMenuContainerRef}
               key={currentMegaMenu.id}
-              initial={{ opacity: 0, y: -6 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
-              className="hidden lg:block absolute top-full left-0 w-full bg-white border-b border-[#eaeaec] shadow-[0_12px_24px_rgba(0,0,0,0.08)] z-50"
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.28, ease: LUXURY_EASE }}
+              className="hidden lg:block absolute top-full left-0 w-full bg-white/98 backdrop-blur-md border-b border-[#eaeaec] shadow-[0_16px_36px_rgba(0,0,0,0.08)] z-50"
               onMouseEnter={() => handleNavMouseEnter(currentMegaMenu.id)}
               onMouseLeave={handleNavMouseLeave}
             >
@@ -823,7 +848,13 @@ export function Header() {
               {/* Columns 1-4: Sub-category Links */}
               <div className="col-span-8 grid grid-cols-4 gap-6">
                 {currentMegaMenu.columns.map((col, idx) => (
-                  <div key={idx} className="space-y-3">
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, delay: idx * 0.04, ease: LUXURY_EASE }}
+                    className="space-y-3"
+                  >
                     <h4 className="text-[12px] font-bold uppercase tracking-[0.4px] text-[#282c3f] border-b border-[#f5f5f6] pb-1.5">
                       {col.heading}
                     </h4>
@@ -833,20 +864,25 @@ export function Header() {
                           <Link
                             href={item.href}
                             onClick={() => setActiveMegaMenu(null)}
-                            className="text-[13px] text-[#696e79] hover:text-[#282c3f] hover:font-semibold transition-colors block py-0.5"
+                            className="text-[13px] text-[#696e79] hover:text-[#282c3f] hover:font-semibold hover:translate-x-1 transition-all duration-200 block py-0.5"
                           >
                             {item.label}
                           </Link>
                         </li>
                       ))}
                     </ul>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
               {/* Column 5: Featured Campaign Visual Banner Card */}
               {currentMegaMenu.featuredCampaign && (
-                <div className="col-span-4 pl-6 border-l border-[#f5f5f6]">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.1, ease: LUXURY_EASE }}
+                  className="col-span-4 pl-6 border-l border-[#f5f5f6]"
+                >
                   <Link
                     href={currentMegaMenu.featuredCampaign.href}
                     onClick={() => setActiveMegaMenu(null)}
@@ -873,7 +909,7 @@ export function Header() {
                       </span>
                     </div>
                   </Link>
-                </div>
+                </motion.div>
               )}
             </div>
           </motion.div>
@@ -887,7 +923,7 @@ export function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.22, ease: "easeInOut" }}
+              transition={{ duration: 0.28, ease: LUXURY_EASE }}
               className="lg:hidden border-t border-[#eaeaec] bg-white px-5 py-5 space-y-5 max-h-[85vh] overflow-y-auto"
             >
             {/* Mobile Search Input */}

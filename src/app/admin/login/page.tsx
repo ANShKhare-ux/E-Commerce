@@ -12,13 +12,24 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const isSupabaseConfigured =
+  const isSupabaseConfigured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder-project");
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder-project") &&
+    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) &&
+    !(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)?.includes("placeholder")
+  );
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
+
+    if (!isSupabaseConfigured) {
+      setErrorMsg(
+        "Supabase authentication is not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local to access the admin console."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -39,8 +50,9 @@ export default function AdminLoginPage() {
         router.push("/admin");
         router.refresh();
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || "An unexpected authentication error occurred.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An unexpected authentication error occurred.";
+      setErrorMsg(msg);
     } finally {
       setLoading(false);
     }

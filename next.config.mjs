@@ -22,9 +22,6 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: [
       "lucide-react",
-      "clsx",
-      "tailwind-merge",
-      "framer-motion",
     ],
   },
   async headers() {

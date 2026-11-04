@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useWishlist } from "@/context/WishlistContext";
 import { ProductCard } from "@/components/ProductCard";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { Heart, ArrowRight } from "lucide-react";
 
 export default function WishlistPage() {
@@ -11,7 +12,7 @@ export default function WishlistPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      <div className="border-b border-canvas-border pb-6 flex items-center justify-between">
+      <ScrollReveal variant="fade-up" className="border-b border-canvas-border pb-6 flex items-center justify-between">
         <div>
           <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold-600 block mb-1">
             Personal Curation
@@ -23,10 +24,10 @@ export default function WishlistPage() {
             {wishlist.length} {wishlist.length === 1 ? "design" : "designs"} reserved in your private wishlist.
           </p>
         </div>
-      </div>
+      </ScrollReveal>
 
       {wishlist.length === 0 ? (
-        <div className="text-center py-20 bg-white border border-canvas-border rounded-sm space-y-4">
+        <ScrollReveal variant="fade-up" className="text-center py-20 bg-white border border-canvas-border rounded-sm space-y-4">
           <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-500 mx-auto flex items-center justify-center">
             <Heart className="w-8 h-8" />
           </div>
@@ -43,13 +44,13 @@ export default function WishlistPage() {
             <span>Explore Collections</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
-        </div>
+        </ScrollReveal>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {wishlist.map((product) => (
-            <ProductCard key={product.id} product={product} />
+        <ScrollReveal variant="fade-up" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {wishlist.map((product, idx) => (
+            <ProductCard key={product.id} product={product} index={idx} />
           ))}
-        </div>
+        </ScrollReveal>
       )}
     </div>
   );

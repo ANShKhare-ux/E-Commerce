@@ -214,7 +214,7 @@ export function ProductDetailClient({ product, relatedProducts = [] }: ProductDe
                   style={{
                     transformOrigin: isZoomed ? `${mousePos.x}% ${mousePos.y}%` : "center center",
                   }}
-                  className={`object-cover object-center transition-transform duration-300 ease-out ${
+                  className={`object-cover object-center transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                     isZoomed ? "scale-175" : "scale-100 group-hover:scale-103"
                   }`}
                 />

@@ -28,14 +28,21 @@ export function getSafeRedirectUrl(
     return fallback;
   }
 
-  // Prevent redirect loops back to authentication gateway pages
+  // Extract path without search params or hash, and strip trailing slash
   const lower = trimmed.toLowerCase();
+  const pathPart = lower.split("?")[0].split("#")[0].replace(/\/+$/, "") || "/";
+
+  // Prevent redirect loops back to authentication gateway pages.
+  // Note: /reset-password is NOT blocked because it is the legitimate destination for password recovery callbacks.
   if (
-    lower === "/login" ||
-    lower.startsWith("/login?") ||
-    lower === "/signup" ||
-    lower.startsWith("/signup?") ||
-    lower.startsWith("/auth/")
+    pathPart === "/login" ||
+    pathPart.startsWith("/login/") ||
+    pathPart === "/signup" ||
+    pathPart.startsWith("/signup/") ||
+    pathPart === "/forgot-password" ||
+    pathPart.startsWith("/forgot-password/") ||
+    pathPart === "/auth" ||
+    pathPart.startsWith("/auth/")
   ) {
     return fallback;
   }

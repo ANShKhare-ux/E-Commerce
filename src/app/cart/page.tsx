@@ -25,6 +25,7 @@ import {
   MapPin,
   RefreshCw,
 } from "lucide-react";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function CartPage() {
   const {
@@ -268,7 +269,7 @@ export default function CartPage() {
 
         {items.length === 0 ? (
           /* Empty Bag State */
-          <div className="text-center py-20 px-6 bg-white border border-[#eaeaec] rounded shadow-sm max-w-2xl mx-auto space-y-6">
+          <ScrollReveal variant="fade-up" className="text-center py-20 px-6 bg-white border border-[#eaeaec] rounded shadow-sm max-w-2xl mx-auto space-y-6">
             <div className="w-20 h-20 rounded-full bg-[#faf9f5] border border-[#eaeaec] text-[#C59B48] mx-auto flex items-center justify-center shadow-inner">
               <ShoppingBag className="w-10 h-10 stroke-[1.5]" />
             </div>
@@ -310,7 +311,7 @@ export default function CartPage() {
                 Full Catalog
               </Link>
             </div>
-          </div>
+          </ScrollReveal>
         ) : (
           /* Active Bag Grid (8 cols / 4 cols) */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">

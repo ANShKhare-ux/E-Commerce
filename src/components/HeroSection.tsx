@@ -44,7 +44,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
       <motion.div
         initial={shouldReduceMotion ? false : { scale: 1.08, opacity: 0 }}
         animate={{ scale: 1.02, opacity: 0.45 }}
-        transition={{ duration: shouldReduceMotion ? 0 : 1.4, ease: "easeOut" }}
+        transition={{ duration: shouldReduceMotion ? 0 : 1.6, ease: LUXURY_EASE }}
         className="absolute inset-0 w-full h-full"
       >
         <Image

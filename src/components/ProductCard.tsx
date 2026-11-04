@@ -134,15 +134,15 @@ export function ProductCard({ product, index = 0, className = "" }: ProductCardP
         whileInView={{ opacity: 1, y: 0, scale: 1 }}
         whileHover={shouldReduceMotion ? undefined : {
           y: -6,
-          transition: { duration: 0.25, ease: LUXURY_EASE },
+          transition: { duration: 0.28, ease: LUXURY_EASE },
         }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{
-          duration: shouldReduceMotion ? 0 : 0.5,
+          duration: shouldReduceMotion ? 0 : 0.55,
           ease: LUXURY_EASE,
-          delay: shouldReduceMotion ? 0 : Math.min((index % 4) * 0.07, 0.25),
+          delay: shouldReduceMotion ? 0 : Math.min((index % 4) * 0.08, 0.28),
         }}
-        className={`group relative flex flex-col bg-white border border-canvas-border/80 rounded-sm overflow-hidden transition-[border-color,box-shadow] duration-300 hover:border-gold-500/40 hover:shadow-[0_16px_36px_rgba(13,13,13,0.08)] ${className}`}
+        className={`group relative flex flex-col bg-white border border-canvas-border/80 rounded-sm overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-gold-500/40 hover:shadow-[0_20px_40px_rgba(13,13,13,0.09)] ${className}`}
       >
         {/* 1. Image Presentation Container */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-canvas-subtle">
@@ -243,7 +243,7 @@ export function ProductCard({ product, index = 0, className = "" }: ProductCardP
           </button>
 
           {/* Quick Actions Strip (Slides Up Gracefully on Hover and Focus-Within) */}
-          <div className="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-2.5 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 translate-y-2 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-all duration-300 ease-out border-t border-canvas-border/80 z-10">
+          <div className="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md p-2.5 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 translate-y-2 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] border-t border-canvas-border/80 z-10">
             {/* If Quick Add size selector is opened */}
             <AnimatePresence mode="wait">
               {quickAddOpen ? (

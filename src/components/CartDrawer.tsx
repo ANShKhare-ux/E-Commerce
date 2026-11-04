@@ -104,7 +104,15 @@ export function CartDrawer() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, setIsOpen]);
 
-  if (pathname?.startsWith("/admin") || pathname === "/cart") return null;
+  const isExcluded =
+    pathname?.startsWith("/admin") ||
+    pathname === "/cart" ||
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
+
+  if (isExcluded) return null;
 
   return (
     <AnimatePresence>
@@ -121,7 +129,7 @@ export function CartDrawer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             className="absolute inset-0 bg-black/60 backdrop-blur-xs"
             onClick={() => setIsOpen(false)}
           />
@@ -131,7 +139,7 @@ export function CartDrawer() {
               initial={shouldReduceMotion ? false : { x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: LUXURY_EASE }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.4, ease: LUXURY_EASE }}
               className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-canvas-border pointer-events-auto"
             >
           {/* Header */}
@@ -204,73 +212,85 @@ export function CartDrawer() {
                 </Link>
               </div>
             ) : (
-              items.map((item) => (
-                <div key={item.variant_id} className="py-4 flex gap-4">
-                  <div className="relative w-20 h-26 shrink-0 bg-canvas-subtle rounded-sm overflow-hidden border border-canvas-border">
-                    <Image
-                      src={item.product_image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"}
-                      alt={item.product_name}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  </div>
-
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-serif text-sm font-medium text-noir-900 line-clamp-1">
-                          {item.product_name}
-                        </h4>
-                        <button
-                          onClick={() => removeItem(item.variant_id)}
-                          className="text-noir-400 hover:text-red-600 p-1 transition-colors"
-                          aria-label="Remove item"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+              <AnimatePresence initial={false}>
+                {items.map((item) => (
+                  <motion.div
+                    key={item.variant_id}
+                    layout
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0, transition: { duration: 0.28, ease: LUXURY_EASE } }}
+                    transition={{ duration: 0.32, ease: LUXURY_EASE }}
+                    className="overflow-hidden"
+                  >
+                    <div className="py-4 flex gap-4 border-b border-canvas-subtle">
+                      <div className="relative w-20 h-26 shrink-0 bg-canvas-subtle rounded-sm overflow-hidden border border-canvas-border">
+                        <Image
+                          src={item.product_image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"}
+                          alt={item.product_name}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
                       </div>
 
-                      <div className="text-[11px] text-noir-500 mt-0.5 space-x-2">
-                        <span>Color: <strong>{item.color}</strong></span>
-                        <span>•</span>
-                        <span>Size: <strong>{item.size}</strong></span>
-                      </div>
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-start">
+                            <h4 className="font-serif text-sm font-medium text-noir-900 line-clamp-1">
+                              {item.product_name}
+                            </h4>
+                            <button
+                              onClick={() => removeItem(item.variant_id)}
+                              className="text-noir-400 hover:text-red-600 p-1 transition-all hover:scale-110 active:scale-90"
+                              aria-label="Remove item"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
 
-                      <p className="text-[10px] text-noir-400 font-mono mt-0.5">
-                        SKU: {item.sku}
-                      </p>
+                          <div className="text-[11px] text-noir-500 mt-0.5 space-x-2">
+                            <span>Color: <strong>{item.color}</strong></span>
+                            <span>•</span>
+                            <span>Size: <strong>{item.size}</strong></span>
+                          </div>
+
+                          <p className="text-[10px] text-noir-400 font-mono mt-0.5">
+                            SKU: {item.sku}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between mt-3">
+                          {/* Quantity Controls */}
+                          <div className="flex items-center border border-canvas-border rounded-sm">
+                            <button
+                              onClick={() => updateQuantity(item.variant_id, item.quantity - 1)}
+                              className="p-1 hover:bg-canvas-subtle text-noir-600 transition-transform active:scale-90"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="px-2.5 text-xs font-semibold text-noir-900">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
+                              className="p-1 hover:bg-canvas-subtle text-noir-600 transition-transform active:scale-90"
+                              aria-label="Increase quantity"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <span className="font-sans text-sm font-bold text-noir-900">
+                            ₹{(item.unit_price * item.quantity).toLocaleString("en-IN")}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-
-                    <div className="flex items-center justify-between mt-3">
-                      {/* Quantity Controls */}
-                      <div className="flex items-center border border-canvas-border rounded-sm">
-                        <button
-                          onClick={() => updateQuantity(item.variant_id, item.quantity - 1)}
-                          className="p-1 hover:bg-canvas-subtle text-noir-600 transition-colors"
-                          aria-label="Decrease quantity"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        <span className="px-2.5 text-xs font-semibold text-noir-900">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.variant_id, item.quantity + 1)}
-                          className="p-1 hover:bg-canvas-subtle text-noir-600 transition-colors"
-                          aria-label="Increase quantity"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-
-                      <span className="font-sans text-sm font-bold text-noir-900">
-                        ₹{(item.unit_price * item.quantity).toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             )}
           </div>
 

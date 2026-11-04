@@ -49,7 +49,7 @@ export function SectionHeading({
       opacity: 1,
       y: 0,
       transition: {
-        duration: shouldReduceMotion ? 0 : 0.55,
+        duration: shouldReduceMotion ? 0 : 0.6,
         ease: LUXURY_EASE,
       },
     },

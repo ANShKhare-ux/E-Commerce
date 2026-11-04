@@ -79,8 +79,8 @@ export function RecentlyViewed({ excludeId, limit = 4 }: RecentlyViewedProps = {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {recentProducts.map((p) => (
-          <ProductCard key={p.id} product={p} />
+        {recentProducts.map((p, idx) => (
+          <ProductCard key={p.id} product={p} index={idx} />
         ))}
       </div>
     </section>

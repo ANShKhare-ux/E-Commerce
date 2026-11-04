@@ -81,10 +81,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-50"
+          className="object-cover opacity-50 scale-102 transition-transform duration-1000"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-noir-900 via-noir-900/30 to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 text-white">
+        <ScrollReveal variant="fade-up" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10 text-white">
           <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gold-400 block mb-2">
             {meta.subtitle}
           </span>
@@ -94,7 +94,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <p className="text-xs sm:text-sm text-noir-300 max-w-xl font-light mt-2 leading-relaxed">
             {meta.description}
           </p>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Products Grid */}
