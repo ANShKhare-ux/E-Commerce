@@ -12,6 +12,16 @@ export function safeCheckIntroCompleted(): boolean {
   try {
     if (typeof window === "undefined") return false;
 
+    // Check if query parameter requests replay: ?intro=true or ?replay=1
+    try {
+      if (window.location && window.location.search) {
+        const search = window.location.search;
+        if (search.includes("intro=true") || search.includes("replay=1")) {
+          return false;
+        }
+      }
+    } catch {}
+
     // 1. In-memory window execution guard
     try {
       if ((window as any).__lumiere_intro_completed === true) return true;
@@ -124,7 +134,7 @@ export function IntroEntranceAnimation() {
     skipTimerRef.current = setTimeout(() => {
       setMounted(false);
       isIntroActiveRef.current = false;
-    }, 380);
+    }, 280);
   }, [removeStaticCurtain]);
 
   // Main Orchestration
@@ -165,12 +175,13 @@ export function IntroEntranceAnimation() {
       }
     }, 40);
 
-    // Initiate parting of silk curtains at 0.78s so it completes by 1.16s
+    // 0.76s (Frame 23): Initiate smooth curtain swipe (left to -102%, right to 102%) & stage fade-out
     const partingTimer = setTimeout(() => {
       setIsParting(true);
-    }, 780);
+    }, 760);
 
-    // Full animation completes strictly at 1.16 seconds (1160ms) - everything after 1.16s removed
+    // 1.16s (Frame 35): Full animation cycle completes strictly at 1.16 seconds (1160ms)
+    // Curtains have swiped fully open, revealing the live website
     const completionTimer = setTimeout(() => {
       removeStaticCurtain();
       setMounted(false);
@@ -232,54 +243,54 @@ export function IntroEntranceAnimation() {
       aria-modal="true"
     >
       {/* Dual Couture Silk Curtain Panels */}
-      {/* Left Silk Curtain Panel */}
+      {/* Left Silk Curtain Panel: Swipes to left */}
       <motion.div
         id="curtain-panel-left"
-        className="absolute inset-y-0 left-0 w-1/2 bg-[#08080a] border-r border-[#C59B48]/15 shadow-[10px_0_30px_rgba(0,0,0,0.8)] will-change-transform"
+        className="absolute inset-y-0 left-0 w-1/2 bg-[#08080a] border-r border-[#C59B48]/25 shadow-[20px_0_50px_rgba(0,0,0,0.9)] will-change-transform z-30"
         initial={{ x: "0%" }}
         animate={{ x: isParting ? "-102%" : "0%" }}
-        transition={{ duration: 0.38, ease: LUXURY_EASE }}
+        transition={{ duration: 0.4, ease: LUXURY_EASE }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_right,rgba(197,155,72,0.06)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_right,rgba(197,155,72,0.08)_0%,transparent_70%)] pointer-events-none" />
       </motion.div>
 
-      {/* Right Silk Curtain Panel */}
+      {/* Right Silk Curtain Panel: Swipes to right */}
       <motion.div
         id="curtain-panel-right"
-        className="absolute inset-y-0 right-0 w-1/2 bg-[#08080a] border-l border-[#C59B48]/15 shadow-[-10px_0_30px_rgba(0,0,0,0.8)] will-change-transform"
+        className="absolute inset-y-0 right-0 w-1/2 bg-[#08080a] border-l border-[#C59B48]/25 shadow-[-20px_0_50px_rgba(0,0,0,0.9)] will-change-transform z-30"
         initial={{ x: "0%" }}
         animate={{ x: isParting ? "102%" : "0%" }}
-        transition={{ duration: 0.38, ease: LUXURY_EASE }}
+        transition={{ duration: 0.4, ease: LUXURY_EASE }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(197,155,72,0.06)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(197,155,72,0.08)_0%,transparent_70%)] pointer-events-none" />
       </motion.div>
 
       {/* Skip Button for Accessibility */}
       <button
         type="button"
         onClick={handleSkip}
-        className="pointer-events-auto absolute bottom-8 right-8 z-30 text-[10px] uppercase font-mono tracking-[0.25em] text-[#a1a1aa] hover:text-[#C59B48] bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B48]/40 px-4 py-2 rounded-full transition-all focus:outline-hidden focus:ring-1 focus:ring-[#C59B48]"
+        className="pointer-events-auto absolute bottom-8 right-8 z-40 text-[10px] uppercase font-mono tracking-[0.25em] text-[#a1a1aa] hover:text-[#C59B48] bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B48]/40 px-4 py-2 rounded-full transition-all focus:outline-hidden focus:ring-1 focus:ring-[#C59B48]"
         aria-label="Skip prologue animation"
       >
         Skip Prologue [Esc]
       </button>
 
-      {/* Central Haute Atelier Stage */}
+      {/* Central Haute Atelier Stage: Fades out before curtain swipe */}
       <motion.div
-        className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4 pointer-events-none"
+        className="absolute inset-0 z-40 flex flex-col items-center justify-center text-center px-4 pointer-events-none"
         initial={{ opacity: 1 }}
-        animate={{ opacity: isParting ? 0 : 1, y: isParting ? -8 : 0 }}
-        transition={{ duration: 0.3, ease: LUXURY_EASE }}
+        animate={{ opacity: isParting ? 0 : 1, y: isParting ? -14 : 0 }}
+        transition={{ duration: 0.28, ease: LUXURY_EASE }}
       >
         {/* Subtle Ambient Radial Gold Glow */}
-        <div className="absolute w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle_at_center,rgba(197,155,72,0.14)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_center,rgba(197,155,72,0.16)_0%,transparent_70%)] pointer-events-none" />
 
-        {/* 1. The Sovereign Monogram (Master Vector Stroke Draw) */}
+        {/* 1. The Sovereign Monogram (Master Vector Stroke Draw & Gold Fill) */}
         <svg
           viewBox="0 0 256 256"
-          width="84"
-          height="84"
-          className="mb-5 filter drop-shadow-[0_0_20px_rgba(197,155,72,0.45)] will-change-transform"
+          width="92"
+          height="92"
+          className="mb-5 filter drop-shadow-[0_0_24px_rgba(197,155,72,0.5)] will-change-transform"
           role="img"
           aria-label="LUMIÈRE Sovereign Monogram"
         >
@@ -287,13 +298,13 @@ export function IntroEntranceAnimation() {
           <motion.path
             d="M 64 48 L 116 48 L 116 58 L 96 58 L 96 172 L 180 172 L 180 162 L 194 162 L 194 192 L 64 192 L 64 182 L 80 182 L 80 58 L 64 58 Z"
             stroke="#C59B48"
-            strokeWidth="1.75"
+            strokeWidth="1.8"
             strokeDasharray="560"
             initial={{ pathLength: 0, fill: "rgba(197, 155, 72, 0)" }}
             animate={{ pathLength: 1, fill: "rgba(197, 155, 72, 0.95)" }}
             transition={{
-              pathLength: { duration: 0.65, ease: LUXURY_EASE },
-              fill: { duration: 0.35, delay: 0.45, ease: "easeInOut" },
+              pathLength: { duration: 0.5, ease: LUXURY_EASE },
+              fill: { duration: 0.25, delay: 0.35, ease: "easeInOut" },
             }}
           />
           {/* Sovereign Diamond Gemstone / Star */}
@@ -306,16 +317,17 @@ export function IntroEntranceAnimation() {
             transition={{
               type: "spring",
               damping: 14,
-              stiffness: 120,
+              stiffness: 140,
               mass: 0.8,
-              delay: 0.35,
+              delay: 0.25,
             }}
           />
         </svg>
 
         {/* 2. Haute Couture Didone Wordmark (Letter-by-Letter Awakening) */}
         <div
-          className="flex items-center justify-center font-serif text-3xl sm:text-4xl md:text-5xl font-light text-white tracking-[0.42em] uppercase select-none mb-2 pl-2"
+          className="flex items-center justify-center font-serif text-3xl sm:text-4xl md:text-5xl font-light text-white tracking-[0.45em] uppercase select-none mb-2 pl-3"
+          style={{ letterSpacing: "0.45em" }}
         >
           {WORDMARK_CHARS.map((char, index) => (
             <motion.span
@@ -324,8 +336,8 @@ export function IntroEntranceAnimation() {
               initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{
-                duration: 0.45,
-                delay: 0.45 + index * 0.04,
+                duration: 0.35,
+                delay: 0.36 + index * 0.035,
                 ease: LUXURY_EASE,
               }}
             >
@@ -339,23 +351,23 @@ export function IntroEntranceAnimation() {
           className="space-y-1.5 will-change-transform"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.75, ease: LUXURY_EASE }}
+          transition={{ duration: 0.25, delay: 0.55, ease: LUXURY_EASE }}
         >
           <span className="text-[10px] sm:text-[11px] tracking-[0.55em] text-[#C59B48] uppercase font-mono block">
             Haute Horlogerie & Fashion Atelier
           </span>
-          <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.4em] text-[#a1a1aa] uppercase font-sans block opacity-75">
+          <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.42em] text-[#a1a1aa] uppercase font-sans block opacity-75">
             New Delhi • Paris • Geneva • Tokyo
           </span>
         </motion.div>
 
         {/* 4. Fine 1px Expanding Golden Divider */}
         <motion.div
-          className="w-32 h-[1px] bg-gradient-to-r from-transparent via-[#C59B48] to-transparent my-3.5"
+          className="w-36 h-[1px] bg-gradient-to-r from-transparent via-[#C59B48] to-transparent my-3"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           style={{ transformOrigin: "center center" }}
-          transition={{ duration: 0.45, delay: 0.85, ease: LUXURY_EASE }}
+          transition={{ duration: 0.28, delay: 0.65, ease: LUXURY_EASE }}
         />
 
         {/* 5. Authentic Indian Craft Provenance */}
@@ -363,9 +375,9 @@ export function IntroEntranceAnimation() {
           className="flex flex-col items-center gap-1.5 will-change-transform"
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 0.85, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.95, ease: LUXURY_EASE }}
+          transition={{ duration: 0.24, delay: 0.72, ease: LUXURY_EASE }}
         >
-          <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.35em] text-[#d4d4d8] uppercase font-sans opacity-80">
+          <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.38em] text-[#d4d4d8] uppercase font-sans opacity-85">
             Hand-Loomed Chanderi • Bespoke Tailoring • Luxury Curations
           </span>
         </motion.div>

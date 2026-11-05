@@ -104,11 +104,15 @@ export default function RootLayout({
               try {
                 var p = window.location.pathname || '';
                 var isExcluded = /^\\/(admin|login|signup|forgot-password|reset-password|auth)/.test(p);
+                var q = window.location.search || '';
+                var forceReplay = /(?:[?&])(intro=true|replay=1)/i.test(q);
                 var isDone = false;
                 try {
-                  if (window.__lumiere_intro_completed === true) isDone = true;
-                  if (!isDone && window.sessionStorage && window.sessionStorage.getItem('lumiere_intro_completed') === 'true') isDone = true;
-                  if (!isDone && window.localStorage && window.localStorage.getItem('lumiere_intro_completed') === 'true') isDone = true;
+                  if (!forceReplay) {
+                    if (window.__lumiere_intro_completed === true) isDone = true;
+                    if (!isDone && window.sessionStorage && window.sessionStorage.getItem('lumiere_intro_completed') === 'true') isDone = true;
+                    if (!isDone && window.localStorage && window.localStorage.getItem('lumiere_intro_completed') === 'true') isDone = true;
+                  }
                 } catch(e) {}
                 if (isExcluded || isDone) {
                   document.documentElement.classList.add('lumiere-intro-dismissed');
