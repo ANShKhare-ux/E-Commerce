@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage as Image } from "@/components/SafeImage";
 import { motion, AnimatePresence } from "framer-motion";
 import { Product, ProductVariant } from "@/types";
 import { useWishlist } from "@/context/WishlistContext";

@@ -1,5 +1,4 @@
-import React from "react";
-import Image from "next/image";
+import { SafeImage as Image } from "@/components/SafeImage";
 import Link from "next/link";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ScrollReveal";

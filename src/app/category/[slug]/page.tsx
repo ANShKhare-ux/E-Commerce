@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { ProductCard } from "@/components/ProductCard";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage as Image } from "@/components/SafeImage";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;

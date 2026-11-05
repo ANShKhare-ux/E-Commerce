@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
+import { SafeImage as Image } from "@/components/SafeImage";
 import { AffiliateProduct } from "@/types";
 import { 
   Sparkles, 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdminAuthorization, getPrimaryAdminEmail } from "@/lib/auth/admin";
+import { getSafeImageUrl, DEFAULT_FALLBACK_IMAGE } from "@/lib/images";
 
 export async function GET() {
   try {
@@ -116,7 +117,7 @@ export async function POST(req: NextRequest) {
     const productImages = (images || []).map((img: any, idx: number) => ({
       id: `img-${Date.now()}-${idx}`,
       product_id: "",
-      url: img.url || "https://images.unsplash.com/photo-1610030469983-98e550d6193c",
+      url: getSafeImageUrl(img.url, DEFAULT_FALLBACK_IMAGE),
       alt_text: img.alt_text || `${name} view`,
       display_order: idx + 1,
       is_primary: idx === 0,
@@ -126,7 +127,7 @@ export async function POST(req: NextRequest) {
       productImages.push({
         id: `img-${Date.now()}-0`,
         product_id: "",
-        url: "https://images.unsplash.com/photo-1610030469983-98e550d6193c",
+        url: DEFAULT_FALLBACK_IMAGE,
         alt_text: name,
         display_order: 1,
         is_primary: true,

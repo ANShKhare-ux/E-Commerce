@@ -585,7 +585,6 @@ Refer to `.env.example` for all required environment variables:
   - `npm.cmd test`: All 18 test suites (139 tests) pass cleanly.
   - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
   - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled.
-<<<<<<< HEAD
 
 ---
 
@@ -708,5 +707,64 @@ Refer to `.env.example` for all required environment variables:
   - `npm.cmd test`: All 18 test files (155 tests) pass cleanly across all suites.
   - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
   - `npm.cmd run build`: Full Next.js production build succeeds with all 66 routes compiled in 8.1s with zero warnings.
+
+---
+
+## 29. Resilient Remote Image Architecture & Google Domains Integration
+
+- **Incident & Root Cause**:
+  - Next.js `next/image` throws an uncaught synchronous runtime exception (`Invalid src prop ... hostname is not configured under images in your next.config.js`) when an external image hostname is not configured in `next.config.mjs` under `images.remotePatterns`.
+  - When an admin, user, or partner feed provided an image from `share.google` (e.g., `https://share.google/qsxtZOVe5uoibVG8h`) or another unconfigured host, `next/image` crashed during render, triggering the global storefront ErrorBoundary in `src/app/error.tsx`.
+- **Architecture & Resilience Safeguards Implemented**:
+  1. **Remote Pattern & CSP Registration (`next.config.mjs`)**:
+     - Added `share.google`, `*.googleusercontent.com`, `googleusercontent.com`, `drive.google.com`, `*.google.com`, and `google.com` to `images.remotePatterns`.
+     - Synchronized apex and wildcard domains for `supabase.co`, `*.supabase.co`, `phonepe.com`, and `*.phonepe.com`.
+     - Injected matching domains into the Content Security Policy (CSP) `img-src` directive so browser network policies allow loading image assets from Google, Google Drive, Supabase, and PhonePe.
+  2. **Safe Image Domain Resolver (`src/lib/images.ts`)**:
+     - `DEFAULT_FALLBACK_IMAGE`: authentic high-resolution atelier silk fallback on trusted Unsplash host.
+     - `INLINE_FALLBACK_SVG`: zero-network luxury inline SVG fallback ensuring visual resilience even when completely offline.
+     - `ALLOWED_IMAGE_HOST_PATTERNS`: authoritative list of permitted host patterns strictly synchronized with `next.config.mjs`.
+     - `matchesHostname()`: accurately mirrors Next.js's internal picomatch wildcard matching semantics.
+     - `isSafeImageUrl()`: rigorously validates protocol (`https:`), relative paths (`/brand/...`), inline data URIs (`data:image/...`), and wildcard/exact hostnames. Rejects unconfigured domains, malformed URLs, and non-HTTP protocols.
+     - `normalizeImageUrl()`: automatically converts standard (`/file/d/...`) and multi-account Google Drive viewer URLs (`/file/u/0/d/{id}/view`, `/open?id={id}`, `/uc?id={id}`) into direct viewable image URLs (`/uc?export=view&id={id}`), upgrades protocol-relative (`//`) URLs, and upgrades `http://` to `https://` for known allowed hosts.
+     - `getSafeImageUrl()`: returns the normalized safe URL or defaults to `DEFAULT_FALLBACK_IMAGE`, also safeguarding against invalid custom fallbacks.
+  3. **Resilient SafeImage Component (`src/components/SafeImage.tsx`)**:
+     - Implements a triple-layer defensive shield:
+       - *Layer 1 (Pre-Render)*: Sanitizes `src` with `resolveSafeSrc()` before passing to `next/image`, preventing `next/image` from ever receiving an unconfigured host or invalid object during SSR.
+       - *Layer 2 (Runtime Fallback)*: Handles DOM `onError` events to gracefully switch `currentSrc` to `safeFallback`, and cascades to `INLINE_FALLBACK_SVG` if the fallback itself encounters network issues.
+       - *Layer 3 (Component ErrorBoundary)*: Contains an isolated `SafeImageErrorBoundary` with `unoptimized={true}` on the fallback node to catch any unforeseen synchronous Next.js loader errors at the image node level, rendering the fallback node instead of crashing the parent page or triggering the global storefront `ErrorBoundary`.
+  4. **Storefront & Admin Integration**:
+     - Updated `Header`, `ProductCard`, `QuickViewModal`, `ProductDetailClient`, `CartDrawer`, `SearchDialog`, `cart/page.tsx`, `checkout/page.tsx`, `HeroSection`, `page.tsx`, `outfits/page.tsx`, `category/[slug]/page.tsx`, `collection/[slug]/page.tsx`, `about/page.tsx`, `admin/products/ProductsClient.tsx`, and `admin/affiliate/AffiliateClient.tsx` to use `SafeImage`.
+     - Updated `src/app/api/admin/products/route.ts` to validate and sanitize image URLs with `getSafeImageUrl` upon product creation.
+- **Verification**:
+  - `npm.cmd test`: All 19 test files (182 tests) pass cleanly, including 27 dedicated tests in `tests/safe_image.test.tsx`.
+  - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
+  - `npm.cmd run build`: 100% successful Next.js production build (66 static & dynamic routes compiled with zero errors).
+
+---
+
+## 30. Webpack Runtime TypeError Hardening (`__webpack_modules__[moduleId] is not a function`)
+
+- **Root Cause & Diagnosis**:
+  - In commit `4bd31b0`, `framer-motion` was inadvertently re-added to `experimental.optimizePackageImports` in `next.config.mjs`.
+  - In Next.js 15 (App Router with Webpack), `framer-motion` does NOT support AST barrel-splitting optimization because it depends on internal circular references, dynamic Proxies (such as `motion.div`), and shared animation contexts.
+  - When Webpack compiled the client chunks with `optimizePackageImports`, client module evaluation failed at runtime with:
+    `Runtime TypeError: __webpack_modules__[moduleId] is not a function` whenever any component importing `framer-motion` was rendered.
+  - Verified that there were zero circular dependencies across `src/` and zero named/default import/export mismatches (including `GoogleSignInButton.tsx` and `src/lib/auth/redirect.ts`).
+- **Remediation & Safeguards**:
+  1. *next.config.mjs*: Excised `"framer-motion"` from `experimental.optimizePackageImports`, leaving only verified modular barrel packages (`"lucide-react"`), and added explicit architectural comments guarding against re-addition.
+  2. *Cache Invalidation*: Cleared stale compilation cache in `.next/cache`.
+  3. *Import/Export Integrity*: Verified that `GoogleSignInButton.tsx` correctly provides both named and default exports and references canonical redirect sanitation without circular references.
+  4. *Remote Image Resiliency*: Confirmed `share.google` and Google Drive domains remain properly registered in `next.config.mjs` remotePatterns and CSP, backed by `SafeImage` multi-layer fallback handling.
+  5. *Automated Guard Suite (`tests/webpack_modules_integrity.test.ts`)*: Added 10 automated test cases that programmatically:
+     - Assert that `framer-motion` is NEVER present in `experimental.optimizePackageImports`.
+     - Traverse the AST of all TypeScript files under `src/` to guarantee an acyclic module graph (0 circular dependencies).
+     - Verify import/export contract consistency (no missing default exports or unexported named symbols).
+     - Enforce server vs. client module boundaries (zero Node builtins in `"use client"` modules, and `"use client"` presence on all Framer Motion components).
+- **Verification**:
+  - `npm.cmd test`: All 20 test suites (192 tests) pass cleanly.
+  - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
+  - `npm.cmd run build`: Successfully built all 66 routes in Next.js production mode with 0 errors.
+
 
 

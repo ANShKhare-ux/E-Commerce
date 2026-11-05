@@ -1,5 +1,4 @@
-import React from "react";
-import Image from "next/image";
+import { SafeImage as Image } from "@/components/SafeImage";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { CURATED_OUTFITS } from "@/data/products";
