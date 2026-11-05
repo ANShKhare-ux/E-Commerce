@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 
 export interface DividerLayerProps {
   accentColor?: string;
@@ -15,37 +15,13 @@ export const DividerLayer: React.FC<DividerLayerProps> = ({
   verticalOffset = 66,
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
 
-  // Scale entrance (0 -> 14 frames)
-  const scaleX = interpolate(frame, [0, 14], [0, 1], {
+  // Scale entrance
+  const scaleX = interpolate(frame, [0, 9], [0, 1], {
     easing: luxuryEasing,
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-
-  // Exit fade before unmount
-  const exitOpacity = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [1, 0],
-    {
-      easing: luxuryEasing,
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
-
-  const exitY = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [0, -10],
-    {
-      easing: luxuryEasing,
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
 
   return (
     <AbsoluteFill
@@ -54,7 +30,6 @@ export const DividerLayer: React.FC<DividerLayerProps> = ({
         alignItems: "center",
         justifyContent: "center",
         pointerEvents: "none",
-        opacity: exitOpacity,
       }}
     >
       <div
@@ -63,7 +38,7 @@ export const DividerLayer: React.FC<DividerLayerProps> = ({
           height: "1px",
           backgroundImage: `linear-gradient(to right, transparent, ${accentColor}, transparent)`,
           transformOrigin: "center center",
-          transform: `translateY(${verticalOffset + exitY}px) scaleX(${scaleX})`,
+          transform: `translateY(${verticalOffset}px) scaleX(${scaleX})`,
         }}
       />
     </AbsoluteFill>

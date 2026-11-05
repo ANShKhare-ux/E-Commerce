@@ -13,33 +13,10 @@ export const WordmarkLayer: React.FC<WordmarkLayerProps> = ({
   verticalOffset = -40,
 }) => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
+  const { fps } = useVideoConfig();
 
   const chars = brandName.split("");
   const letterDuration = Math.round(fps * 0.45); // ~13 frames
-
-  // Exit fade before unmount
-  const exitOpacity = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [1, 0],
-    {
-      easing: luxuryEasing,
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
-
-  const exitY = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [0, -10],
-    {
-      easing: luxuryEasing,
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
 
   return (
     <AbsoluteFill
@@ -48,18 +25,17 @@ export const WordmarkLayer: React.FC<WordmarkLayerProps> = ({
         alignItems: "center",
         justifyContent: "center",
         pointerEvents: "none",
-        opacity: exitOpacity,
       }}
     >
       <div
         className="flex items-center justify-center font-serif text-4xl sm:text-5xl md:text-6xl font-light text-white tracking-[0.45em] uppercase select-none pl-3"
         style={{
-          transform: `translateY(${verticalOffset + exitY}px)`,
+          transform: `translateY(${verticalOffset}px)`,
           letterSpacing: "0.45em",
         }}
       >
         {chars.map((char, index) => {
-          const charStart = index * Math.round(fps * 0.04); // Stagger by ~1 frame per char
+          const charStart = index * Math.round(fps * 0.04);
           const charProgress = interpolate(
             frame,
             [charStart, charStart + letterDuration],

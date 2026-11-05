@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 
 export interface SkipButtonLayerProps {
   label?: string;
@@ -13,26 +13,13 @@ export const SkipButtonLayer: React.FC<SkipButtonLayerProps> = ({
   accentColor = "#C59B48",
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
 
   // Entrance
-  const inOpacity = interpolate(frame, [0, 15], [0, 0.8], {
+  const opacity = interpolate(frame, [0, 15], [0, 0.8], {
     easing: luxuryEasing,
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-
-  // Exit fade before unmount
-  const exitOpacity = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [1, 0],
-    {
-      easing: luxuryEasing,
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
 
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
@@ -41,7 +28,7 @@ export const SkipButtonLayer: React.FC<SkipButtonLayerProps> = ({
           position: "absolute",
           bottom: "2rem",
           right: "2rem",
-          opacity: inOpacity * exitOpacity,
+          opacity,
         }}
       >
         <div

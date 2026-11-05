@@ -165,17 +165,17 @@ export function IntroEntranceAnimation() {
       }
     }, 40);
 
-    // After animation prologue + act 1 + act 2 (~1.6s), initiate parting of silk curtains
+    // Initiate parting of silk curtains at 0.78s so it completes by 1.16s
     const partingTimer = setTimeout(() => {
       setIsParting(true);
-    }, 1600);
+    }, 780);
 
-    // Full animation cycle completes after parting (~2.3s)
+    // Full animation completes strictly at 1.16 seconds (1160ms) - everything after 1.16s removed
     const completionTimer = setTimeout(() => {
       removeStaticCurtain();
       setMounted(false);
       isIntroActiveRef.current = false;
-    }, 2350);
+    }, 1160);
 
     return () => {
       clearTimeout(curtainTimer);
@@ -238,7 +238,7 @@ export function IntroEntranceAnimation() {
         className="absolute inset-y-0 left-0 w-1/2 bg-[#08080a] border-r border-[#C59B48]/15 shadow-[10px_0_30px_rgba(0,0,0,0.8)] will-change-transform"
         initial={{ x: "0%" }}
         animate={{ x: isParting ? "-102%" : "0%" }}
-        transition={{ duration: 0.65, ease: LUXURY_EASE }}
+        transition={{ duration: 0.38, ease: LUXURY_EASE }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_right,rgba(197,155,72,0.06)_0%,transparent_70%)] pointer-events-none" />
       </motion.div>
@@ -249,7 +249,7 @@ export function IntroEntranceAnimation() {
         className="absolute inset-y-0 right-0 w-1/2 bg-[#08080a] border-l border-[#C59B48]/15 shadow-[-10px_0_30px_rgba(0,0,0,0.8)] will-change-transform"
         initial={{ x: "0%" }}
         animate={{ x: isParting ? "102%" : "0%" }}
-        transition={{ duration: 0.65, ease: LUXURY_EASE }}
+        transition={{ duration: 0.38, ease: LUXURY_EASE }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(197,155,72,0.06)_0%,transparent_70%)] pointer-events-none" />
       </motion.div>

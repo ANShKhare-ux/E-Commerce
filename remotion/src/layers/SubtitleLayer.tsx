@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
 
 export interface SubtitleLayerProps {
   subtitle?: string;
@@ -15,43 +15,19 @@ export const SubtitleLayer: React.FC<SubtitleLayerProps> = ({
   verticalOffset = 22,
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
 
   // Entrance
-  const inOpacity = interpolate(frame, [0, 11], [0, 1], {
+  const opacity = interpolate(frame, [0, 10], [0, 1], {
     easing: luxuryEasing,
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const inY = interpolate(frame, [0, 11], [10, 0], {
+  const inY = interpolate(frame, [0, 10], [8, 0], {
     easing: luxuryEasing,
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-
-  // Exit fade before unmount
-  const exitOpacity = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [1, 0],
-    {
-      easing: luxuryEasing,
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
-
-  const exitY = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [0, -10],
-    {
-      easing: luxuryEasing,
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
 
   return (
     <AbsoluteFill
@@ -60,12 +36,12 @@ export const SubtitleLayer: React.FC<SubtitleLayerProps> = ({
         alignItems: "center",
         justifyContent: "center",
         pointerEvents: "none",
-        opacity: inOpacity * exitOpacity,
+        opacity,
       }}
     >
       <div
         style={{
-          transform: `translateY(${verticalOffset + inY + exitY}px)`,
+          transform: `translateY(${verticalOffset + inY}px)`,
         }}
       >
         <span

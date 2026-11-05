@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 
 export interface AmbientGlowLayerProps {
   glowColor?: string;
@@ -13,26 +13,12 @@ export const AmbientGlowLayer: React.FC<AmbientGlowLayerProps> = ({
   verticalOffset = -60,
 }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
 
   // Gentle entrance
-  const inOpacity = interpolate(frame, [0, 15], [0, 1], {
+  const opacity = interpolate(frame, [0, 15], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-
-  // Smooth exit fade out before unmounting
-  const exitOpacity = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [1, 0],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
-
-  const opacity = inOpacity * exitOpacity;
 
   return (
     <AbsoluteFill
