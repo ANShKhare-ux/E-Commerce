@@ -27,23 +27,36 @@ export function safeCheckIntroCompleted(): boolean {
       if ((window as any).__lumiere_intro_completed === true) return true;
     } catch {}
 
-    // 2. Tab session storage (persists across page reloads/refresh in the same tab)
+    // 2. Tab session storage (authoritative for tab isolation):
+    // In healthy browsers, each tab has its own independent sessionStorage.
+    // When a user opens the website in another tab, sessionStorage is empty (null),
+    // allowing the intro to appear in that new tab!
+    let sessionStorageWorked = false;
     try {
       if (typeof window.sessionStorage !== "undefined" && window.sessionStorage) {
-        if (window.sessionStorage.getItem(SESSION_STORAGE_KEY) === "true") {
+        const val = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
+        sessionStorageWorked = true;
+        if (val === "true") {
           return true;
         }
+        // If sessionStorage successfully returned null or anything other than "true",
+        // this is an uncompleted tab session: return false without falling back to localStorage.
+        return false;
       }
-    } catch {}
+    } catch {
+      // sessionStorage threw an exception (e.g., SecurityError in strict private browsing)
+    }
 
-    // 3. Persistent local storage (persists across hard refreshes, navigation, and re-entry)
-    try {
-      if (typeof window.localStorage !== "undefined" && window.localStorage) {
-        if (window.localStorage.getItem(LOCAL_STORAGE_KEY) === "true") {
-          return true;
+    // 3. Fallback to localStorage ONLY if sessionStorage threw an exception/blocked
+    if (!sessionStorageWorked) {
+      try {
+        if (typeof window.localStorage !== "undefined" && window.localStorage) {
+          if (window.localStorage.getItem(LOCAL_STORAGE_KEY) === "true") {
+            return true;
+          }
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     return false;
   } catch {
@@ -67,7 +80,7 @@ export function safeMarkIntroCompleted(): void {
       }
     } catch {}
 
-    // Set localStorage for persistent shield across refreshes/re-entries
+    // Set localStorage as resilient fallback in case sessionStorage throws
     try {
       if (typeof window.localStorage !== "undefined" && window.localStorage) {
         window.localStorage.setItem(LOCAL_STORAGE_KEY, "true");
@@ -107,10 +120,14 @@ export function IntroEntranceAnimation() {
   const isIntroActiveRef = useRef<boolean>(false);
   const skipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Safely dismiss and remove the initial zero-latency paint curtain
-  const removeStaticCurtain = useCallback(() => {
+  // Safely dismiss and remove the initial zero-latency presentation backdrop
+  const removeStaticBackdrop = useCallback(() => {
     if (typeof document === "undefined") return;
     try {
+      const backdrop = document.getElementById("lumiere-intro-backdrop");
+      if (backdrop) {
+        backdrop.style.display = "none";
+      }
       const staticCurtain = document.getElementById("lumiere-intro-curtain");
       if (staticCurtain) {
         staticCurtain.style.display = "none";
@@ -126,7 +143,7 @@ export function IntroEntranceAnimation() {
   const handleSkip = useCallback(() => {
     safeMarkIntroCompleted();
     setIsParting(true);
-    removeStaticCurtain();
+    removeStaticBackdrop();
 
     if (skipTimerRef.current) {
       clearTimeout(skipTimerRef.current);
@@ -135,7 +152,7 @@ export function IntroEntranceAnimation() {
       setMounted(false);
       isIntroActiveRef.current = false;
     }, 280);
-  }, [removeStaticCurtain]);
+  }, [removeStaticBackdrop]);
 
   // Main Orchestration
   useEffect(() => {
@@ -149,54 +166,55 @@ export function IntroEntranceAnimation() {
     // 2. Check excluded routes (auth/admin)
     const isExcluded = isExcludedIntroRoute(pathname);
 
-    // 3. Check persistent storage (sessionStorage + localStorage + in-memory)
+    // 3. Check persistent storage (sessionStorage + in-memory guard)
     const hasCompleted = safeCheckIntroCompleted();
 
     // If already completed and not currently active, or if excluded route / reduced motion, dismiss immediately
     if (prefersReducedMotion || (hasCompleted && !isIntroActiveRef.current) || isExcluded) {
       safeMarkIntroCompleted();
-      removeStaticCurtain();
+      removeStaticBackdrop();
       setMounted(false);
       isIntroActiveRef.current = false;
       return;
     }
 
-    // FIRST ENTRY OR STRICTMODE REMOUNT:
-    // Synchronously shield all storages so any instantaneous refresh or navigation will never replay
+    // FIRST ENTRY IN THIS TAB OR STRICTMODE REMOUNT:
+    // Synchronously shield current tab so any instantaneous refresh or navigation will never replay
     safeMarkIntroCompleted();
     isIntroActiveRef.current = true;
     setMounted(true);
 
-    // Remove static HTML curtain once animated React overlay is mounted
-    const curtainTimer = setTimeout(() => {
-      const staticCurtain = document.getElementById("lumiere-intro-curtain");
-      if (staticCurtain) {
-        staticCurtain.style.display = "none";
-      }
+    // Hide zero-latency static backdrop once React overlay mounts its own curtains
+    const backdropTimer = setTimeout(() => {
+      const backdrop = document.getElementById("lumiere-intro-backdrop");
+      if (backdrop) backdrop.style.display = "none";
     }, 40);
 
-    // 0.76s (Frame 23): Initiate smooth curtain swipe (left to -102%, right to 102%) & stage fade-out
+    // 1.95s: Reduced playback speed allows monogram, typography, and atelier provenance to breathe
+    // Then initiate smooth curtain swipe (left to -102%, right to 102%) & stage fade-out
     const partingTimer = setTimeout(() => {
       setIsParting(true);
-    }, 760);
+      const backdrop = document.getElementById("lumiere-intro-backdrop");
+      if (backdrop) backdrop.style.display = "none";
+    }, 1950);
 
-    // 1.16s (Frame 35): Full animation cycle completes strictly at 1.16 seconds (1160ms)
+    // 2.55s: Full animation cycle completes gracefully with curtains swiped open
     // Curtains have swiped fully open, revealing the live website
     const completionTimer = setTimeout(() => {
-      removeStaticCurtain();
+      removeStaticBackdrop();
       setMounted(false);
       isIntroActiveRef.current = false;
-    }, 1160);
+    }, 2550);
 
     return () => {
-      clearTimeout(curtainTimer);
+      clearTimeout(backdropTimer);
       clearTimeout(partingTimer);
       clearTimeout(completionTimer);
       if (skipTimerRef.current) {
         clearTimeout(skipTimerRef.current);
       }
     };
-  }, [pathname, removeStaticCurtain]);
+  }, [pathname, removeStaticBackdrop]);
 
   // Route Navigation Interceptor:
   // If the user navigates while the intro is playing, immediately dismiss it so they see their destination
@@ -249,7 +267,7 @@ export function IntroEntranceAnimation() {
         className="absolute inset-y-0 left-0 w-1/2 bg-[#08080a] border-r border-[#C59B48]/25 shadow-[20px_0_50px_rgba(0,0,0,0.9)] will-change-transform z-30"
         initial={{ x: "0%" }}
         animate={{ x: isParting ? "-102%" : "0%" }}
-        transition={{ duration: 0.4, ease: LUXURY_EASE }}
+        transition={{ duration: 0.55, ease: LUXURY_EASE }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_right,rgba(197,155,72,0.08)_0%,transparent_70%)] pointer-events-none" />
       </motion.div>
@@ -260,7 +278,7 @@ export function IntroEntranceAnimation() {
         className="absolute inset-y-0 right-0 w-1/2 bg-[#08080a] border-l border-[#C59B48]/25 shadow-[-20px_0_50px_rgba(0,0,0,0.9)] will-change-transform z-30"
         initial={{ x: "0%" }}
         animate={{ x: isParting ? "102%" : "0%" }}
-        transition={{ duration: 0.4, ease: LUXURY_EASE }}
+        transition={{ duration: 0.55, ease: LUXURY_EASE }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(197,155,72,0.08)_0%,transparent_70%)] pointer-events-none" />
       </motion.div>
@@ -279,8 +297,8 @@ export function IntroEntranceAnimation() {
       <motion.div
         className="absolute inset-0 z-40 flex flex-col items-center justify-center text-center px-4 pointer-events-none"
         initial={{ opacity: 1 }}
-        animate={{ opacity: isParting ? 0 : 1, y: isParting ? -14 : 0 }}
-        transition={{ duration: 0.28, ease: LUXURY_EASE }}
+        animate={{ opacity: isParting ? 0 : 1, y: isParting ? -16 : 0 }}
+        transition={{ duration: 0.38, ease: LUXURY_EASE }}
       >
         {/* Subtle Ambient Radial Gold Glow */}
         <div className="absolute w-[480px] h-[480px] rounded-full bg-[radial-gradient(circle_at_center,rgba(197,155,72,0.16)_0%,transparent_70%)] pointer-events-none" />
@@ -303,8 +321,8 @@ export function IntroEntranceAnimation() {
             initial={{ pathLength: 0, fill: "rgba(197, 155, 72, 0)" }}
             animate={{ pathLength: 1, fill: "rgba(197, 155, 72, 0.95)" }}
             transition={{
-              pathLength: { duration: 0.5, ease: LUXURY_EASE },
-              fill: { duration: 0.25, delay: 0.35, ease: "easeInOut" },
+              pathLength: { duration: 0.75, ease: LUXURY_EASE },
+              fill: { duration: 0.45, delay: 0.45, ease: "easeInOut" },
             }}
           />
           {/* Sovereign Diamond Gemstone / Star */}
@@ -317,9 +335,9 @@ export function IntroEntranceAnimation() {
             transition={{
               type: "spring",
               damping: 14,
-              stiffness: 140,
-              mass: 0.8,
-              delay: 0.25,
+              stiffness: 120,
+              mass: 0.9,
+              delay: 0.35,
             }}
           />
         </svg>
@@ -333,11 +351,11 @@ export function IntroEntranceAnimation() {
             <motion.span
               key={index}
               className="lumiere-didone-char inline-block will-change-transform"
-              initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+              initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{
-                duration: 0.35,
-                delay: 0.36 + index * 0.035,
+                duration: 0.42,
+                delay: 0.55 + index * 0.06,
                 ease: LUXURY_EASE,
               }}
             >
@@ -351,7 +369,7 @@ export function IntroEntranceAnimation() {
           className="space-y-1.5 will-change-transform"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: 0.55, ease: LUXURY_EASE }}
+          transition={{ duration: 0.38, delay: 1.05, ease: LUXURY_EASE }}
         >
           <span className="text-[10px] sm:text-[11px] tracking-[0.55em] text-[#C59B48] uppercase font-mono block">
             Haute Horlogerie & Fashion Atelier
@@ -367,7 +385,7 @@ export function IntroEntranceAnimation() {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           style={{ transformOrigin: "center center" }}
-          transition={{ duration: 0.28, delay: 0.65, ease: LUXURY_EASE }}
+          transition={{ duration: 0.38, delay: 1.22, ease: LUXURY_EASE }}
         />
 
         {/* 5. Authentic Indian Craft Provenance */}
@@ -375,7 +393,7 @@ export function IntroEntranceAnimation() {
           className="flex flex-col items-center gap-1.5 will-change-transform"
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 0.85, y: 0 }}
-          transition={{ duration: 0.24, delay: 0.72, ease: LUXURY_EASE }}
+          transition={{ duration: 0.35, delay: 1.35, ease: LUXURY_EASE }}
         >
           <span className="text-[8.5px] sm:text-[9.5px] tracking-[0.38em] text-[#d4d4d8] uppercase font-sans opacity-85">
             Hand-Loomed Chanderi • Bespoke Tailoring • Luxury Curations

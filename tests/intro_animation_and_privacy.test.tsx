@@ -67,11 +67,12 @@ describe("LUMIÈRE Frontend Enhancements: Intro Animation & Privacy Page", () =>
       expect(storageState.get(SESSION_STORAGE_KEY)).toBe("true");
     });
 
-    it("should read true from safeCheckIntroCompleted when localStorage has the key even if sessionStorage is empty", () => {
+    it("should allow intro to appear when opened in another tab (new tab has empty sessionStorage even if localStorage had old entries)", () => {
       const localState = new Map<string, string>();
       const mockLocalStorage = {
         getItem: vi.fn((key: string) => localState.get(key) || null),
         setItem: vi.fn((key: string, val: string) => localState.set(key, val)),
+        removeItem: vi.fn((key: string) => localState.delete(key)),
       };
       const sessionState = new Map<string, string>();
       const mockSessionStorage = {
@@ -84,9 +85,10 @@ describe("LUMIÈRE Frontend Enhancements: Intro Animation & Privacy Page", () =>
         localStorage: mockLocalStorage,
       };
 
-      // Set key only in localStorage (simulating page reload where sessionStorage is cleared or cross-tab)
+      // In a new tab: sessionStorage is empty. Even if old localStorage has an entry,
+      // the new tab MUST play the intro without being blocked across tabs!
       localState.set("lumiere_intro_completed", "true");
-      expect(safeCheckIntroCompleted()).toBe(true);
+      expect(safeCheckIntroCompleted()).toBe(false);
     });
 
     it("should read true from safeCheckIntroCompleted when in-memory guard is set even if storages throw", () => {
@@ -107,7 +109,7 @@ describe("LUMIÈRE Frontend Enhancements: Intro Animation & Privacy Page", () =>
       expect(safeCheckIntroCompleted()).toBe(true);
     });
 
-    it("should immediately populate all storage targets upon safeMarkIntroCompleted to shield refreshes and navigation", () => {
+    it("should immediately populate storage targets upon safeMarkIntroCompleted to shield refreshes and navigation in current tab", () => {
       const sessionState = new Map<string, string>();
       const localState = new Map<string, string>();
       const winObj: any = {
@@ -118,19 +120,19 @@ describe("LUMIÈRE Frontend Enhancements: Intro Animation & Privacy Page", () =>
         localStorage: {
           getItem: (key: string) => localState.get(key) || null,
           setItem: (key: string, val: string) => localState.set(key, val),
+          removeItem: (key: string) => localState.delete(key),
         },
       };
 
       (globalThis as any).window = winObj;
 
       expect(safeCheckIntroCompleted()).toBe(false);
-      // Calling mark completed must immediately synchronize all targets
+      // Calling mark completed must immediately synchronize tab session
       safeMarkIntroCompleted();
 
       expect(safeCheckIntroCompleted()).toBe(true);
       expect(winObj.__lumiere_intro_completed).toBe(true);
       expect(sessionState.get("lumiere_intro_completed")).toBe("true");
-      expect(localState.get("lumiere_intro_completed")).toBe("true");
     });
 
     it("should accurately identify excluded auth and admin routes to prevent intro blocking", () => {

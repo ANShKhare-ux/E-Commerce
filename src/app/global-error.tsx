@@ -44,8 +44,21 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
 
           <div>
             <button
-              onClick={() => reset()}
-              className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#14151a] hover:bg-[#C59B48] text-white text-xs font-bold uppercase tracking-widest rounded-sm transition-colors"
+              type="button"
+              onClick={() => {
+                if (typeof reset === "function") {
+                  try {
+                    reset();
+                    return;
+                  } catch {
+                    // Fallback to window reload
+                  }
+                }
+                if (typeof window !== "undefined") {
+                  window.location.reload();
+                }
+              }}
+              className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#14151a] hover:bg-[#C59B48] text-white text-xs font-bold uppercase tracking-widest rounded-sm transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reload Application</span>
