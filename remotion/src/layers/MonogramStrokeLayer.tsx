@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 export interface MonogramStrokeLayerProps {
   accentColor?: string;
@@ -15,6 +15,7 @@ export const MonogramStrokeLayer: React.FC<MonogramStrokeLayerProps> = ({
   verticalOffset = -140,
 }) => {
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
 
   // 1. Vector Path Draw Progress (0 -> 20 frames)
   const pathProgress = interpolate(frame, [0, 20], [0, 1], {
@@ -31,6 +32,21 @@ export const MonogramStrokeLayer: React.FC<MonogramStrokeLayerProps> = ({
     extrapolateRight: "clamp",
   });
 
+  // 3. Smooth fade out before curtain swipe
+  const fadeOutDuration = 9;
+  const fadeOutStart = Math.max(0, durationInFrames - fadeOutDuration);
+  const fadeOut = interpolate(frame, [fadeOutStart, durationInFrames], [1, 0], {
+    easing: luxuryEasing,
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const fadeOutY = interpolate(frame, [fadeOutStart, durationInFrames], [0, -12], {
+    easing: luxuryEasing,
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
   return (
     <AbsoluteFill
       style={{
@@ -38,11 +54,12 @@ export const MonogramStrokeLayer: React.FC<MonogramStrokeLayerProps> = ({
         alignItems: "center",
         justifyContent: "center",
         pointerEvents: "none",
+        opacity: fadeOut,
       }}
     >
       <div
         style={{
-          transform: `translateY(${verticalOffset}px)`,
+          transform: `translateY(${verticalOffset + fadeOutY}px)`,
           filter: "drop-shadow(0 0 24px rgba(197, 155, 72, 0.5))",
         }}
       >

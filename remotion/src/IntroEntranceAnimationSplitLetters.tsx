@@ -5,6 +5,7 @@ import {
   defaultIntroProps,
 } from "./IntroEntranceAnimation";
 
+import { StorefrontCanvasLayer } from "./layers/StorefrontCanvasLayer";
 import { LeftCurtainLayer } from "./layers/LeftCurtainLayer";
 import { RightCurtainLayer } from "./layers/RightCurtainLayer";
 import { AmbientGlowLayer } from "./layers/AmbientGlowLayer";
@@ -24,15 +25,31 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
   provenance = defaultIntroProps.provenance,
   accentColor = defaultIntroProps.accentColor,
   curtainBgColor = defaultIntroProps.curtainBgColor,
+  swipeStartFrame = defaultIntroProps.swipeStartFrame,
 }) => {
   const { fps } = useVideoConfig();
   const chars = brandName.split("");
 
   return (
     <AbsoluteFill className="bg-black select-none font-sans overflow-hidden">
-      {/* LAYER 1: Left Silk Curtain Panel */}
+      {/* LAYER 00: The Revealed Storefront Website */}
       <Sequence
-        name="01. Left Silk Curtain"
+        name="00. Revealed Storefront Website"
+        from={0}
+        durationInFrames={35}
+        premountFor={fps}
+      >
+        <StorefrontCanvasLayer
+          brandName={brandName}
+          accentColor={accentColor}
+          swipeStartFrame={swipeStartFrame}
+          swipeDuration={12}
+        />
+      </Sequence>
+
+      {/* LAYER 01: Left Silk Curtain Panel (Swipes left) */}
+      <Sequence
+        name="01. Left Silk Curtain (Swipe Left)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
@@ -40,13 +57,14 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         <LeftCurtainLayer
           backgroundColor={curtainBgColor}
           accentColor={accentColor}
-          partingFrame={999}
+          partingFrame={swipeStartFrame}
+          partingDuration={12}
         />
       </Sequence>
 
-      {/* LAYER 2: Right Silk Curtain Panel */}
+      {/* LAYER 02: Right Silk Curtain Panel (Swipes right) */}
       <Sequence
-        name="02. Right Silk Curtain"
+        name="02. Right Silk Curtain (Swipe Right)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
@@ -54,13 +72,14 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         <RightCurtainLayer
           backgroundColor={curtainBgColor}
           accentColor={accentColor}
-          partingFrame={999}
+          partingFrame={swipeStartFrame}
+          partingDuration={12}
         />
       </Sequence>
 
-      {/* LAYER 3: Ambient Radial Gold Glow */}
+      {/* LAYER 03: Ambient Radial Gold Glow (Fade Out) */}
       <Sequence
-        name="03. Ambient Gold Aura"
+        name="03. Ambient Gold Aura (Fade Out)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
@@ -72,9 +91,9 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         />
       </Sequence>
 
-      {/* LAYER 4: Sovereign Monogram 'L' Vector Stroke */}
+      {/* LAYER 04: Sovereign Monogram 'L' Vector Stroke (Fade Out) */}
       <Sequence
-        name="04. Sovereign Monogram 'L' Stroke"
+        name="04. Sovereign Monogram 'L' Stroke (Fade Out)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
@@ -86,9 +105,9 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         />
       </Sequence>
 
-      {/* LAYER 5: Celestial Diamond Gemstone Spring */}
+      {/* LAYER 05: Celestial Diamond Gemstone Spring (Fade Out) */}
       <Sequence
-        name="05. Celestial Diamond Star"
+        name="05. Celestial Diamond Star (Fade Out)"
         from={10}
         durationInFrames={25}
         premountFor={fps}
@@ -100,13 +119,13 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         />
       </Sequence>
 
-      {/* LAYER 6: Individual Letter Sequences for "L U M I È R E" */}
+      {/* LAYER 06: Individual Letter Sequences for "L U M I È R E" (Fade Out) */}
       {chars.map((char, index) => {
         const letterStart = 14 + index * 1;
         return (
           <Sequence
             key={index}
-            name={`06.${index + 1} Wordmark Letter [${char}]`}
+            name={`06.${index + 1} Wordmark Letter [${char}] (Fade Out)`}
             from={letterStart}
             durationInFrames={35 - letterStart}
             premountFor={fps}
@@ -120,9 +139,9 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         );
       })}
 
-      {/* LAYER 7: Haute Atelier Heritage Subtitle */}
+      {/* LAYER 07: Haute Atelier Heritage Subtitle (Fade Out) */}
       <Sequence
-        name="07. Haute Atelier Subtitle"
+        name="07. Haute Atelier Subtitle (Fade Out)"
         from={20}
         durationInFrames={15}
         premountFor={fps}
@@ -134,9 +153,9 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         />
       </Sequence>
 
-      {/* LAYER 8: Global Atelier Locations */}
+      {/* LAYER 08: Global Atelier Locations (Fade Out) */}
       <Sequence
-        name="08. Global Atelier Locations"
+        name="08. Global Atelier Locations (Fade Out)"
         from={22}
         durationInFrames={13}
         premountFor={fps}
@@ -147,9 +166,9 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         />
       </Sequence>
 
-      {/* LAYER 9: 1px Expanding Golden Divider */}
+      {/* LAYER 09: 1px Expanding Golden Divider (Fade Out) */}
       <Sequence
-        name="09. Expanding Golden Divider"
+        name="09. Expanding Golden Divider (Fade Out)"
         from={24}
         durationInFrames={11}
         premountFor={fps}
@@ -161,9 +180,9 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         />
       </Sequence>
 
-      {/* LAYER 10: Authentic Indian Craft Provenance */}
+      {/* LAYER 10: Authentic Indian Craft Provenance (Fade Out) */}
       <Sequence
-        name="10. Authentic Craft Provenance"
+        name="10. Authentic Craft Provenance (Fade Out)"
         from={26}
         durationInFrames={9}
         premountFor={fps}
@@ -174,9 +193,9 @@ export const IntroEntranceAnimationSplitLetters: React.FC<IntroAnimationProps> =
         />
       </Sequence>
 
-      {/* LAYER 11: Skip Prologue UI Button Hint */}
+      {/* LAYER 11: Skip Prologue UI Button Hint (Fade Out) */}
       <Sequence
-        name="11. Skip Prologue [Esc] Hint"
+        name="11. Skip Prologue [Esc] Hint (Fade Out)"
         from={0}
         durationInFrames={35}
         premountFor={fps}

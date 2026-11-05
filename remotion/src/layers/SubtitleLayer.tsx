@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 export interface SubtitleLayerProps {
   subtitle?: string;
@@ -15,15 +15,31 @@ export const SubtitleLayer: React.FC<SubtitleLayerProps> = ({
   verticalOffset = 22,
 }) => {
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
 
   // Entrance
-  const opacity = interpolate(frame, [0, 10], [0, 1], {
+  const inOpacity = interpolate(frame, [0, 10], [0, 1], {
     easing: luxuryEasing,
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   const inY = interpolate(frame, [0, 10], [8, 0], {
+    easing: luxuryEasing,
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Fade out before curtain swipe
+  const fadeOutDuration = 9;
+  const fadeOutStart = Math.max(0, durationInFrames - fadeOutDuration);
+  const fadeOut = interpolate(frame, [fadeOutStart, durationInFrames], [1, 0], {
+    easing: luxuryEasing,
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const fadeOutY = interpolate(frame, [fadeOutStart, durationInFrames], [0, -10], {
     easing: luxuryEasing,
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -36,12 +52,12 @@ export const SubtitleLayer: React.FC<SubtitleLayerProps> = ({
         alignItems: "center",
         justifyContent: "center",
         pointerEvents: "none",
-        opacity,
+        opacity: inOpacity * fadeOut,
       }}
     >
       <div
         style={{
-          transform: `translateY(${verticalOffset + inY}px)`,
+          transform: `translateY(${verticalOffset + inY + fadeOutY}px)`,
         }}
       >
         <span

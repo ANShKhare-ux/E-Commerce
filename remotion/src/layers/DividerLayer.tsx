@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 export interface DividerLayerProps {
   accentColor?: string;
@@ -15,9 +15,25 @@ export const DividerLayer: React.FC<DividerLayerProps> = ({
   verticalOffset = 66,
 }) => {
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
 
   // Scale entrance
   const scaleX = interpolate(frame, [0, 9], [0, 1], {
+    easing: luxuryEasing,
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Fade out before curtain swipe
+  const fadeOutDuration = 9;
+  const fadeOutStart = Math.max(0, durationInFrames - fadeOutDuration);
+  const fadeOut = interpolate(frame, [fadeOutStart, durationInFrames], [1, 0], {
+    easing: luxuryEasing,
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const fadeOutY = interpolate(frame, [fadeOutStart, durationInFrames], [0, -10], {
     easing: luxuryEasing,
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -30,6 +46,7 @@ export const DividerLayer: React.FC<DividerLayerProps> = ({
         alignItems: "center",
         justifyContent: "center",
         pointerEvents: "none",
+        opacity: fadeOut,
       }}
     >
       <div
@@ -38,7 +55,7 @@ export const DividerLayer: React.FC<DividerLayerProps> = ({
           height: "1px",
           backgroundImage: `linear-gradient(to right, transparent, ${accentColor}, transparent)`,
           transformOrigin: "center center",
-          transform: `translateY(${verticalOffset}px) scaleX(${scaleX})`,
+          transform: `translateY(${verticalOffset + fadeOutY}px) scaleX(${scaleX})`,
         }}
       />
     </AbsoluteFill>

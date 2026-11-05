@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 export interface SkipButtonLayerProps {
   label?: string;
@@ -13,9 +13,19 @@ export const SkipButtonLayer: React.FC<SkipButtonLayerProps> = ({
   accentColor = "#C59B48",
 }) => {
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
 
   // Entrance
-  const opacity = interpolate(frame, [0, 15], [0, 0.8], {
+  const inOpacity = interpolate(frame, [0, 15], [0, 0.8], {
+    easing: luxuryEasing,
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  // Fade out before curtain swipe
+  const fadeOutDuration = 9;
+  const fadeOutStart = Math.max(0, durationInFrames - fadeOutDuration);
+  const fadeOut = interpolate(frame, [fadeOutStart, durationInFrames], [1, 0], {
     easing: luxuryEasing,
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -28,7 +38,7 @@ export const SkipButtonLayer: React.FC<SkipButtonLayerProps> = ({
           position: "absolute",
           bottom: "2rem",
           right: "2rem",
-          opacity,
+          opacity: inOpacity * fadeOut,
         }}
       >
         <div

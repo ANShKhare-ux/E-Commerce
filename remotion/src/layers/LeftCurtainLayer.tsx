@@ -13,11 +13,12 @@ const luxuryEasing = Easing.bezier(0.22, 1, 0.36, 1);
 export const LeftCurtainLayer: React.FC<LeftCurtainLayerProps> = ({
   backgroundColor = "#08080a",
   accentColor = "#C59B48",
-  partingFrame = 48,
-  partingDuration = 20,
+  partingFrame = 23,
+  partingDuration = 12,
 }) => {
   const frame = useCurrentFrame();
 
+  // Swipes to the left (-102%)
   const translateX = interpolate(
     frame,
     [partingFrame, partingFrame + partingDuration],
@@ -39,13 +40,13 @@ export const LeftCurtainLayer: React.FC<LeftCurtainLayerProps> = ({
           left: 0,
           width: "50%",
           backgroundColor,
-          borderRight: `1px solid ${accentColor}26`,
-          boxShadow: "15px 0 45px rgba(0,0,0,0.85)",
+          borderRight: `1px solid ${accentColor}33`,
+          boxShadow: "20px 0 50px rgba(0,0,0,0.9)",
           transform: `translateX(${translateX}%)`,
           willChange: "transform",
         }}
       >
-        {/* Subtle Luxury Sheen */}
+        {/* Subtle Silk Sheen */}
         <div
           style={{
             position: "absolute",

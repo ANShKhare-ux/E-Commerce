@@ -3,6 +3,7 @@ import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
 
+import { StorefrontCanvasLayer } from "./layers/StorefrontCanvasLayer";
 import { LeftCurtainLayer } from "./layers/LeftCurtainLayer";
 import { RightCurtainLayer } from "./layers/RightCurtainLayer";
 import { AmbientGlowLayer } from "./layers/AmbientGlowLayer";
@@ -23,6 +24,7 @@ export const introAnimationSchema = z.object({
   provenance: z.string(),
   accentColor: zColor(),
   curtainBgColor: zColor(),
+  swipeStartFrame: z.number().int().min(10).max(35),
 });
 
 export type IntroAnimationProps = z.infer<typeof introAnimationSchema>;
@@ -34,15 +36,17 @@ export const defaultIntroProps: IntroAnimationProps = {
   provenance: "Hand-Loomed Chanderi • Bespoke Tailoring • Luxury Curations",
   accentColor: "#C59B48",
   curtainBgColor: "#08080a",
+  swipeStartFrame: 23,
 };
 
-export const INTRO_DURATION_IN_FRAMES = 35; // 35 frames at 30fps = 1.166s (~1.16 seconds)
+export const INTRO_DURATION_IN_FRAMES = 35; // 1.166 seconds at 30fps
 
 /**
- * IntroEntranceAnimation with duration capped strictly at 1.16 seconds (35 frames).
- * All elements and trailing layers after 1.16 seconds have been completely removed.
- *
- * Each layer is independently editable on the Remotion Studio timeline.
+ * IntroEntranceAnimation with:
+ * 1. Fade out animation on all content layers
+ * 2. LeftCurtainLayer swipe to the left
+ * 3. RightCurtainLayer swipe to the right
+ * 4. The LUMIÈRE website revealed underneath
  */
 export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
   brandName = defaultIntroProps.brandName,
@@ -51,14 +55,30 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
   provenance = defaultIntroProps.provenance,
   accentColor = defaultIntroProps.accentColor,
   curtainBgColor = defaultIntroProps.curtainBgColor,
+  swipeStartFrame = defaultIntroProps.swipeStartFrame,
 }) => {
   const { fps } = useVideoConfig();
 
   return (
     <AbsoluteFill className="bg-black select-none font-sans overflow-hidden">
-      {/* LAYER 1: Left Silk Curtain Panel */}
+      {/* LAYER 00: The Revealed Storefront Website (Underlay revealed by curtain swipe) */}
       <Sequence
-        name="01. Left Silk Curtain"
+        name="00. Revealed Storefront Website"
+        from={0}
+        durationInFrames={35}
+        premountFor={fps}
+      >
+        <StorefrontCanvasLayer
+          brandName={brandName}
+          accentColor={accentColor}
+          swipeStartFrame={swipeStartFrame}
+          swipeDuration={12}
+        />
+      </Sequence>
+
+      {/* LAYER 01: Left Silk Curtain Panel (Swipes left to -102%) */}
+      <Sequence
+        name="01. Left Silk Curtain (Swipe Left)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
@@ -66,13 +86,14 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         <LeftCurtainLayer
           backgroundColor={curtainBgColor}
           accentColor={accentColor}
-          partingFrame={999} // Kept closed through 1.16s
+          partingFrame={swipeStartFrame}
+          partingDuration={12}
         />
       </Sequence>
 
-      {/* LAYER 2: Right Silk Curtain Panel */}
+      {/* LAYER 02: Right Silk Curtain Panel (Swipes right to 102%) */}
       <Sequence
-        name="02. Right Silk Curtain"
+        name="02. Right Silk Curtain (Swipe Right)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
@@ -80,13 +101,14 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         <RightCurtainLayer
           backgroundColor={curtainBgColor}
           accentColor={accentColor}
-          partingFrame={999}
+          partingFrame={swipeStartFrame}
+          partingDuration={12}
         />
       </Sequence>
 
-      {/* LAYER 3: Ambient Radial Gold Glow */}
+      {/* LAYER 03: Ambient Radial Gold Glow (Fade Out) */}
       <Sequence
-        name="03. Ambient Gold Aura"
+        name="03. Ambient Gold Aura (Fade Out)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
@@ -98,9 +120,9 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         />
       </Sequence>
 
-      {/* LAYER 4: Sovereign Monogram 'L' Vector Stroke */}
+      {/* LAYER 04: Sovereign Monogram 'L' Vector Stroke (Fade Out) */}
       <Sequence
-        name="04. Sovereign Monogram 'L' Stroke"
+        name="04. Sovereign Monogram 'L' Stroke (Fade Out)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
@@ -112,9 +134,9 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         />
       </Sequence>
 
-      {/* LAYER 5: Celestial Diamond Gemstone Spring */}
+      {/* LAYER 05: Celestial Diamond Gemstone Spring (Fade Out) */}
       <Sequence
-        name="05. Celestial Diamond Star"
+        name="05. Celestial Diamond Star (Fade Out)"
         from={10}
         durationInFrames={25}
         premountFor={fps}
@@ -126,9 +148,9 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         />
       </Sequence>
 
-      {/* LAYER 6: Haute Couture Didone Brand Wordmark */}
+      {/* LAYER 06: Haute Couture Didone Brand Wordmark (Fade Out) */}
       <Sequence
-        name="06. Brand Wordmark (LUMIÈRE)"
+        name="06. Brand Wordmark LUMIÈRE (Fade Out)"
         from={14}
         durationInFrames={21}
         premountFor={fps}
@@ -139,9 +161,9 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         />
       </Sequence>
 
-      {/* LAYER 7: Haute Atelier Heritage Subtitle */}
+      {/* LAYER 07: Haute Atelier Heritage Subtitle (Fade Out) */}
       <Sequence
-        name="07. Haute Atelier Subtitle"
+        name="07. Haute Atelier Subtitle (Fade Out)"
         from={20}
         durationInFrames={15}
         premountFor={fps}
@@ -153,9 +175,9 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         />
       </Sequence>
 
-      {/* LAYER 8: Global Atelier Locations */}
+      {/* LAYER 08: Global Atelier Locations (Fade Out) */}
       <Sequence
-        name="08. Global Atelier Locations"
+        name="08. Global Atelier Locations (Fade Out)"
         from={22}
         durationInFrames={13}
         premountFor={fps}
@@ -166,9 +188,9 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         />
       </Sequence>
 
-      {/* LAYER 9: 1px Expanding Golden Divider */}
+      {/* LAYER 09: 1px Expanding Golden Divider (Fade Out) */}
       <Sequence
-        name="09. Expanding Golden Divider"
+        name="09. Expanding Golden Divider (Fade Out)"
         from={24}
         durationInFrames={11}
         premountFor={fps}
@@ -180,9 +202,9 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         />
       </Sequence>
 
-      {/* LAYER 10: Authentic Indian Craft Provenance */}
+      {/* LAYER 10: Authentic Indian Craft Provenance (Fade Out) */}
       <Sequence
-        name="10. Authentic Craft Provenance"
+        name="10. Authentic Craft Provenance (Fade Out)"
         from={26}
         durationInFrames={9}
         premountFor={fps}
@@ -193,9 +215,9 @@ export const IntroEntranceAnimation: React.FC<IntroAnimationProps> = ({
         />
       </Sequence>
 
-      {/* LAYER 11: Skip Prologue UI Button Hint */}
+      {/* LAYER 11: Skip Prologue UI Button Hint (Fade Out) */}
       <Sequence
-        name="11. Skip Prologue [Esc] Hint"
+        name="11. Skip Prologue [Esc] Hint (Fade Out)"
         from={0}
         durationInFrames={35}
         premountFor={fps}
