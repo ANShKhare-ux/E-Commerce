@@ -14,7 +14,9 @@ import {
   X,
   CheckCircle2,
   AlertCircle,
+  Eye,
 } from "lucide-react";
+import { PhotoDropzone, DroppedImage } from "@/components/PhotoDropzone";
 
 interface ProductsClientProps {
   initialProducts: Product[];
@@ -41,6 +43,7 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
   const [description, setDescription] = useState("");
   const [fabricCare, setFabricCare] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [uploadedImages, setUploadedImages] = useState<DroppedImage[]>([]);
   const [isAffiliate, setIsAffiliate] = useState(false);
   const [affiliateSource, setAffiliateSource] = useState("Tata CLiQ Luxury");
   const [affiliateUrl, setAffiliateUrl] = useState("");
@@ -112,7 +115,18 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
           is_deal: isDeal,
           description,
           fabric_care: fabricCare,
-          images: imageUrl ? [{ url: imageUrl, alt_text: name, is_primary: true }] : [],
+          images:
+            uploadedImages.length > 0
+              ? uploadedImages.map((img, idx) => ({
+                  url: img.url,
+                  alt_text: img.alt_text || name,
+                  is_primary: img.is_primary,
+                  display_order: idx + 1,
+                  color: img.color || undefined,
+                }))
+              : imageUrl
+              ? [{ url: imageUrl, alt_text: name, is_primary: true }]
+              : [],
           is_affiliate: isAffiliate,
           affiliate_source_name: isAffiliate ? affiliateSource : undefined,
           affiliate_url: isAffiliate ? affiliateUrl : undefined,
@@ -140,6 +154,7 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
         setDescription("");
         setFabricCare("");
         setImageUrl("");
+        setUploadedImages([]);
       } else {
         setErrorMsg(data.error || "Failed to create product.");
       }
@@ -303,14 +318,24 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      <Link
-                        href={`/products/${p.slug}`}
-                        target="_blank"
-                        className="p-1.5 text-noir-600 hover:text-gold-600 inline-block"
-                        title="View on Storefront"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
+                      <div className="flex items-center justify-end gap-1">
+                        <Link
+                          href={`/products/${p.slug}/preview`}
+                          target="_blank"
+                          className="p-1.5 text-gold-700 hover:text-noir-900 inline-block"
+                          title="Open Full Customer Preview Mode"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </Link>
+                        <Link
+                          href={`/products/${p.slug}`}
+                          target="_blank"
+                          className="p-1.5 text-noir-600 hover:text-gold-600 inline-block"
+                          title="View on Storefront"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -500,17 +525,23 @@ export function ProductsClient({ initialProducts }: ProductsClientProps) {
                 />
               </div>
 
-              {/* Product Image */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700 mb-1">
-                  Primary Image URL (HTTPS)
-                </label>
-                <input
-                  type="url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/photo-..."
-                  className="w-full text-xs px-3.5 py-2.5 bg-canvas-subtle border border-canvas-border rounded-sm focus:outline-none focus:border-noir-900 text-noir-900"
+              {/* Product Visual Assets & Drag-and-Drop Uploader */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-noir-700">
+                    Product Visuals & Photography *
+                  </label>
+                  <span className="text-[10px] text-gold-700 font-semibold uppercase tracking-wider">
+                    Drag & Drop / Multi-Upload
+                  </span>
+                </div>
+                <p className="text-[11px] text-noir-500">
+                  Drag and drop local image files from your computer, or add via URL. Set primary cover image, adjust SEO alt descriptions, and reorder photographs.
+                </p>
+                <PhotoDropzone
+                  images={uploadedImages}
+                  onChange={setUploadedImages}
+                  disabled={submitting}
                 />
               </div>
 

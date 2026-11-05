@@ -25,9 +25,15 @@ import {
   Plus,
   Minus,
   ZoomIn,
+  ZoomOut,
   ArrowRight,
   Loader2,
   ExternalLink,
+  Sparkles,
+  Maximize2,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 interface ProductDetailClientProps {
@@ -55,6 +61,7 @@ export const ProductDetailClient = React.memo(function ProductDetailClient({
   const [addError, setAddError] = useState<string | null>(null);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const [isWishlistBouncing, setIsWishlistBouncing] = useState(false);
 
@@ -114,6 +121,27 @@ export const ProductDetailClient = React.memo(function ProductDetailClient({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (isLightboxOpen) setIsLightboxOpen(false);
+        if (isZoomed) setIsZoomed(false);
+      } else if (isLightboxOpen && product.images && product.images.length > 1) {
+        if (e.key === "ArrowLeft") {
+          const currentIdx = product.images.findIndex((i) => i.url === selectedImage);
+          const prevIdx = currentIdx > 0 ? currentIdx - 1 : product.images.length - 1;
+          setSelectedImage(product.images[prevIdx].url);
+        } else if (e.key === "ArrowRight") {
+          const currentIdx = product.images.findIndex((i) => i.url === selectedImage);
+          const nextIdx = currentIdx < product.images.length - 1 ? currentIdx + 1 : 0;
+          setSelectedImage(product.images[nextIdx].url);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isLightboxOpen, isZoomed, product.images, selectedImage]);
 
   const rafRef = useRef<number | null>(null);
   const handleMouseMove = useCallback(
@@ -204,64 +232,94 @@ export const ProductDetailClient = React.memo(function ProductDetailClient({
           initial={shouldReduceMotion ? false : { opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: LUXURY_EASE }}
-          className="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-4"
+          className="lg:col-span-7 space-y-3"
         >
-          {/* Thumbnails */}
-          {product.images && product.images.length > 1 && (
-            <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto sm:w-24 shrink-0 pb-2 sm:pb-0">
-              {product.images.map((img) => (
-                <button
-                  key={img.id}
-                  onClick={() => setSelectedImage(img.url)}
-                  className={`relative w-20 h-24 shrink-0 rounded-sm overflow-hidden border transition-all duration-200 ${
-                    selectedImage === img.url
-                      ? "border-noir-900 ring-2 ring-noir-900 ring-offset-1 shadow-xs scale-102"
-                      : "border-canvas-border hover:border-noir-400 opacity-75 hover:opacity-100 hover:scale-102"
-                  }`}
-                  aria-label={`Select product image view`}
+          <div className="flex flex-col-reverse sm:flex-row gap-4">
+            {/* Thumbnails */}
+            {product.images && product.images.length > 1 && (
+              <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-y-auto sm:w-24 shrink-0 pb-2 sm:pb-0">
+                {product.images.map((img) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setSelectedImage(img.url)}
+                    className={`relative w-20 h-24 shrink-0 rounded-sm overflow-hidden border transition-all duration-200 ${
+                      selectedImage === img.url
+                        ? "border-noir-900 ring-2 ring-noir-900 ring-offset-1 shadow-xs scale-102"
+                        : "border-canvas-border hover:border-noir-400 opacity-75 hover:opacity-100 hover:scale-102"
+                    }`}
+                    aria-label={`Select product image view`}
+                  >
+                    <Image src={img.url} alt={img.alt_text || product.name} fill className="object-cover" sizes="80px" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Main Visual with Smooth Zoom & Coordinates tracking */}
+            <div
+              className="relative aspect-[3/4] flex-1 bg-canvas-subtle rounded-sm overflow-hidden border border-canvas-border group cursor-zoom-in"
+              onClick={() => setIsZoomed(!isZoomed)}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={() => isZoomed && setIsZoomed(false)}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedImage}
+                  initial={{ opacity: 0.2, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0.2, scale: 0.98 }}
+                  transition={{ duration: 0.3, ease: LUXURY_EASE }}
+                  className="w-full h-full relative"
                 >
-                  <Image src={img.url} alt={img.alt_text || product.name} fill className="object-cover" sizes="80px" />
-                </button>
-              ))}
-            </div>
-          )}
+                  <Image
+                    src={selectedImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=80"}
+                    alt={product.name}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 55vw"
+                    style={{
+                      transformOrigin: isZoomed ? `${mousePos.x}% ${mousePos.y}%` : "center center",
+                    }}
+                    className={`object-cover object-center transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                      isZoomed ? "scale-175" : "scale-100 group-hover:scale-103"
+                    }`}
+                  />
+                </motion.div>
+              </AnimatePresence>
 
-          {/* Main Visual with Smooth Zoom & Coordinates tracking */}
-          <div
-            className="relative aspect-[3/4] flex-1 bg-canvas-subtle rounded-sm overflow-hidden border border-canvas-border group cursor-zoom-in"
-            onClick={() => setIsZoomed(!isZoomed)}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={() => isZoomed && setIsZoomed(false)}
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedImage}
-                initial={{ opacity: 0.2, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0.2, scale: 0.98 }}
-                transition={{ duration: 0.3, ease: LUXURY_EASE }}
-                className="w-full h-full relative"
-              >
-                <Image
-                  src={selectedImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=80"}
-                  alt={product.name}
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 55vw"
-                  style={{
-                    transformOrigin: isZoomed ? `${mousePos.x}% ${mousePos.y}%` : "center center",
+              {/* Action Controls */}
+              <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsLightboxOpen(true);
                   }}
-                  className={`object-cover object-center transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                    isZoomed ? "scale-175" : "scale-100 group-hover:scale-103"
-                  }`}
-                />
-              </motion.div>
-            </AnimatePresence>
+                  className="bg-white/90 hover:bg-white text-noir-800 px-2 py-1 rounded text-[10px] font-medium flex items-center gap-1 shadow-xs border border-canvas-border transition-all cursor-pointer"
+                  title="Expand to Fullscreen Lightbox"
+                  aria-label="Expand photo to fullscreen"
+                >
+                  <Maximize2 className="w-3.5 h-3.5 text-gold-600" />
+                  <span className="hidden sm:inline">Fullscreen</span>
+                </button>
 
-            <div className="absolute top-3 right-3 bg-white/85 backdrop-blur-sm px-2 py-1 rounded text-noir-700 pointer-events-none text-[10px] font-medium flex items-center gap-1 shadow-xs border border-canvas-border">
-              <ZoomIn className="w-3.5 h-3.5 text-gold-600" />
-              <span>{isZoomed ? "Click to reset" : "Click to magnify"}</span>
+                <div className="bg-white/85 backdrop-blur-sm px-2 py-1 rounded text-noir-700 pointer-events-none text-[10px] font-medium flex items-center gap-1 shadow-xs border border-canvas-border">
+                  <ZoomIn className="w-3.5 h-3.5 text-gold-600" />
+                  <span>{isZoomed ? "Reset" : "Magnify"}</span>
+                </div>
+              </div>
             </div>
+          </div>
+
+          {/* Link to Dedicated Full Preview Mode */}
+          <div className="pt-1">
+            <Link
+              href={`/products/${product.slug}/preview`}
+              className="w-full bg-gold-50/90 hover:bg-gold-100 border border-gold-300/80 hover:border-gold-400 text-gold-900 py-2.5 px-4 rounded-sm text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs group"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-gold-600 group-hover:scale-110 transition-transform" />
+              <span>Full Visual Preview & Policy Inspection →</span>
+            </Link>
           </div>
         </motion.div>
 
@@ -818,6 +876,134 @@ export const ProductDetailClient = React.memo(function ProductDetailClient({
           </div>
         </div>
       )}
+
+      {/* Fullscreen Photo Lightbox Modal */}
+      <AnimatePresence>
+        {isLightboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6"
+          >
+            {/* Top Bar */}
+            <div className="flex items-center justify-between text-white pb-3 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <span className="font-serif text-lg font-medium text-white tracking-wide truncate max-w-sm">
+                  {product.name}
+                </span>
+                <span className="text-xs text-gold-400 font-mono">
+                  Fullscreen Lightbox
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Link
+                  href={`/products/${product.slug}/preview`}
+                  className="hidden sm:inline-flex items-center gap-1.5 text-xs text-gold-400 hover:text-gold-300 font-semibold uppercase tracking-wider bg-white/10 px-3 py-1.5 rounded"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Full Preview Page</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="p-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-sm transition-colors"
+                  title="Close Fullscreen (Esc)"
+                  aria-label="Close fullscreen lightbox"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Center Stage */}
+            <div className="relative flex-1 flex items-center justify-center overflow-hidden my-4">
+              <div
+                className={`relative w-full h-full max-w-5xl max-h-[80vh] flex items-center justify-center ${
+                  isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
+                }`}
+                onClick={() => setIsZoomed(!isZoomed)}
+                onMouseMove={handleMouseMove}
+              >
+                <Image
+                  src={selectedImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1200&q=85"}
+                  alt={product.name}
+                  fill
+                  sizes="100vw"
+                  style={{
+                    transformOrigin: isZoomed
+                      ? `${mousePos.x}% ${mousePos.y}%`
+                      : "center center",
+                  }}
+                  className={`object-contain transition-transform duration-300 ${
+                    isZoomed ? "scale-200" : "scale-100"
+                  }`}
+                />
+              </div>
+
+              {/* Prev / Next controls */}
+              {product.images && product.images.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const currentIdx = product.images.findIndex((i) => i.url === selectedImage);
+                      const prevIdx = currentIdx > 0 ? currentIdx - 1 : product.images.length - 1;
+                      setSelectedImage(product.images[prevIdx].url);
+                    }}
+                    className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+                    aria-label="Previous photograph"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const currentIdx = product.images.findIndex((i) => i.url === selectedImage);
+                      const nextIdx = currentIdx < product.images.length - 1 ? currentIdx + 1 : 0;
+                      setSelectedImage(product.images[nextIdx].url);
+                    }}
+                    className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+                    aria-label="Next photograph"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Bottom thumbnail selector */}
+            {product.images && product.images.length > 1 && (
+              <div className="flex items-center justify-center gap-2 overflow-x-auto pt-2 border-t border-white/10">
+                {product.images.map((img) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setSelectedImage(img.url)}
+                    className={`relative w-14 h-18 sm:w-16 sm:h-20 rounded overflow-hidden shrink-0 border-2 transition-all ${
+                      selectedImage === img.url
+                        ? "border-gold-400 ring-2 ring-gold-400/50 scale-105"
+                        : "border-white/20 opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <Image
+                      src={img.url}
+                      alt={img.alt_text || product.name}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 });

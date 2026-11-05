@@ -767,5 +767,50 @@ Refer to `.env.example` for all required environment variables:
   - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
   - `npm.cmd run build`: Successfully built all 66 routes in Next.js production mode with 0 errors.
 
+---
+
+## 31. Dedicated Customer Product Preview Page & Admin Drag-and-Drop Photo Upload Architecture
+
+- **Dedicated Customer Product Page with Comprehensive Previews (`/products/[slug]/preview`)**:
+  - Created server route `src/app/products/[slug]/preview/page.tsx` with dynamic JSON-LD metadata generation and 404 safety.
+  - Created client component `src/app/products/[slug]/preview/ProductPreviewClient.tsx` providing an immersive high-resolution preview studio:
+    - **High-Resolution Photo Preview**: Ultra-HD master visual viewer with coordinate tracking, pan & zoom toggles (`ZoomIn` / `ZoomOut`), photo counter badge (`Photograph X of Y`), previous/next navigation buttons, and keyboard arrow shortcut controls (`ArrowLeft`, `ArrowRight`, `F` for fullscreen, `Escape` to dismiss).
+    - **Thumbnail Carousel & Swatch Switching**: Visual thumbnail strip with active gold ring, primary photo badge, and automatic photo synchronization when switching variant colors.
+    - **Authoritative Pricing Showcase**: Base MRP with strike-through, selling price in Didone luxury typography, dynamic savings badge (`Save X%`), authoritative `Inclusive of 12% GST` badge, and free Delhivery shipping notice for orders above ₹2,999.
+    - **Prominent Return & Refund Policy Showcase**: Dedicated gold-bordered panel highlighting 7-day unconditional return window, free doorstep Delhivery reverse pickup across 19,000+ PIN codes, two-stage physical warehouse restock inspection sign-off, condition requirements (original security tags, unworn), and zero restocking fees.
+    - **Delhivery Logistics & PIN Estimator**: Integrated `PincodeChecker` displaying delivery TAT (2-4 business days) from Royal Opera House Mumbai hub, along with SMS/WhatsApp AWB tracking notices.
+    - **Craft, Fabric & Care Specifications**: Artisan origin cluster (e.g. Varanasi, UP / Chanderi, MP), fabric composition, detailed care preservation notes, and Silk Mark / GI tag authenticity credentials.
+    - **Interactive Commercials**: Sizing SKU selector with live stock levels (`Low Stock: Only X remaining` / `Out of Stock`), quantity controls, Add to Bag (with cart drawer opening & 15-min reservation hold notification), and Buy Now direct checkout redirection.
+    - **Fullscreen Photo Lightbox**: Full-viewport distraction-free lightbox modal with dark backdrop (`bg-black/95`), zoom controls, thumbnail strip, and keyboard navigation.
+  - **Product Detail Page (PDP) Integration (`src/app/products/[slug]/ProductDetailClient.tsx`)**:
+    - Added direct "Full Visual Preview & Policy Inspection →" banner linking to `/products/[slug]/preview`.
+    - Added fullscreen expand button (`Maximize2`) to PDP gallery opening the lightbox directly on the page.
+
+- **Admin Panel Drag-and-Drop Photo Uploader (`src/components/PhotoDropzone.tsx`)**:
+  - Replaced single text URL input in product creation modal with modern drag-and-drop zone.
+  - Supports dragging and dropping multiple image files simultaneously (`.jpg`, `.jpeg`, `.png`, `.webp`, `.avif`) as well as clicking to browse local files.
+  - Client-side off-screen HTML `<canvas>` optimization: automatically scales down oversized camera captures (max 1600px) and compresses to lightweight high-quality WebP/JPEG data URLs (~100-300KB instead of 10MB+ raw files), eliminating payload errors.
+  - Displays interactive thumbnail preview queue with:
+    - Primary image designation badge & "Make Primary" toggle.
+    - Display order sequencing (`#1`, `#2`, etc.) with Move Earlier / Move Later buttons as well as native HTML5 drag-and-drop card reordering.
+    - SEO alt text customization field and optional Color Variant Tag linking for each individual image.
+    - File size indicator (e.g. `145 KB`).
+    - Remove image button (`Trash2`) with automatic primary reassignment if the primary was deleted.
+    - Optional external URL input with HTTPS/data URL validation, plus direct web-image drag-and-drop ingestion.
+    - Robust 0-byte (empty) and >20MB oversized file filtering and corruption rejection with user-friendly error banners.
+  - Integrated into `src/app/admin/products/ProductsClient.tsx` and wired into `POST /api/admin/products`.
+  - Added dedicated full preview shortcut (`<Eye />`) in the admin products table for one-click customer preview inspection.
+
+- **SafeImage & Base64 / Data URL Resiliency**:
+  - Enhanced `src/components/SafeImage.tsx` with `unoptimized={isDataOrBlob || props.unoptimized}`, allowing Next.js `<Image>` to render base64 data URLs without crashing the Next.js image optimization endpoint.
+  - Optimized `normalizeImageUrl` in `src/lib/images.ts` with instant fast-path bypass for `data:`, `blob:`, and root-relative URLs, eliminating heavy regex processing on large data URLs.
+  - Updated `src/app/api/admin/products/route.ts` to preserve `is_primary`, `display_order`, and optional `color` properties accurately.
+
+- **Verification**:
+  - `npm.cmd test`: All 21 test files (206 tests) pass cleanly across all suites (including 14 comprehensive tests in `tests/product_preview_and_photo_dropzone.test.tsx`).
+  - `npx.cmd tsc --noEmit`: 0 TypeScript diagnostic errors.
+  - `npm.cmd run build`: 100% successful Next.js production build (66 static & dynamic routes compiled with zero errors).
+
+
 
 

@@ -53,6 +53,15 @@ export function normalizeImageUrl(url: unknown): string {
   let trimmed = url.trim();
   if (!trimmed) return "";
 
+  // Fast-path: data URLs, blob URLs, and root-relative paths need no domain normalization or regex matching
+  if (
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("blob:") ||
+    (trimmed.startsWith("/") && !trimmed.startsWith("//"))
+  ) {
+    return trimmed;
+  }
+
   // Upgrade protocol-relative URLs
   if (trimmed.startsWith("//")) {
     trimmed = "https:" + trimmed;

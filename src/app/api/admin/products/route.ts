@@ -120,7 +120,8 @@ export async function POST(req: NextRequest) {
       url: getSafeImageUrl(img.url, DEFAULT_FALLBACK_IMAGE),
       alt_text: img.alt_text || `${name} view`,
       display_order: idx + 1,
-      is_primary: idx === 0,
+      is_primary: Boolean(img.is_primary),
+      color: img.color || undefined,
     }));
 
     if (productImages.length === 0) {
@@ -132,6 +133,8 @@ export async function POST(req: NextRequest) {
         display_order: 1,
         is_primary: true,
       });
+    } else if (!productImages.some((i: any) => i.is_primary)) {
+      productImages[0].is_primary = true;
     }
 
     const created = await db.products.create({

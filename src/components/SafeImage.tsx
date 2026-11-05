@@ -144,12 +144,17 @@ export function SafeImage({
     />
   );
 
+  const isDataOrBlob =
+    typeof currentSrc === "string" &&
+    (currentSrc.startsWith("data:") || currentSrc.startsWith("blob:"));
+
   return (
     <SafeImageErrorBoundary fallback={fallbackNode}>
       <Image
         {...props}
         src={currentSrc}
         alt={alt}
+        unoptimized={isDataOrBlob || props.unoptimized}
         onError={handleImageError}
       />
     </SafeImageErrorBoundary>
